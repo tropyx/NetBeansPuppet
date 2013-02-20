@@ -123,7 +123,7 @@ public Lookup getLookup() {
                             CommonProjectActions.newFileAction(),
                             CommonProjectActions.copyProjectAction(),
                             CommonProjectActions.deleteProjectAction(),
-                            CommonProjectActions.customizeProjectAction(),
+                            //CommonProjectActions.customizeProjectAction(),
                             CommonProjectActions.closeProjectAction()
 
                         };
