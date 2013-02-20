@@ -2,6 +2,8 @@ Puppet Configuration Editor
 ==============
 
 This is a module for editing Puppet configurations.  It identifies a puppet config tree by the presence of a manifests/site.pp file.
+<br>
+This lets you use IDE tools like inbuilt git/subversion/mercurial support etc. to edit your puppet files.
 
 <dl>
   <dt>To Install:</dt>
@@ -10,9 +12,12 @@ This is a module for editing Puppet configurations.  It identifies a puppet conf
 <pre>
 Tools -> Plugins -> Downloaded -> Add Plugins...
 </pre>
-
 <br>
-
+![ScreenShot](https://raw.github.com/tropyx/NetBeansPuppet/master/screenshot-puppetfornetbeans.png)
+<br>
+*Screenshot showing the puppet manifest tree, pp files, and create file dialog box*
+<br>
+<h2>License details</h2>
 *Copyright (C) Tropyx Technology Pty Ltd and Michael Lindner Febuary 20 2013*
 
  This program is free software: you can redistribute it and/or modify
