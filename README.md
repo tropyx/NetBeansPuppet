@@ -13,7 +13,7 @@ Tools -> Plugins -> Downloaded -> Add Plugins...
 
 <br>
 
-*Copyright (C) Tropyx Technology Pty Ltd and Michael Lindner 2013*
+*Copyright (C) Tropyx Technology Pty Ltd and Michael Lindner Febuary 20 2013*
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
