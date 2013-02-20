@@ -1,19 +1,19 @@
-NetBeansPuppet
+Puppet Configuration Editor
 ==============
 
-This is a module for editing Puppet configurations.
-         It identifies a puppet config tree by the presence
-           of a /manifests/site.pp file.
+This is a module for editing Puppet configurations.  It identifies a puppet config tree by the presence of a manifests/site.pp file.
 
-
-Download the file com-tropyx-nb_puppet.nbm to your local machine,
-add it to your NetBeans IDE with:
+<dl>
+  <dt>To Install:</dt>
+  <dd>Download the file <b>com-tropyx-nb_puppet.nbm</b> to your local machine, add it to your NetBeans IDE with:</dd>
+</dl>
+<pre>
 Tools -> Plugins -> Downloaded -> Add Plugins...
+</pre>
 
+<br>
 
-
-
- Copyright (C) Tropyx Technology Pty Ltd and Michael Lindner 2013
+*Copyright (C) Tropyx Technology Pty Ltd and Michael Lindner 2013*
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
