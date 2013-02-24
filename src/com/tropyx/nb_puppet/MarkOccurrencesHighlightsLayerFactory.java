@@ -24,8 +24,7 @@ import org.netbeans.spi.editor.highlighting.HighlightsLayerFactory;
 import org.netbeans.spi.editor.highlighting.ZOrder;
 
 @MimeRegistrations({
-    @MimeRegistration(mimeType = "text/html", service = HighlightsLayerFactory.class),
-    @MimeRegistration(mimeType = "text/xml", service = HighlightsLayerFactory.class)
+    @MimeRegistration(mimeType = "text/x-puppet-manifest", service = HighlightsLayerFactory.class),
 })
 public class MarkOccurrencesHighlightsLayerFactory implements HighlightsLayerFactory {
 
