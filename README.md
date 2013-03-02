@@ -6,8 +6,14 @@ This is a module for editing Puppet configurations.  It identifies a puppet conf
 This lets you use IDE tools like inbuilt git/subversion/mercurial support etc. to edit your puppet files.
 
 <dl>
+  <dt>To Install from netbeans.org:</dt>
+  <dd>Download the plugin fromadd it to your NetBeans IDE with:</dd>
+</dl>
+<dl>
   <dt>To Install:</dt>
-  <dd>Download the file <b>com-tropyx-nb_puppet.nbm</b> to your local machine, add it to your NetBeans IDE with:</dd>
+  <dd>Download the file <b>com-tropyx-nb_puppet.nbm</b> to your local machine, from here, or from netbeans.org:
+  http://plugins.netbeans.org/plugin/47067/puppet-configuration-editor
+  add it to your NetBeans IDE with:</dd>
 </dl>
 <pre>
 Tools -> Plugins -> Downloaded -> Add Plugins...
