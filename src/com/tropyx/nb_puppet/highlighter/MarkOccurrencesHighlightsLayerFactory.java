@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.tropyx.nb_puppet;
+package com.tropyx.nb_puppet.highlighter;
 
 import javax.swing.text.Document;
 import org.netbeans.api.editor.mimelookup.MimeRegistration;
@@ -24,7 +24,7 @@ import org.netbeans.spi.editor.highlighting.HighlightsLayerFactory;
 import org.netbeans.spi.editor.highlighting.ZOrder;
 
 @MimeRegistrations({
-    @MimeRegistration(mimeType = "text/x-puppet-manifest", service = HighlightsLayerFactory.class),
+    @MimeRegistration(mimeType = "text/x-java", service = HighlightsLayerFactory.class),
 })
 public class MarkOccurrencesHighlightsLayerFactory implements HighlightsLayerFactory {
 

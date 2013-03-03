@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.tropyx.nb_puppet;
+package com.tropyx.nb_puppet.highlighter;
 
 import java.awt.Color;
 import java.lang.ref.WeakReference;
