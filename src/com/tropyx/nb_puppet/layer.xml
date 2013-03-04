@@ -1,13 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.2//EN" "http://www.netbeans.org/dtds/filesystem-1_2.dtd">
 <filesystem>
-<folder name="HTMLPalette"> 
-    <folder name="Puppet"> 
-        <file name="br.xml" url="palette/br.xml"> 
-            <attr name="position" intvalue="150"/> 
-        </file> 
-    </folder> 
-</folder>
+    <folder name="HTMLPalette">
+        <folder name="Puppet">
+            <file name="br.xml" url="palette/br.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
+        </folder>
+
+        <folder name="Puppet">
+            <file name="Node.xml" url="palette/Node.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
+        </folder>
+
+
+    </folder>
 </filesystem>
 
 
