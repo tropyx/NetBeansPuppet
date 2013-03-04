@@ -3,18 +3,10 @@
 <filesystem>
     <folder name="HTMLPalette">
         <folder name="Puppet">
-            <file name="br.xml" url="palette/br.xml">
+            <file name="PuppetMaster.xml" url="palette/PuppetMaster.xml">
                 <attr name="position" intvalue="150"/>
             </file>
         </folder>
-
-        <folder name="Puppet">
-            <file name="Node.xml" url="palette/Node.xml">
-                <attr name="position" intvalue="150"/>
-            </file>
-        </folder>
-
-
     </folder>
 </filesystem>
 
