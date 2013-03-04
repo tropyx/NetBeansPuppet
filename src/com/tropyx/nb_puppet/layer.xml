@@ -3,7 +3,7 @@
 <filesystem>
     <folder name="PuppetPalette">
         <folder name="Puppet">
-            <file name="PuppetMaster.xml" url="palette/PuppetMaster.xml">
+            <file name="PuppetMaster.xml" url="palette/puppetmaster/PuppetMaster.xml">
                 <attr name="position" intvalue="150"/>
             </file>
         </folder>

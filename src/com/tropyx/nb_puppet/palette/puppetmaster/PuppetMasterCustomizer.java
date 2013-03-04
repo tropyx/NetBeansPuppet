@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package com.tropyx.nb_puppet.palette;
+package com.tropyx.nb_puppet.palette.puppetmaster;
 
 import java.awt.Dialog;
 import java.awt.event.ActionEvent;
@@ -12,8 +12,7 @@ import javax.swing.text.JTextComponent;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
 import org.openide.util.NbBundle;
-
-import com.tropyx.nb_puppet.palette.Bundle;
+import com.tropyx.nb_puppet.palette.puppetmaster.Bundle;
 
 
 public class PuppetMasterCustomizer extends javax.swing.JPanel {

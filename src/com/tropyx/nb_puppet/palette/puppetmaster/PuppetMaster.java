@@ -1,5 +1,6 @@
-package com.tropyx.nb_puppet.palette;
+package com.tropyx.nb_puppet.palette.puppetmaster;
 
+import com.tropyx.nb_puppet.palette.PuppetPaletteUtilities;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.JTextComponent;
 import org.openide.text.ActiveEditorDrop;
