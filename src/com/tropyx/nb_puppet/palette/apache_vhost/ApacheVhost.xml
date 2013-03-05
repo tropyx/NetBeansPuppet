@@ -4,14 +4,14 @@
 
 <editor_palette_item version="1.0">
 
-    <class name="com.tropyx.nb_puppet.palette.puppetmaster.PuppetMaster" />
+    <class name="com.tropyx.nb_puppet.palette.apache_vhost.ApacheVhost" />
 
     <icon16 urlvalue="com/tropyx/nb_puppet/resources/puppet_icon.gif" />
     <icon32 urlvalue="com/tropyx/nb_puppet/resources/PuppetMaster32.png" />
 
     <inline-description>
-       <display-name>PuppetMaster</display-name>
-       <tooltip> <![CDATA[ enter your puppetmaster server   ]]></tooltip>
+       <display-name>Apache Vhost</display-name>
+       <tooltip> <![CDATA[ Add a Virtual Host Directive to an apache server   ]]></tooltip>
     </inline-description>
 
 </editor_palette_item>
