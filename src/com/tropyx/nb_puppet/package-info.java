@@ -15,7 +15,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-@TemplateRegistration(folder = "Puppet", content = "PuppetManifestTemplate.pp", displayName = "Puppet Manifest File", description = "PuppetManifestTypeDescription.html")
+@TemplateRegistration(
+        folder = "Puppet",
+        content = "PuppetManifestTemplate.pp",
+        displayName = "Puppet Manifest File",
+        description = "PuppetManifestTypeDescription.html"
+        )
+
 package com.tropyx.nb_puppet;
 
 import org.netbeans.api.templates.TemplateRegistration;

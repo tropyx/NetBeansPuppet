@@ -42,7 +42,7 @@ mimeType = "text/x-puppet-manifest",
 extension = {"pp"})
 @DataObject.Registration(
     mimeType = "text/x-puppet-manifest",
-iconBase = "com/tropyx/nb_puppet/sub-icon.png",
+iconBase = "com/tropyx/nb_puppet/resources/pp-file_icon.gif",
 displayName = "#LBL_PuppetManifestType_LOADER",
 position = 300)
 @ActionReferences({
@@ -111,7 +111,7 @@ public class PuppetManifestTypeDataObject extends MultiDataObject {
 
     @MultiViewElement.Registration(
         displayName = "#LBL_PuppetManifestType_EDITOR",
-    iconBase = "com/tropyx/nb_puppet/pp-file_icon.gif",
+    iconBase = "com/tropyx/nb_puppet/resources/pp-file_icon.gif",
     mimeType = "text/x-puppet-manifest",
     persistenceType = TopComponent.PERSISTENCE_ONLY_OPENED,
     preferredID = "PuppetManifestType",

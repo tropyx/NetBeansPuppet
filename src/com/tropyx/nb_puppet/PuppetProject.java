@@ -75,7 +75,7 @@ public Lookup getLookup() {
     class PuppetProjectLogicalView implements LogicalViewProvider {
 
         @StaticResource()
-        public static final String PUPPET_ICON = "com/tropyx/nb_puppet/puppet_icon.gif";
+        public static final String PUPPET_ICON = "com/tropyx/nb_puppet/resources/puppet_icon.gif";
         private final PuppetProject project;
 
         public PuppetProjectLogicalView(PuppetProject project) {
@@ -155,7 +155,7 @@ public Lookup getLookup() {
     private final class Info implements ProjectInformation {
 
         @StaticResource()
-        public static final String PUPPET_ICON = "com/tropyx/nb_puppet/puppet_icon.gif";
+        public static final String PUPPET_ICON = "com/tropyx/nb_puppet/resources/puppet_icon.gif";
 
         @Override
         public Icon getIcon() {
