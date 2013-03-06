@@ -12,6 +12,12 @@
             <file name="PuppetFile.xml" url="palette/puppetfile/PuppetFile.xml">
                 <attr name="position" intvalue="150"/>
             </file>
+            <file name="Cron.xml" url="palette/assorted/Cron.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
+            <file name="Exec.xml" url="palette/assorted/Exec.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
         </folder>
     </folder>
 </filesystem>

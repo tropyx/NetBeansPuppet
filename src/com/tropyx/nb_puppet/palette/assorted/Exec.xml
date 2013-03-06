@@ -23,19 +23,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 <editor_palette_item version="1.0">
 
     <body><![CDATA[
-cron    { logrotate:
-        command => "/usr/sbin/logrotate",
-        user    => root,
-        hour    => ['2-4'],
-        minute  => '*/10'
-        }  ]]></body>
+exec    { "tar -xf /Volumes/nfs02/important.tar":
+        cwd     => "/var/tmp",
+        creates => "/var/tmp/myfile",
+        path    => ["/usr/bin", "/usr/sbin"]
+}
+  ]]>
+    </body>
 
     <icon16 urlvalue="com/tropyx/nb_puppet/resources/puppet_icon.gif" />
     <icon32 urlvalue="com/tropyx/nb_puppet/resources/PuppetMaster32.png" />
 
     <inline-description>
-       <display-name>Crontab</display-name>
-       <tooltip><![CDATA[ Insert Entry into Crontab  ]]></tooltip>
+       <display-name>Exec</display-name>
+       <tooltip><![CDATA[ Execute External Command  ]]></tooltip>
     </inline-description>
 
 </editor_palette_item>
