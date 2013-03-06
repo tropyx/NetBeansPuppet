@@ -18,6 +18,9 @@
             <file name="Exec.xml" url="palette/assorted/Exec.xml">
                 <attr name="position" intvalue="150"/>
             </file>
+            <file name="Filebucket.xml" url="palette/assorted/Filebucket.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
         </folder>
     </folder>
 </filesystem>
