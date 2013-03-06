@@ -21,6 +21,9 @@
             <file name="Filebucket.xml" url="palette/assorted/Filebucket.xml">
                 <attr name="position" intvalue="150"/>
             </file>
+            <file name="Package.xml" url="palette/assorted/Package.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
         </folder>
     </folder>
 </filesystem>

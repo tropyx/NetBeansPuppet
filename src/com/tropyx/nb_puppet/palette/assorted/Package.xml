@@ -23,17 +23,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 <editor_palette_item version="1.0">
 
     <body><![CDATA[
-# Define the bucket
-filebucket  { 'main':
-            server => puppet,
-            path   => false,
-            # Due to a known issue, path must be set to false for remote filebuckets.
-}
-
-# Specify it as the default target
-File { backup => main }
-
-
+package     { 'mysql':
+            ensure          => installed,
+            source          => 'N:/packages/mysql-5.5.16-winx64.msi',
+            install_options => [ '/S', { 'INSTALLDIR' => 'C:\mysql-5.5' } ],
+            }
+        
   ]]>
     </body>
 
@@ -41,8 +36,8 @@ File { backup => main }
     <icon32 urlvalue="com/tropyx/nb_puppet/resources/PuppetMaster32.png" />
 
     <inline-description>
-       <display-name>Filebucket</display-name>
-       <tooltip><![CDATA[ Define a filebucket to hold backups of changed files  ]]></tooltip>
+       <display-name>Package</display-name>
+       <tooltip><![CDATA[ Install Package ]]></tooltip>
     </inline-description>
 
 </editor_palette_item>
