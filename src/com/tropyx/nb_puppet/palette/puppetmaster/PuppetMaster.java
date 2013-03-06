@@ -16,8 +16,6 @@ public class PuppetMaster implements ActiveEditorDrop {
         puppetmaster = getPuppetMaster();
         String Pm = "$puppetmaster=\'" + puppetmaster + "\'"
                 + "\n";
-        //String Pm = "$puppetmaster=\'";
-
         return Pm;
     }
 

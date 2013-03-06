@@ -3,9 +3,9 @@
  * and open the template in the editor.
  */
 
-package com.tropyx.nb_puppet.palette.apache_vhost;
+package com.tropyx.nb_puppet.palette.puppetfile;
 
-import com.tropyx.nb_puppet.palette.apache_vhost.*;
+import com.tropyx.nb_puppet.palette.puppetfile.Bundle;
 import java.awt.Dialog;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -15,15 +15,15 @@ import org.openide.DialogDisplayer;
 import org.openide.util.NbBundle;
 
 
-public class ApacheVhostCustomizer extends javax.swing.JPanel {
+public class PuppetFileCustomizer extends javax.swing.JPanel {
 
     private Dialog dialog = null;
     private DialogDescriptor descriptor = null;
     private boolean dialogOK = false;
-    private ApacheVhost hostname;
+    private PuppetFile hostname;
     private JTextComponent target;
 
-    public ApacheVhostCustomizer(ApacheVhost hostname, JTextComponent target) {
+    public PuppetFileCustomizer(PuppetFile hostname, JTextComponent target) {
         this.hostname = hostname;
         this.target = target;
         initComponents();
@@ -53,7 +53,7 @@ public class ApacheVhostCustomizer extends javax.swing.JPanel {
 
     private void evaluateInput() {
         String vhostname = jTextField1.getText();
-        hostname.setHostName(vhostname);
+        hostname.setFileName(vhostname);
     }
 
     /**
@@ -68,9 +68,9 @@ public class ApacheVhostCustomizer extends javax.swing.JPanel {
         jLabel1 = new javax.swing.JLabel();
         jTextField1 = new javax.swing.JTextField();
 
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(ApacheVhostCustomizer.class, "ApacheVhostCustomizer.jLabel1.text_1")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(PuppetFileCustomizer.class, "PuppetFileCustomizer.jLabel1.text_1")); // NOI18N
 
-        jTextField1.setText(org.openide.util.NbBundle.getMessage(ApacheVhostCustomizer.class, "ApacheVhostCustomizer.jTextField1.text_1")); // NOI18N
+        jTextField1.setText(org.openide.util.NbBundle.getMessage(PuppetFileCustomizer.class, "PuppetFileCustomizer.jTextField1.text_1")); // NOI18N
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);

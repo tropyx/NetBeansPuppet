@@ -9,6 +9,9 @@
             <file name="ApacheVhost.xml" url="palette/apache_vhost/ApacheVhost.xml">
                 <attr name="position" intvalue="150"/>
             </file>
+            <file name="PuppetFile.xml" url="palette/puppetfile/PuppetFile.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
         </folder>
     </folder>
 </filesystem>
