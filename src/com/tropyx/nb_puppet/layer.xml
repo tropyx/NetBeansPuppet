@@ -185,10 +185,6 @@
                 <attr name="position" intvalue="150"/>
             </file>
 
-            <file name="memorytotal.xml" url="palette/variables/memorytotal.xml">
-                <attr name="position" intvalue="150"/>
-            </file>
-
             <file name="netmask.xml" url="palette/variables/netmask.xml">
                 <attr name="position" intvalue="150"/>
             </file>
