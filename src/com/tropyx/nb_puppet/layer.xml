@@ -24,6 +24,17 @@
             <file name="Package.xml" url="palette/assorted/Package.xml">
                 <attr name="position" intvalue="150"/>
             </file>
+
+            <file name="IfElse.xml" url="palette/assorted/IfElse.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
+
+            <file name="Node.xml" url="palette/assorted/Node.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
+
+
+
         </folder>
 
         <folder name="Puppet Variables">
