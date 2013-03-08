@@ -23,21 +23,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 <editor_palette_item version="1.0">
 
     <body><![CDATA[
-cron    { logrotate:
-        command => "/usr/sbin/logrotate",
-        user    => root,
-        hour    => ['2-4'],
-        minute  => '*/10'
-        }  ]]></body>
+
+stage => "first"  ]]>
+
+        ]]></body>
 
     <icon16 urlvalue="com/tropyx/nb_puppet/resources/puppet_icon.gif" />
     <icon32 urlvalue="com/tropyx/nb_puppet/resources/PuppetMaster32.png" />
 
     <inline-description>
-       <display-name>Crontab</display-name>
-       <tooltip><![CDATA[ Insert Entry into Crontab  ]]></tooltip>
+       <display-name>Stage - First</display-name>
+       <tooltip><![CDATA[ Stage First  ]]></tooltip>
     </inline-description>
 
-</editor_palette_item
-
->
+</editor_palette_item>
