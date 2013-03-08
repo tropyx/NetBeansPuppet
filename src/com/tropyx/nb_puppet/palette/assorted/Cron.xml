@@ -38,6 +38,4 @@ cron    { logrotate:
        <tooltip><![CDATA[ Insert Entry into Crontab  ]]></tooltip>
     </inline-description>
 
-</editor_palette_item
-
->
+</editor_palette_item>
