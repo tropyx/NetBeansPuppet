@@ -45,6 +45,9 @@
           <ResourceString bundle="com/tropyx/nb_puppet/palette/puppetmaster/Bundle.properties" key="PuppetMasterCustomizer.jLabel1.text_1" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
       </Properties>
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_SerializeTo" type="java.lang.String" value="PuppetMasterCustomizer_jLabel1"/>
+      </AuxValues>
     </Component>
     <Component class="javax.swing.JTextField" name="jTextField1">
       <Properties>
