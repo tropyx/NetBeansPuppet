@@ -18,9 +18,11 @@
             <file name="Exec.xml" url="palette/assorted/Exec.xml">
                 <attr name="position" intvalue="150"/>
             </file>
+            
             <file name="Filebucket.xml" url="palette/assorted/Filebucket.xml">
                 <attr name="position" intvalue="150"/>
             </file>
+            
             <file name="Package.xml" url="palette/assorted/Package.xml">
                 <attr name="position" intvalue="150"/>
             </file>
@@ -30,6 +32,10 @@
             </file>
 
             <file name="Node.xml" url="palette/assorted/Node.xml">
+                <attr name="position" intvalue="150"/>
+            </file>
+
+            <file name="Class.xml" url="palette/assorted/Class.xml">
                 <attr name="position" intvalue="150"/>
             </file>
 
