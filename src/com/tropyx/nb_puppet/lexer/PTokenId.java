@@ -104,7 +104,8 @@ public enum PTokenId implements TokenId
     LBRACE("{", "separator"),
     RBRACE("}", "separator"),
     LBRACKET("[", "separator"),
-    RBRACKET("]", "separator");
+    RBRACKET("]", "separator"),
+    COMMA(",", "separator");
     
     
     private final String name;

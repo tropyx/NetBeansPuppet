@@ -83,6 +83,16 @@ public class PLexer implements Lexer<PTokenId>
 
                 case '$':
                     return finishVariable(c);
+                    
+                case '!': 
+                    switch (c = nextChar())
+                    {
+                        case '=' : return token(PTokenId.OPERATOR);
+                        case '!' : return token(PTokenId.OPERATOR);
+                        default : backup(1);
+                    }
+                    
+                    return token(PTokenId.OPERATOR);
                 
                 case 'a' :
                     if ((c = nextChar()) == 'n'
@@ -324,6 +334,8 @@ public class PLexer implements Lexer<PTokenId>
                     return token(PTokenId.LBRACE);
                 case '}':
                     return token(PTokenId.RBRACE);
+                case ',':
+                    return token(PTokenId.COMMA);
                     
 // All Character.isWhitespace(c) below 0x80 follow
                 // ['\t' - '\r'] and [0x1c - ' ']
