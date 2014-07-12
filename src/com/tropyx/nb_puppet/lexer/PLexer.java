@@ -64,6 +64,22 @@ public class PLexer implements Lexer<PTokenId>
                                 return tokenFactory.createToken(PTokenId.STRING_LITERAL,
                                         input.readLength(), PartType.START);
                         }
+                case '"': // string literal
+                    while (true)
+                        switch (nextChar()) {
+                            case '"': // NOI18N
+                                //TODO make different from '?
+                                return token(PTokenId.STRING_LITERAL);
+                            case '\\':
+                                nextChar(); // read escaped char
+                                break;
+                            case '\r': consumeNewline();
+                            case '\n':
+                            case EOF:
+                                //TODO make different from '?
+                                return tokenFactory.createToken(PTokenId.STRING_LITERAL,
+                                        input.readLength(), PartType.START);
+                        }
 
                 case 'a' :
                     if ((c = nextChar()) == 'n'
@@ -146,14 +162,29 @@ public class PLexer implements Lexer<PTokenId>
                             }
                             break;
                         case 'n':
-                            if ((c = nextChar()) == 'h'
-                                    && (c = nextChar()) == 'e'
-                                    && (c = nextChar()) == 'r'
-                                    && (c = nextChar()) == 'i'
-                                    && (c = nextChar()) == 't'
-                                    && (c = nextChar()) == 's')
+                            
+                            switch (c = nextChar())
                             {
-                                return keywordOrIdentifier(PTokenId.INHERITS);
+                                case 'h':
+                                    if ((c = nextChar()) == 'e'
+                                        && (c = nextChar()) == 'r'
+                                        && (c = nextChar()) == 'i'
+                                        && (c = nextChar()) == 't'
+                                        && (c = nextChar()) == 's')
+                                    {
+                                        return keywordOrIdentifier(PTokenId.INHERITS);
+                                    }
+                                    break;
+                                    
+                                case 'c':
+                                    if ((c = nextChar()) == 'l'
+                                        && (c = nextChar()) == 'u'
+                                        && (c = nextChar()) == 'd'
+                                        && (c = nextChar()) == 'e')
+                                    {
+                                        return functionOrIdentifier(PTokenId.INCLUDE);
+                                    }
+                                    break;
                             }
                             break;
                             
@@ -251,6 +282,20 @@ public class PLexer implements Lexer<PTokenId>
                 case '$':
                 case '_':
                     return finishIdentifier();
+                    
+                case '(':
+                    return token(PTokenId.LPAREN);
+                case ')':
+                    return token(PTokenId.RPAREN);
+                case '[':
+                    return token(PTokenId.LBRACKET);
+                case ']':
+                    return token(PTokenId.RBRACKET);
+                case '{':
+                    return token(PTokenId.LBRACE);
+                case '}':
+                    return token(PTokenId.RBRACE);
+                    
 // All Character.isWhitespace(c) below 0x80 follow
                 // ['\t' - '\r'] and [0x1c - ' ']
                 case '\t':

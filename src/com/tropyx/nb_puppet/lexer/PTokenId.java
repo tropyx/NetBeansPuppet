@@ -96,7 +96,15 @@ public enum PTokenId implements TokenId
     COMMENT(null, "comment"),
     LINE_COMMENT(null, "comment"),
     WHITESPACE(null, "whitespace"),
-    STRING_LITERAL(null, "string"); 
+    STRING_LITERAL(null, "string"),
+    
+    LPAREN("(", "separator"),
+    RPAREN(")", "separator"),
+    LBRACE("{", "separator"),
+    RBRACE("}", "separator"),
+    LBRACKET("[", "separator"),
+    RBRACKET("]", "separator");
+    
     
     private final String name;
     private final String category;
