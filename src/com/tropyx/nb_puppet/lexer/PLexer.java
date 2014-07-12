@@ -81,6 +81,9 @@ public class PLexer implements Lexer<PTokenId>
                                         input.readLength(), PartType.START);
                         }
 
+                case '$':
+                    return finishVariable(c);
+                
                 case 'a' :
                     if ((c = nextChar()) == 'n'
                             && (c = nextChar()) == 'd') 
@@ -191,6 +194,34 @@ public class PLexer implements Lexer<PTokenId>
                     }
                     return finishIdentifier(c);
                     
+                case 'l' :
+                    if ((c = nextChar()) == 'o'
+                     && (c = nextChar()) == 'o' 
+                     && (c = nextChar()) == 'k' 
+                     && (c = nextChar()) == 'u' 
+                     && (c = nextChar()) == 'p') 
+                    {
+                        return keywordOrIdentifier(PTokenId.LOOKUP);
+                    }
+                    return finishIdentifier(c);
+                    
+                    
+                case 'm' :
+                        switch (c = nextChar())
+                        {
+                            case 'a':
+                                if ((c = nextChar()) == 'p') {
+                                    return functionOrIdentifier(PTokenId.MAP);
+                                }
+                                return finishIdentifier(c);
+                            case 'd':
+                                if ((c = nextChar()) == '5') {
+                                    return functionOrIdentifier(PTokenId.MD5);
+                                }
+                                return finishIdentifier(c);
+                    
+                        }
+                        return finishIdentifier(c);
                 case 'n' :
                     if ((c = nextChar()) == 'o'
                      && (c = nextChar()) == 'd' 
@@ -247,7 +278,6 @@ public class PLexer implements Lexer<PTokenId>
                 case 'h':
                 case 'j':
                 case 'k':
-                case 'm':
                 case 'q':
                 case 'x':
                 case 'y':
@@ -279,7 +309,6 @@ public class PLexer implements Lexer<PTokenId>
                 case 'X':
                 case 'Y':
                 case 'Z':
-                case '$':
                 case '_':
                     return finishIdentifier();
                     
@@ -429,6 +458,25 @@ public class PLexer implements Lexer<PTokenId>
             c = nextChar();
         }
     }
+    
+    private boolean isVariableChar(int c) {
+        return Character.isJavaIdentifierPart(c) || c == ':';
+    }
+    
+    private Token<PTokenId> finishVariable(int c)
+    {
+        while (true)
+        {
+            if (c == EOF || !isVariableChar(c = translateSurrogates(c)))
+            {
+                // For surrogate 2 chars must be backed up
+                backup((c >= Character.MIN_SUPPLEMENTARY_CODE_POINT) ? 2 : 1);
+                return tokenFactory.createToken(PTokenId.VARIABLE);
+            }
+            c = nextChar();
+        }
+    }
+    
 
     private Token<PTokenId> keywordOrIdentifier(PTokenId keywordId)
     {

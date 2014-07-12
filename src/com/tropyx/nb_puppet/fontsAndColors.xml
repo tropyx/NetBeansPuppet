@@ -17,4 +17,6 @@
     <fontcolor name="method-declaration" default="method">
         <font style="bold" />
     </fontcolor>
+    <fontcolor name="variable-declaration" default="method" foreColor="orange">
+    </fontcolor>
 </fontscolors>

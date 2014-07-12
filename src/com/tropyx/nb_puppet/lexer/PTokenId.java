@@ -68,18 +68,18 @@ public enum PTokenId implements TokenId
     HIERA_ARRAY("hiera_array", "method-declaration"),
     HIERA_HASH("hiera_hash", "method-declaration"),
     HIERA_INCLUDE("hiera_include", "method-declaration"),
-    INCLUDE("include", "method-declaration"),
+    INCLUDE("include", "method-declaration"), //*
     INFO("info", "method-declaration"),
     INLINE_EPP("inline_epp", "method-declaration"),
     INLINE_TEMPLATE("inline_template", "method-declaration"),
-    LOOKUP("lookup", "method-declaration"),
-    MAP("map", "method-declaration"),
-    MD5("md5", "method-declaration"),
+    LOOKUP("lookup", "method-declaration"), //*
+    MAP("map", "method-declaration"), //*
+    MD5("md5", "method-declaration"), //*
     NOTICE("notice", "method-declaration"),
     REALIZE("realize", "method-declaration"),
     REDUCE("reduce", "method-declaration"),
     REQSUBST("regsubst", "method-declaration"),
-    REQUIRE("require", "method-declaration"),
+    REQUIRE("require", "method-declaration"), //*
     SEARCH("search", "method-declaration"),
     SELECT("select", "method-declaration"),
     SHA1("sha1", "method-declaration"),
@@ -97,6 +97,7 @@ public enum PTokenId implements TokenId
     LINE_COMMENT(null, "comment"),
     WHITESPACE(null, "whitespace"),
     STRING_LITERAL(null, "string"),
+    VARIABLE(null, "variable-declaration"),
     
     LPAREN("(", "separator"),
     RPAREN(")", "separator"),
