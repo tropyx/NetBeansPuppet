@@ -170,7 +170,7 @@
           <resource>
               <directory>src</directory>
               <excludes>
-                  <exclude>*.java</exclude>
+                  <exclude>**/*.java</exclude>
               </excludes>
           </resource>
       </resources>
@@ -181,7 +181,7 @@
         <version>3.13</version>
         <extensions>true</extensions>
         <configuration>
-          <verifyRuntime>warn</verifyRuntime> <!-- yenta -->
+            <sourceManifestFile>${basedir}/manifest.mf</sourceManifestFile>
         </configuration>
       </plugin>
 
