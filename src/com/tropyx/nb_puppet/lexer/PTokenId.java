@@ -47,11 +47,11 @@ public enum PTokenId implements TokenId
 //    INCLUDE("include", "keyword"),
 //    REQUIRE("require", "keyword"),
     
-    ALERT("alert", "method-declaration"),
-    COLLECT("collect", "method-declaration"),
-    CONTAIN("contain", "method-declaration"),
-    CREATE_RESOURCES("create_resources", "method-declaration"),
-    CRIT("crit", "method-declaration"),
+    ALERT("alert", "method-declaration"), //*
+    COLLECT("collect", "method-declaration"),//*
+    CONTAIN("contain", "method-declaration"),//*
+    CREATE_RESOURCES("create_resources", "method-declaration"),//*
+    CRIT("crit", "method-declaration"),//*
     DEBUG("debug", "method-declaration"),
     DEFINED("defined", "method-declaration"),
     EACH("each", "method-declaration"),
@@ -105,7 +105,8 @@ public enum PTokenId implements TokenId
     RBRACE("}", "separator"),
     LBRACKET("[", "separator"),
     RBRACKET("]", "separator"),
-    COMMA(",", "separator");
+    COMMA(",", "separator"), 
+    COLON(":", "separator");
     
     
     private final String name;

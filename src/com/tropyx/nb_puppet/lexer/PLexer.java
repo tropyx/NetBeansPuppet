@@ -132,11 +132,23 @@ public class PLexer implements Lexer<PTokenId>
     
                     
                 case 'a' :
-                    if ((c = nextChar()) == 'n'
-                            && (c = nextChar()) == 'd') 
+                    switch (c = nextChar())
                     {
-                        return textOperatorOrIdentifier(PTokenId.AND);
-                    }
+                        case 'n' :
+                            if ((c = nextChar()) == 'd') 
+                            {
+                                return textOperatorOrIdentifier(PTokenId.AND);
+                            }
+                            break;
+                        case 'l':
+                            if ((c = nextChar()) == 'e' 
+                             && (c = nextChar()) == 'r'
+                             && (c = nextChar()) == 't')
+                            {
+                                return functionOrIdentifier(PTokenId.ALERT);
+                            }
+                            break;
+                    }                            
                     return finishIdentifier(c);
                     
                 case 'c' :
@@ -156,6 +168,60 @@ public class PLexer implements Lexer<PTokenId>
                             {
                                 return keywordOrIdentifier(PTokenId.CLASS);
                             }
+                            break;
+                        case 'o': 
+                            switch (c = nextChar()) 
+                            {
+                                case 'l' :
+                                    if ((c = nextChar()) == 'l'
+                                     && (c = nextChar()) == 'e'
+                                     && (c = nextChar()) == 'c'
+                                     && (c = nextChar()) == 't') 
+                                    {
+                                        return functionOrIdentifier(PTokenId.COLLECT);
+                                    }
+                                    break;
+  
+                                case 'n' :
+                                    if ((c = nextChar()) == 't'
+                                     && (c = nextChar()) == 'a'
+                                     && (c = nextChar()) == 'i'
+                                     && (c = nextChar()) == 'n') 
+                                    {
+                                        return functionOrIdentifier(PTokenId.CONTAIN);
+                                    }
+                                    break;
+                            }
+                            break;
+                        case 'r':
+                            switch (c = nextChar()) 
+                            {
+                                case 'i' :
+                                    if ((c = nextChar()) == 't')
+                                    {
+                                        return functionOrIdentifier(PTokenId.CRIT);
+                                    }
+                                    break;
+  
+                                case 'e' :
+                                    if ((c = nextChar()) == 'a'
+                                     && (c = nextChar()) == 't'
+                                     && (c = nextChar()) == 'e'
+                                     && (c = nextChar()) == '_'
+                                     && (c = nextChar()) == 'r'
+                                     && (c = nextChar()) == 'e'
+                                     && (c = nextChar()) == 's'
+                                     && (c = nextChar()) == 'o'
+                                     && (c = nextChar()) == 'r'
+                                     && (c = nextChar()) == 'c'
+                                     && (c = nextChar()) == 'e'
+                                     && (c = nextChar()) == 's')
+                                    {
+                                        return functionOrIdentifier(PTokenId.CREATE_RESOURCES);
+                                    }
+                                    break;
+                            }
+                            
                             break;
                     }
                     return finishIdentifier(c);
@@ -322,10 +388,18 @@ public class PLexer implements Lexer<PTokenId>
                     return finishIdentifier(c);
 
                 // Rest of lowercase letters starting identifiers
+                case 'b':
+                case 'f':
+                case 'g':
                 case 'h':
                 case 'j':
                 case 'k':
+                case 'p':
                 case 'q':
+                case 's':
+                case 't':
+                case 'v':
+                case 'w':
                 case 'x':
                 case 'y':
                 case 'z':
@@ -373,6 +447,8 @@ public class PLexer implements Lexer<PTokenId>
                     return token(PTokenId.RBRACE);
                 case ',':
                     return token(PTokenId.COMMA);
+                case ':':
+                    return token(PTokenId.COLON);
                     
 // All Character.isWhitespace(c) below 0x80 follow
                 // ['\t' - '\r'] and [0x1c - ' ']
@@ -498,7 +574,7 @@ public class PLexer implements Lexer<PTokenId>
     {
         while (true)
         {
-            if (c == EOF || !Character.isJavaIdentifierPart(c = translateSurrogates(c)))
+            if (c == EOF || !isIdentifierChar(c = translateSurrogates(c)))
             {
                 // For surrogate 2 chars must be backed up
                 backup((c >= Character.MIN_SUPPLEMENTARY_CODE_POINT) ? 2 : 1);
@@ -507,6 +583,11 @@ public class PLexer implements Lexer<PTokenId>
             c = nextChar();
         }
     }
+    
+    private boolean isIdentifierChar(int c) {
+        return Character.isJavaIdentifierPart(c) || c == ':';
+    }
+    
     
     private boolean isVariableChar(int c) {
         return Character.isJavaIdentifierPart(c) || c == ':';
