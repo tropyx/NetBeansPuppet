@@ -88,12 +88,49 @@ public class PLexer implements Lexer<PTokenId>
                     switch (c = nextChar())
                     {
                         case '=' : return token(PTokenId.OPERATOR);
-                        case '!' : return token(PTokenId.OPERATOR);
+                        case '~' : return token(PTokenId.OPERATOR);
+                        default : backup(1);
+                    }
+                    
+                    return token(PTokenId.OPERATOR);
+                case '=': 
+                    switch (c = nextChar())
+                    {
+                        case '>' : return token(PTokenId.OPERATOR); //TODO is this really operator?
+                        case '=' : return token(PTokenId.OPERATOR);
+                        case '~' : return token(PTokenId.OPERATOR);
+                        default : backup(1);
+                    }
+                    
+                    return token(PTokenId.OPERATOR);
+                case '>' :
+                    switch (c = nextChar())
+                    {
+                        case '=' : return token(PTokenId.OPERATOR);
+                        case '>' : return token(PTokenId.OPERATOR);
+                        default : backup(1);
+                    }
+                    
+                    return token(PTokenId.OPERATOR);
+                                        
+                case '<' :
+                    switch (c = nextChar())
+                    {
+                        case '=' : return token(PTokenId.OPERATOR);
+                        case '<' : return token(PTokenId.OPERATOR);
                         default : backup(1);
                     }
                     
                     return token(PTokenId.OPERATOR);
                 
+                case '+':
+                case '-':
+                case '*':
+                case '/':
+                case '%':
+                    return token(PTokenId.OPERATOR);
+    
+                    
                 case 'a' :
                     if ((c = nextChar()) == 'n'
                             && (c = nextChar()) == 'd') 
