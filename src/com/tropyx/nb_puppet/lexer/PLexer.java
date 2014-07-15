@@ -336,11 +336,24 @@ public class PLexer implements Lexer<PTokenId>
                         }
                         return finishIdentifier(c);
                 case 'n' :
-                    if ((c = nextChar()) == 'o'
-                     && (c = nextChar()) == 'd' 
-                     && (c = nextChar()) == 'e') 
-                    {
-                        return keywordOrIdentifier(PTokenId.NODE);
+                    if ((c = nextChar()) == 'o') {
+                        switch (c = nextChar())
+                        {
+                            case 't':
+                                if ((c = nextChar()) == 'i'
+                                 && (c = nextChar()) == 'c' 
+                                 && (c = nextChar()) == 'e')
+                                {
+                                    return functionOrIdentifier(PTokenId.NOTICE);
+                                }
+                                return finishIdentifier(c);
+                            case 'd':
+                                if ((c = nextChar()) == 'e') 
+                                {
+                                    return keywordOrIdentifier(PTokenId.NODE);
+                                }
+                                return finishIdentifier(c);
+                        }
                     }
                     return finishIdentifier(c);
                     
@@ -360,6 +373,30 @@ public class PLexer implements Lexer<PTokenId>
                      && (c = nextChar()) == 'e') 
                     {
                         return functionOrIdentifier(PTokenId.REQUIRE);
+                    }
+                    return finishIdentifier(c);
+                case 's' :
+                    if ((c = nextChar()) == 'e') {
+                        switch (c = nextChar())
+                        {
+                            case 'l':
+                                if ((c = nextChar()) == 'e'
+                                   && (c = nextChar()) == 'c'
+                                   && (c = nextChar()) == 't') 
+                                {  
+                                    return functionOrIdentifier(PTokenId.SELECT);
+                                }
+                                return finishIdentifier(c);
+                            case 'a':
+                                if ((c = nextChar()) == 'r' 
+                                   && (c = nextChar()) == 'c'
+                                   && (c = nextChar()) == 'h') 
+                                {
+                                    return functionOrIdentifier(PTokenId.SEARCH);
+                                }
+                                return finishIdentifier(c);
+                    
+                        }
                     }
                     return finishIdentifier(c);
                     
@@ -396,7 +433,6 @@ public class PLexer implements Lexer<PTokenId>
                 case 'k':
                 case 'p':
                 case 'q':
-                case 's':
                 case 't':
                 case 'v':
                 case 'w':

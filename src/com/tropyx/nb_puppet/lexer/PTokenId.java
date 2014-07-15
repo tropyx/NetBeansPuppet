@@ -75,13 +75,13 @@ public enum PTokenId implements TokenId
     LOOKUP("lookup", "method-declaration"), //*
     MAP("map", "method-declaration"), //*
     MD5("md5", "method-declaration"), //*
-    NOTICE("notice", "method-declaration"),
+    NOTICE("notice", "method-declaration"), //*
     REALIZE("realize", "method-declaration"),
     REDUCE("reduce", "method-declaration"),
     REQSUBST("regsubst", "method-declaration"),
     REQUIRE("require", "method-declaration"), //*
-    SEARCH("search", "method-declaration"),
-    SELECT("select", "method-declaration"),
+    SEARCH("search", "method-declaration"),//*
+    SELECT("select", "method-declaration"),//*
     SHA1("sha1", "method-declaration"),
     SHELLQUOTE("shellquote", "method-declaration"),
     SLICE("slice", "method-declaration"),
