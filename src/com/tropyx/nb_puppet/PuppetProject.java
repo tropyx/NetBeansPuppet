@@ -19,6 +19,10 @@ package com.tropyx.nb_puppet;
 
 import java.awt.Image;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.StringTokenizer;
 import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -30,12 +34,16 @@ import org.netbeans.spi.project.ui.LogicalViewProvider;
 import org.netbeans.spi.project.ui.support.CommonProjectActions;
 import org.netbeans.spi.project.ui.support.NodeFactorySupport;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataFolder;
+import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.FilterNode;
 import org.openide.nodes.Node;
+import org.openide.nodes.NodeNotFoundException;
+import org.openide.nodes.NodeOp;
 import org.openide.util.Exceptions;
 import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
@@ -146,8 +154,64 @@ public Lookup getLookup() {
         }
 
         @Override
-        public Node findPath(Node root, Object target) {
-            //leave unimplemented for now
+        public Node findPath(Node node, Object target)
+        {
+            if (target instanceof FileObject)
+            {
+                FileObject fo = (FileObject) target;
+
+                Node[] nodes = node.getChildren().getNodes(true);
+                for (Node node1 : nodes)
+                {
+                    Node found = findNodeByFDObject(node1, fo);
+                    if (found != null)
+                    {
+                        return found;
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        private Node findNodeByFDObject(Node node, FileObject fo) {
+            FileObject ndfo = node.getLookup().lookup(FileObject.class);
+            if (ndfo == null) {
+                DataObject dobj = node.getLookup().lookup(DataObject.class);
+                if (dobj != null) {
+                    ndfo = dobj.getPrimaryFile();
+                }
+            }
+            if (ndfo != null) {
+                if ((ndfo.equals(fo))) {
+                    return node;
+                } else if (FileUtil.isParentOf(ndfo, fo)) {
+                    FileObject folder = fo.isFolder() ? fo : fo.getParent();
+                    String relPath = FileUtil.getRelativePath(ndfo, folder);
+                    List<String> path = new ArrayList<>();
+                    StringTokenizer strtok = new StringTokenizer(relPath, "/"); // NOI18N
+                    while (strtok.hasMoreTokens()) {
+                        String token = strtok.nextToken();
+                        path.add(token);
+                    }
+                    try {
+                        Node folderNode = folder.equals(ndfo) ? node : NodeOp.findPath(node, Collections.enumeration(path));
+                        if (fo.isFolder()) {
+                            return folderNode;
+                        } else {
+                            Node[] childs = folderNode.getChildren().getNodes(true);
+                            for (int j = 0; j < childs.length; j++)
+                            {
+                                DataObject dobj = childs[j].getLookup().lookup(DataObject.class);
+                                if (dobj != null && dobj.getPrimaryFile().getNameExt().equals(fo.getNameExt()))
+                                {
+                                    return childs[j];
+                                }
+                            }
+                        }
+                    } catch (NodeNotFoundException e) {}
+                }
+            }
             return null;
         }
     }
