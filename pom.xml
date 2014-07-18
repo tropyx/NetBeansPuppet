@@ -162,6 +162,11 @@
       <artifactId>org-netbeans-spi-palette</artifactId>
       <version>${netbeans.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.netbeans.api</groupId>
+      <artifactId>org-netbeans-modules-queries</artifactId>
+      <version>${netbeans.version}</version>
+    </dependency>
   </dependencies>
 
   <build>

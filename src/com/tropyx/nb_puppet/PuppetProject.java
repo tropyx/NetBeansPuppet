@@ -26,14 +26,19 @@ import java.util.StringTokenizer;
 import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.SwingUtilities;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import org.netbeans.api.annotations.common.StaticResource;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectInformation;
+import org.netbeans.api.queries.VisibilityQuery;
 import org.netbeans.spi.project.ProjectState;
 import org.netbeans.spi.project.ui.LogicalViewProvider;
 import org.netbeans.spi.project.ui.support.CommonProjectActions;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
+import org.openide.loaders.ChangeableDataFilter;
 import org.openide.loaders.DataFilter;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
@@ -42,6 +47,7 @@ import org.openide.nodes.Children;
 import org.openide.nodes.Node;
 import org.openide.nodes.NodeNotFoundException;
 import org.openide.nodes.NodeOp;
+import org.openide.util.ChangeSupport;
 import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.Lookups;
@@ -77,6 +83,44 @@ public Lookup getLookup() {
     return lkp;
 }
 
+static final VisibilityQueryDataFilter INSTANCE = new VisibilityQueryDataFilter();
+
+    static final class VisibilityQueryDataFilter implements ChangeListener, ChangeableDataFilter, DataFilter.FileBased {
+        
+        private final ChangeSupport changeSupport = new ChangeSupport( this );
+        
+        public VisibilityQueryDataFilter() {
+            VisibilityQuery.getDefault().addChangeListener( this );
+        }
+                
+        public @Override boolean acceptDataObject(DataObject obj) {
+            return acceptFileObject(obj.getPrimaryFile());
+        }
+        
+        public @Override void stateChanged(ChangeEvent e) {
+            final Runnable r = new Runnable () {
+                public @Override void run() {
+                    changeSupport.fireChange();
+                }
+            };            
+            SwingUtilities.invokeLater(r);            
+        }        
+    
+        public @Override void addChangeListener(ChangeListener listener) {
+            changeSupport.addChangeListener( listener );
+        }        
+                        
+        public @Override void removeChangeListener(ChangeListener listener) {
+            changeSupport.removeChangeListener( listener );
+        }
+
+        public @Override boolean acceptFileObject(FileObject fo) {
+            return VisibilityQuery.getDefault().isVisible(fo);
+        }
+        
+    }
+
+
     class PuppetProjectLogicalView implements LogicalViewProvider {
 
         @StaticResource()
@@ -102,7 +146,7 @@ public Lookup getLookup() {
         public Children createChilds(Lookup lkp) {
             DataFolder df = lkp.lookup(DataFolder.class);
             if (df != null) {
-                return df.createNodeChildren(DataFilter.ALL);
+                return df.createNodeChildren(INSTANCE);
             }
             return Children.LEAF;
         }
