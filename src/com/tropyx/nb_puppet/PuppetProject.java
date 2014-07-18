@@ -70,6 +70,7 @@ public Lookup getLookup() {
                     new Info(),
                     new PuppetProjectLogicalView(this),
                     new PuppetCustomizerProvider(this),
+                    new RecoPrivTemplatesImpl()
                    // new ReportsSubprojectProvider(this)
                 });
     }
