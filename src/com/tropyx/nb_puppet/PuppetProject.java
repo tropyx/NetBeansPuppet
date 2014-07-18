@@ -32,23 +32,19 @@ import org.netbeans.api.project.ProjectInformation;
 import org.netbeans.spi.project.ProjectState;
 import org.netbeans.spi.project.ui.LogicalViewProvider;
 import org.netbeans.spi.project.ui.support.CommonProjectActions;
-import org.netbeans.spi.project.ui.support.NodeFactorySupport;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
+import org.openide.loaders.DataFilter;
 import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
-import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
-import org.openide.nodes.FilterNode;
 import org.openide.nodes.Node;
 import org.openide.nodes.NodeNotFoundException;
 import org.openide.nodes.NodeOp;
-import org.openide.util.Exceptions;
 import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.Lookups;
-import org.openide.util.lookup.ProxyLookup;
 
 public class PuppetProject implements Project {
 
@@ -92,49 +88,37 @@ public Lookup getLookup() {
 
         @Override
         public Node createLogicalView() {
-            try {
-                //Obtain the project directory's node:
-                FileObject projectDirectory = project.getProjectDirectory();
-                DataFolder projectFolder = DataFolder.findFolder(projectDirectory);
-                Node nodeOfProjectFolder = projectFolder.getNodeDelegate();
-                //Decorate the project directory's node:
-                return new ProjectNode(nodeOfProjectFolder, project);
-            } catch (DataObjectNotFoundException donfe) {
-                Exceptions.printStackTrace(donfe);
-                //Fallback-the directory couldn't be created -
-                //read-only filesystem or something evil happened
-                return new AbstractNode(Children.LEAF);
+            Lookup lkp = createNodeLookup();
+            return new ProjectNode(lkp, project);
+        }
+        private Lookup createNodeLookup() {
+            if (!project.getProjectDirectory().isValid()) {
+                return Lookups.fixed(project);
             }
+            return Lookups.fixed(project, DataFolder.findFolder( project.getProjectDirectory() ), project.getProjectDirectory());
+        }
+        
+        public Children createChilds(Lookup lkp) {
+            DataFolder df = lkp.lookup(DataFolder.class);
+            if (df != null) {
+                return df.createNodeChildren(DataFilter.ALL);
+            }
+            return Children.LEAF;
         }
 
-        private final class ProjectNode extends FilterNode {
+        private final class ProjectNode extends AbstractNode {
 
             final PuppetProject project;
 
-            public ProjectNode(Node node, PuppetProject project) throws DataObjectNotFoundException {
-                super(node,
-                        //NodeFactorySupport.createCompositeChildren(
-                        //project,
-                        //"Projects/com-tropyx-nb_puppet/Nodes"),
-                         new FilterNode.Children(node),
-                        new ProxyLookup(
-                        new Lookup[]{
-                            Lookups.singleton(project),
-                            node.getLookup()
-                        }));
+            public ProjectNode(Lookup lkp, PuppetProject project) {
+                super(createChilds(lkp), lkp);
                 this.project = project;
+                setName(project.getProjectDirectory().toString());
             }
 
             @Override
             public Action[] getActions(boolean arg0) {
-                return new Action[]{
-                            CommonProjectActions.newFileAction(),
-                            CommonProjectActions.copyProjectAction(),
-                            CommonProjectActions.deleteProjectAction(),
-                            //CommonProjectActions.customizeProjectAction(),
-                            CommonProjectActions.closeProjectAction()
-
-                        };
+                return CommonProjectActions.forType("com-tropyx-nb_puppet");
             }
 
             @Override

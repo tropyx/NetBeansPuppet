@@ -18,6 +18,50 @@
             </folder>
         </folder>
     </folder>
+    
+    <folder name="Projects">
+        <folder name="com-tropyx-nb_puppet">
+            <folder name="Actions">
+                <file name="org-netbeans-modules-project-ui-NewFile$WithSubMenu.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Project/org-netbeans-modules-project-ui-NewFile$WithSubMenu.instance"/>
+                    <attr name="position" intvalue="100"/>
+                </file>
+                <file name="sep-1.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                    <attr name="position" intvalue="200"/>
+                </file>
+                <file name="org-netbeans-modules-project-ui-CloseProject.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Project/org-netbeans-modules-project-ui-CloseProject.instance"/>
+                    <attr name="position" intvalue="2100"/>
+                </file>
+                <file name="sep-5.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                    <attr name="position" intvalue="2200"/>
+                </file>
+                <file name="sep-6.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                    <attr name="position" intvalue="2700"/>
+                </file>
+                <file name="org-openide-actions-FindAction.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Edit/org-openide-actions-FindAction.instance"/>
+                    <attr name="position" intvalue="2800"/>
+                </file>
+                <file name="general.shadow">
+                    <attr name="originalFile" stringvalue="Projects/Actions"/>
+                    <attr name="position" intvalue="2900"/>
+                </file>
+                <file name="sep-7.instance">
+                    <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                    <attr name="position" intvalue="3000"/>
+                </file>
+                <file name="org-netbeans-modules-project-ui-CustomizeProject.shadow">
+                    <attr name="originalFile" stringvalue="Actions/Project/org-netbeans-modules-project-ui-CustomizeProject.instance"/>
+                    <attr name="position" intvalue="3200"/>
+                </file>
+            </folder>
+        </folder>
+    </folder>
+    
     <folder name="OptionsDialog">
         <folder name="PreviewExamples">
             <folder name="text">
