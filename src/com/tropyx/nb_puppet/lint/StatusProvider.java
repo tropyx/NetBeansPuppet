@@ -1,5 +1,6 @@
 package com.tropyx.nb_puppet.lint;
 
+import com.tropyx.nb_puppet.lexer.PLanguageProvider;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,7 +33,7 @@ import org.openide.util.RequestProcessor;
  *
  * @author mkleint
  */
-@MimeRegistration(mimeType="text/x-puppet-manifest", service=UpToDateStatusProviderFactory.class)
+@MimeRegistration(mimeType=PLanguageProvider.MIME_TYPE, service=UpToDateStatusProviderFactory.class)
 public final class StatusProvider implements UpToDateStatusProviderFactory {
 
     private static final String LAYER_ERRORS = "puppet-plugin-errors"; //NOI18N
