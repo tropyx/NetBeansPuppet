@@ -130,6 +130,8 @@ public class PLexer implements Lexer<PTokenId>
                 case '%':
                     return token(PTokenId.OPERATOR);
     
+                case '?':
+                    return token(PTokenId.QUESTIONMARK); 
                     
                 case 'a' :
                     switch (c = nextChar())

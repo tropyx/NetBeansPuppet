@@ -40,6 +40,7 @@ public enum PTokenId implements TokenId
     AND("and", "operator"),
     OR("or", "operator"),
     IN("in", "operator"),
+    QUESTIONMARK("?", "operator"), //really operator?
     
 
     
