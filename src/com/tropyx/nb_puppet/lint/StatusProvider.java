@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
+import java.util.prefs.Preferences;
 import javax.swing.text.Document;
 import org.netbeans.api.editor.mimelookup.MimeRegistration;
 import org.netbeans.api.extexecution.ExternalProcessBuilder;
@@ -24,6 +25,7 @@ import org.openide.filesystems.FileEvent;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
+import org.openide.util.NbPreferences;
 import org.openide.util.RequestProcessor;
 
 /**
@@ -91,6 +93,9 @@ public final class StatusProvider implements UpToDateStatusProviderFactory {
                 .addArgument(fo.getNameExt())
                 .addArgument("--log-format")
                 .addArgument("%{linenumber}||%{kind}||%{check}||%{message}");
+            
+            builder = skipChecks(builder);
+            
             Process process;
             InputStream in = null;
             try
@@ -128,6 +133,17 @@ public final class StatusProvider implements UpToDateStatusProviderFactory {
             }
 
             return toRet;
+        }
+
+        private ExternalProcessBuilder skipChecks(ExternalProcessBuilder builder)
+        {
+            Preferences nd = NbPreferences.forModule(StatusProvider.class).node("lint");
+            for (LintCheck lc : LintCheck.values()) {
+                if (!nd.getBoolean(lc.name(), true)) {
+                    builder = builder.addArgument(lc.getDisableParam());
+                }
+            }
+            return builder;
         }
 
     }
