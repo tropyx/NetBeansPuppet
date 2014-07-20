@@ -55,15 +55,15 @@ public enum PTokenId implements TokenId
     CRIT("crit", "method-declaration"),//*
     DEBUG("debug", "method-declaration"),
     DEFINED("defined", "method-declaration"),
-    EACH("each", "method-declaration"),
+    EACH("each", "method-declaration"), //*
     EMERG("emerg", "method-declaration"),
     EPP("epp", "method-declaration"),
     ERR("err", "method-declaration"),
-    EXTLOOKUP("extlookup", "method-declaration"),
-    FAIL("fail", "method-declaration"),
-    FILE("file", "method-declaration"),
-    FILTER("filter", "method-declaration"),
-    FQDN_RAND("fqdn_rand", "method-declaration"),
+    EXTLOOKUP("extlookup", "method-declaration"),//*
+    FAIL("fail", "method-declaration"), //*
+    FILE("file", "method-declaration"),//*
+    FILTER("filter", "method-declaration"),//*
+    FQDN_RAND("fqdn_rand", "method-declaration"), //*
     GENERATE("generate", "method-declaration"),
     HIERA("hiera", "method-declaration"),
     HIERA_ARRAY("hiera_array", "method-declaration"),
@@ -88,11 +88,11 @@ public enum PTokenId implements TokenId
     SLICE("slice", "method-declaration"),
     SPLIT("split", "method-declaration"),
     SPRINTF("sprintf", "method-declaration"),
-    TAG("tag", "method-declaration"),
+    TAG("tag", "method-declaration"), //*
     TAGGED("tagged", "method-declaration"),
-    TEMPLATE("template", "method-declaration"),
+    TEMPLATE("template", "method-declaration"), //*
     VERSIONCMP("versioncmp", "method-declaration"),
-    WARNING("warning", "method-declaration"),
+    WARNING("warning", "method-declaration"), //*
     
     COMMENT(null, "comment"),
     LINE_COMMENT(null, "comment"),
