@@ -192,6 +192,7 @@
         <extensions>true</extensions>
         <configuration>
             <sourceManifestFile>${basedir}/manifest.mf</sourceManifestFile>
+            <netbeansUserdir>${basedir}/userdir</netbeansUserdir>
         </configuration>
       </plugin>
 
