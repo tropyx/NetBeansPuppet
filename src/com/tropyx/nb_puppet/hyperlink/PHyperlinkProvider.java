@@ -138,9 +138,18 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
 
     private void performJump(Tuple tup, Document doc) {
         String[] splitValue = tup.value.split("\\:\\:");
-        if (splitValue.length == 2 || splitValue.length == 1) {
+        if (splitValue.length > 0) {
             String module = splitValue[0];
-            String file = (splitValue.length == 2 ? splitValue[1] : "init") + ".pp";
+            String file;
+            if (splitValue.length > 1) {
+                StringBuilder sb = new StringBuilder();
+                for (int i = 1; i < splitValue.length - 1; i++) {
+                    sb.append(splitValue[i]).append("/");
+                }
+                file = sb.append(splitValue[splitValue.length - 1]).append(".pp").toString();
+            } else {
+                file = "init.pp";
+            }
             DataObject dObject = NbEditorUtilities.getDataObject(doc);
             if (dObject != null) {
                 FileObject fo = dObject.getPrimaryFile();
