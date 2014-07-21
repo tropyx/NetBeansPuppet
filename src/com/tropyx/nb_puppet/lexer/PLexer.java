@@ -263,13 +263,15 @@ public class PLexer implements Lexer<PTokenId>
                             }
                             break;
                         case 'l':
-                            if ((c = nextChar()) == 's' 
-                             && (c = nextChar()) == 'e') 
+                            if ((c = nextChar()) == 's') 
                             {
-                                if ((c = nextChar()) == 'i' && (c = nextChar()) == 'f') {
-                                    return keywordOrIdentifier(PTokenId.ELSEIF);
-                                } else {
-                                    return keywordOrIdentifier(PTokenId.ELSE);
+                                switch (c = nextChar()) {
+                                    case 'e' : return keywordOrIdentifier(PTokenId.ELSE);
+                                    case 'i' : 
+                                        if ((c = nextChar()) == 'f') {
+                                            return keywordOrIdentifier(PTokenId.ELSIF);
+                                        }
+                                        break;
                                 }
                             }
                             break;
@@ -439,26 +441,82 @@ public class PLexer implements Lexer<PTokenId>
                     }
                     return finishIdentifier(c);
                 case 's' :
-                    if ((c = nextChar()) == 'e') {
-                        switch (c = nextChar())
-                        {
-                            case 'l':
-                                if ((c = nextChar()) == 'e'
-                                   && (c = nextChar()) == 'c'
-                                   && (c = nextChar()) == 't') 
-                                {  
-                                    return functionOrIdentifier(PTokenId.SELECT);
-                                }
-                                break;
-                            case 'a':
-                                if ((c = nextChar()) == 'r' 
-                                   && (c = nextChar()) == 'c'
-                                   && (c = nextChar()) == 'h') 
-                                {
-                                    return functionOrIdentifier(PTokenId.SEARCH);
-                                }
-                                break;
-                        }
+                    switch (c = nextChar()) {
+                        case 'e' :
+                            switch (c = nextChar())
+                            {
+                                case 'l':
+                                    if ((c = nextChar()) == 'e'
+                                       && (c = nextChar()) == 'c'
+                                       && (c = nextChar()) == 't') 
+                                    {  
+                                        return functionOrIdentifier(PTokenId.SELECT);
+                                    }
+                                    break;
+                                case 'a':
+                                    if ((c = nextChar()) == 'r' 
+                                       && (c = nextChar()) == 'c'
+                                       && (c = nextChar()) == 'h') 
+                                    {
+                                        return functionOrIdentifier(PTokenId.SEARCH);
+                                    }
+                                    break;
+                            }
+                            break;
+                        case 'h':
+                            switch (c = nextChar())
+                            {
+                                case 'a':
+                                    if ((c = nextChar()) == '1')
+                                    {  
+                                        return functionOrIdentifier(PTokenId.SHA1);
+                                    }
+                                    break;
+                                case 'e':
+                                    if ((c = nextChar()) == 'l' 
+                                       && (c = nextChar()) == 'l'
+                                       && (c = nextChar()) == 'q'
+                                       && (c = nextChar()) == 'u'
+                                       && (c = nextChar()) == 'o'
+                                       && (c = nextChar()) == 't'
+                                       && (c = nextChar()) == 'e') 
+                                    {
+                                        return functionOrIdentifier(PTokenId.SHELLQUOTE);
+                                    }
+                                    break;
+                            }
+                            break;
+                        case 'l':
+                            if ((c = nextChar()) == 'i' 
+                               && (c = nextChar()) == 'c'
+                               && (c = nextChar()) == 'e') 
+                            {
+                                return functionOrIdentifier(PTokenId.SLICE);
+                            }
+                            break;
+                        case 'p':
+                            switch (c = nextChar())
+                            {
+                                case 'l':
+                                    if ((c = nextChar()) == 'i'
+                                       && (c = nextChar()) == 't') 
+                                    {  
+                                        return functionOrIdentifier(PTokenId.SPLIT);
+                                    }
+                                    break;
+                                case 'r':
+                                    if ((c = nextChar()) == 'i' 
+                                       && (c = nextChar()) == 'n'
+                                       && (c = nextChar()) == 't'
+                                       && (c = nextChar()) == 'f') 
+                                    {
+                                        return functionOrIdentifier(PTokenId.SPRINTF);
+                                    }
+                                    break;
+                            }
+                            break;
+
+                            
                     }
                     return finishIdentifier(c);
                 case 't' :

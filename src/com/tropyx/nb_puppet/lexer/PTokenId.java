@@ -27,7 +27,7 @@ public enum PTokenId implements TokenId
     DEFAULT("default", "keyword"),
     DEFINE("define", "keyword"),
     ELSE("else", "keyword"),
-    ELSEIF("elseif", "keyword"),
+    ELSIF("elsif", "keyword"),
     //false
     IF("if", "keyword"),
     IMPORT("import", "keyword"),
@@ -83,11 +83,11 @@ public enum PTokenId implements TokenId
     REQUIRE("require", "method-declaration"), //*
     SEARCH("search", "method-declaration"),//*
     SELECT("select", "method-declaration"),//*
-    SHA1("sha1", "method-declaration"),
-    SHELLQUOTE("shellquote", "method-declaration"),
-    SLICE("slice", "method-declaration"),
-    SPLIT("split", "method-declaration"),
-    SPRINTF("sprintf", "method-declaration"),
+    SHA1("sha1", "method-declaration"),//*
+    SHELLQUOTE("shellquote", "method-declaration"),//*
+    SLICE("slice", "method-declaration"),//*
+    SPLIT("split", "method-declaration"),//*
+    SPRINTF("sprintf", "method-declaration"),//*
     TAG("tag", "method-declaration"), //*
     TAGGED("tagged", "method-declaration"),
     TEMPLATE("template", "method-declaration"), //*
