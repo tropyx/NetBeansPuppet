@@ -77,8 +77,8 @@ public enum PTokenId implements TokenId
     MAP("map", "method-declaration"), //*
     MD5("md5", "method-declaration"), //*
     NOTICE("notice", "method-declaration"), //*
-    REALIZE("realize", "method-declaration"),
-    REDUCE("reduce", "method-declaration"),
+    REALIZE("realize", "method-declaration"),//*
+    REDUCE("reduce", "method-declaration"),//*
     REQSUBST("regsubst", "method-declaration"),
     REQUIRE("require", "method-declaration"), //*
     SEARCH("search", "method-declaration"),//*
@@ -91,7 +91,7 @@ public enum PTokenId implements TokenId
     TAG("tag", "method-declaration"), //*
     TAGGED("tagged", "method-declaration"),
     TEMPLATE("template", "method-declaration"), //*
-    VERSIONCMP("versioncmp", "method-declaration"),
+    VERSIONCMP("versioncmp", "method-declaration"),//*
     WARNING("warning", "method-declaration"), //*
     
     COMMENT(null, "comment"),
