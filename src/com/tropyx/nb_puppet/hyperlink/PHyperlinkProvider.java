@@ -93,7 +93,6 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
                    
                     return;
                 }
-                //attributes
                 if (token.id() == PTokenId.IDENTIFIER) {
                     fTokenOff[0] = xml.offset();
                     fValue[0] = token.text().toString();
@@ -126,6 +125,30 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
                     //whitespace is clear, command and identifier are here for this case..
                     // require groovy::config, groovy::install
                     } while (doOneMore); 
+                } else if (token.id() == PTokenId.STRING_LITERAL) {
+                    fTokenOff[0] = xml.offset();
+                    fValue[0] = token.text().toString();
+                    boolean hadOneLParen = false;
+                    boolean doOneMore;
+                    do {
+                        doOneMore = false;
+                        xml.movePrevious();
+                        token = xml.token();
+                        if (token.id() == PTokenId.WHITESPACE) {
+                            doOneMore = true;
+                        }
+                        else if (token.id() == PTokenId.LPAREN) {
+                            if (!hadOneLParen) {
+                                doOneMore = true;
+                                hadOneLParen = true;
+                            }
+                        }
+                        else if (token.id() == PTokenId.TEMPLATE) {
+                            fAssociatedID[0] = token.id();
+                        }
+                        // template ('sss/ss.rbm')
+                    } while (doOneMore); 
+                    
                 }
             }
         });
@@ -137,48 +160,58 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
     }
 
     private void performJump(Tuple tup, Document doc) {
-        String[] splitValue = tup.value.split("\\:\\:");
-        if (splitValue.length > 0) {
-            String module = splitValue[0];
-            String file;
-            if (splitValue.length > 1) {
-                StringBuilder sb = new StringBuilder();
-                for (int i = 1; i < splitValue.length - 1; i++) {
-                    sb.append(splitValue[i]).append("/");
+        String path = null;
+        if (tup.associatedId == PTokenId.TEMPLATE) {
+            path = tup.value.replaceFirst("\\/", "/templates/");
+            path = path.replace("'", "");
+            System.out.println("path=" + path);
+            
+        } else {
+            String[] splitValue = tup.value.split("\\:\\:");
+            if (splitValue.length > 0) {
+                String module = splitValue[0];
+                String file;
+                if (splitValue.length > 1) {
+                    StringBuilder sb = new StringBuilder();
+                    for (int i = 1; i < splitValue.length - 1; i++) {
+                        sb.append(splitValue[i]).append("/");
+                    }
+                    file = sb.append(splitValue[splitValue.length - 1]).append(".pp").toString();
+                } else {
+                    file = "init.pp";
                 }
-                file = sb.append(splitValue[splitValue.length - 1]).append(".pp").toString();
-            } else {
-                file = "init.pp";
+                path = module + "/manifests/" + file;
             }
+        }
+        if (path != null) {
             DataObject dObject = NbEditorUtilities.getDataObject(doc);
             if (dObject != null) {
                 FileObject fo = dObject.getPrimaryFile();
-                FileObject res = findFile(fo, module, file);
-                        if (res != null) {
-                            try {
-                                DataObject dobj = DataObject.find(res);
-                                EditCookie ec = dobj.getLookup().lookup(EditCookie.class);
-                                if (ec != null) {
-                                    ec.edit();
-                                    return;
-                                }
-                                OpenCookie oc = dobj.getLookup().lookup(OpenCookie.class);
-                                if (oc != null) {
-                                    oc.open();
-                                    return;
-                                }
-                            } catch (DataObjectNotFoundException ex) {
-                                Exceptions.printStackTrace(ex);
-                            }
-
+                FileObject res = findFile(fo, path);
+                if (res != null) {
+                    try {
+                        DataObject dobj = DataObject.find(res);
+                        EditCookie ec = dobj.getLookup().lookup(EditCookie.class);
+                        if (ec != null) {
+                            ec.edit();
+                            return;
                         }
+                        OpenCookie oc = dobj.getLookup().lookup(OpenCookie.class);
+                        if (oc != null) {
+                            oc.open();
+                            return;
+                        }
+                    } catch (DataObjectNotFoundException ex) {
+                        Exceptions.printStackTrace(ex);
                     }
+
+                }
+            }
         }
     }
     
-    private FileObject findFile(FileObject fo, String module, String file) {
+    private FileObject findFile(FileObject fo, String path) {
         FileObject manifests = fo.getParent();
-        String path = module + "/manifests/" + file;
         if ("nodes".equals(manifests.getName()) && manifests.getParent() != null) {
             manifests = manifests.getParent();
         }
@@ -190,6 +223,7 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
                 if (moduleDir.getParent() != null) {
                     FileObject modulesParentDir = moduleDir.getParent();
                     FileObject res = modulesParentDir.getFileObject(path);
+                    System.out.println("res1=" + res + " for " + modulesParentDir);
                     if (res != null) {
                         return res;
                     }
@@ -205,6 +239,7 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
                 while (en.hasMoreElements()) {
                     FileObject candidate = en.nextElement();
                     FileObject res = candidate.getFileObject(path);
+                    System.out.println("res2=" + res + " for " + candidate);
                     if (res != null) {
                         return res;
                     }
