@@ -164,7 +164,6 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
         if (tup.associatedId == PTokenId.TEMPLATE) {
             path = tup.value.replaceFirst("\\/", "/templates/");
             path = path.replace("'", "");
-            System.out.println("path=" + path);
             
         } else {
             String[] splitValue = tup.value.split("\\:\\:");
@@ -223,7 +222,6 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
                 if (moduleDir.getParent() != null) {
                     FileObject modulesParentDir = moduleDir.getParent();
                     FileObject res = modulesParentDir.getFileObject(path);
-                    System.out.println("res1=" + res + " for " + modulesParentDir);
                     if (res != null) {
                         return res;
                     }
@@ -239,7 +237,6 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
                 while (en.hasMoreElements()) {
                     FileObject candidate = en.nextElement();
                     FileObject res = candidate.getFileObject(path);
-                    System.out.println("res2=" + res + " for " + candidate);
                     if (res != null) {
                         return res;
                     }
