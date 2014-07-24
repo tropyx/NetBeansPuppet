@@ -8,22 +8,30 @@ package com.tropyx.nb_puppet.hyperlink;
 
 import com.tropyx.nb_puppet.lexer.PLanguageProvider;
 import com.tropyx.nb_puppet.lexer.PTokenId;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Set;
+import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
+import javax.swing.text.StyledDocument;
 import org.netbeans.api.editor.mimelookup.MimeRegistration;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenSequence;
+import org.netbeans.editor.BaseDocument;
+import org.netbeans.editor.Utilities;
 import org.netbeans.lib.editor.hyperlink.spi.HyperlinkProviderExt;
 import org.netbeans.lib.editor.hyperlink.spi.HyperlinkType;
 import org.netbeans.modules.editor.NbEditorUtilities;
 import org.openide.cookies.EditCookie;
+import org.openide.cookies.EditorCookie;
+import org.openide.cookies.LineCookie;
 import org.openide.cookies.OpenCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
+import org.openide.text.Line;
 import org.openide.util.Exceptions;
 
 /**
@@ -149,6 +157,13 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
                         // template ('sss/ss.rbm')
                     } while (doOneMore); 
                     
+                } else if (token.id() == PTokenId.VARIABLE) {
+                    fTokenOff[0] = xml.offset();
+                    fValue[0] = token.text().toString();
+                    if (fValue[0].indexOf("::") != fValue[0].lastIndexOf("::") //heuristics, want XXX::YYY::variable name only 
+                            && !fValue[0].startsWith("$::")) {
+                        fAssociatedID[0] = token.id();
+                    }
                 }
             }
         });
@@ -161,10 +176,28 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
 
     private void performJump(Tuple tup, Document doc) {
         String path = null;
+        String variableName = null;
         if (tup.associatedId == PTokenId.TEMPLATE) {
             path = tup.value.replaceFirst("\\/", "/templates/");
             path = path.replace("'", "");
-            
+        } else if (tup.associatedId == PTokenId.VARIABLE) {
+            //substring removes $
+            String[] splitValue = tup.value.substring(1).split("\\:\\:");
+            if (splitValue.length > 2) {
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < splitValue.length - 1; i++) {
+                    sb.append(splitValue[i]);
+                    if (i == 0) {
+                        sb.append("/manifests/");
+                    } else if (i == splitValue.length - 2) {
+                        sb.append(".pp");
+                    } else {
+                        sb.append("/");
+                    }
+                }
+                variableName = "$" + splitValue[splitValue.length -1];
+                path = sb.toString();
+            }            
         } else {
             String[] splitValue = tup.value.split("\\:\\:");
             if (splitValue.length > 0) {
@@ -191,14 +224,57 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
                     try {
                         DataObject dobj = DataObject.find(res);
                         EditCookie ec = dobj.getLookup().lookup(EditCookie.class);
+                        boolean opened = false;
                         if (ec != null) {
                             ec.edit();
-                            return;
+                            opened = true;
+                        } else {
+                            OpenCookie oc = dobj.getLookup().lookup(OpenCookie.class);
+                            if (oc != null) {
+                                oc.open();
+                                opened = true;
+                            }
                         }
-                        OpenCookie oc = dobj.getLookup().lookup(OpenCookie.class);
-                        if (oc != null) {
-                            oc.open();
-                            return;
+                        if (opened && variableName != null) {
+                            EditorCookie editc = dobj.getLookup().lookup(EditorCookie.class);
+                            final int[] foffset = new int[1];
+                            foffset[0] = -1;
+                            BaseDocument bd = null;
+                            try {
+                                final StyledDocument targetdoc = editc.openDocument();
+                                bd = (BaseDocument) targetdoc;
+                                final String fVariableName = variableName;
+                                doc.render(new Runnable() {
+
+                                    @Override
+                                    public void run() {
+                                        TokenHierarchy th = TokenHierarchy.get(targetdoc);
+                                        TokenSequence<PTokenId> xml = th.tokenSequence();
+                                        xml.move(0);
+                                        while (xml.moveNext()) {
+                                            Token<PTokenId> token = xml.token();
+                                            // when it's not a value -> do nothing.
+                                            if (token == null) {
+                                                return;
+                                            }
+                                            if (token.id() == PTokenId.VARIABLE) {
+                                                if (fVariableName.equals(token.text().toString())) {
+                                                    foffset[0] = token.offset(th);
+                                                }
+                                            }
+                                        }
+                                    }
+                                });
+                                if (foffset[0] != -1) {
+                                    int line = Utilities.getLineOffset(bd, foffset[0]);
+                                    int row = Utilities.getRowIndent(bd, foffset[0]);
+                                    LineCookie lc = dobj.getLookup().lookup(LineCookie.class);
+                                    lc.getLineSet().getOriginal(line).show(Line.ShowOpenType.REUSE, Line.ShowVisibilityType.FOCUS, row);
+                                }
+                            } catch (IOException | BadLocationException ex) {
+                                Exceptions.printStackTrace(ex);
+                            }
+                            
                         }
                     } catch (DataObjectNotFoundException ex) {
                         Exceptions.printStackTrace(ex);
