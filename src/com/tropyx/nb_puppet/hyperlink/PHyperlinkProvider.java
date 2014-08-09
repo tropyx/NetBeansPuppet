@@ -3,7 +3,6 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package com.tropyx.nb_puppet.hyperlink;
 
 import com.tropyx.nb_puppet.lexer.PLanguageProvider;
@@ -38,7 +37,7 @@ import org.openide.util.Exceptions;
  *
  * @author mkleint
  */
-@MimeRegistration(mimeType=PLanguageProvider.MIME_TYPE, service=HyperlinkProviderExt.class)
+@MimeRegistration(mimeType = PLanguageProvider.MIME_TYPE, service = HyperlinkProviderExt.class)
 public class PHyperlinkProvider implements HyperlinkProviderExt {
 
     @Override
@@ -59,7 +58,7 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
     public int[] getHyperlinkSpan(final Document doc, final int offset, HyperlinkType type) {
         Tuple tup = getTuple(doc, offset);
         if (tup != null) {
-            return new int[] {
+            return new int[]{
                 tup.tokenOffset, tup.tokenOffset + tup.value.length()
             };
         }
@@ -82,7 +81,7 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
         }
         return null;
     }
-    
+
     Tuple getTuple(final Document doc, final int offset) {
         final String[] fValue = new String[1];
         final int[] fTokenOff = new int[1];
@@ -98,7 +97,7 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
                 Token<PTokenId> token = xml.token();
                 // when it's not a value -> do nothing.
                 if (token == null) {
-                   
+
                     return;
                 }
                 if (token.id() == PTokenId.IDENTIFIER) {
@@ -131,32 +130,18 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
                             fAssociatedID[0] = token.id();
                         }
                     //whitespace is clear, command and identifier are here for this case..
-                    // require groovy::config, groovy::install
-                    } while (doOneMore); 
+                        // require groovy::config, groovy::install
+                    } while (doOneMore);
                 } else if (token.id() == PTokenId.STRING_LITERAL) {
                     fTokenOff[0] = xml.offset();
                     fValue[0] = token.text().toString();
-                    boolean hadOneLParen = false;
-                    boolean doOneMore;
-                    do {
-                        doOneMore = false;
-                        xml.movePrevious();
-                        token = xml.token();
-                        if (token.id() == PTokenId.WHITESPACE) {
-                            doOneMore = true;
+                    if (matchChains(createStringChains(), xml)) {
+                        fAssociatedID[0] = xml.token().id();
+                        if (token.id() == PTokenId.IDENTIFIER && !xml.token().text().toString().equals("Class")) {
+                            fAssociatedID[0] = null;
                         }
-                        else if (token.id() == PTokenId.LPAREN) {
-                            if (!hadOneLParen) {
-                                doOneMore = true;
-                                hadOneLParen = true;
-                            }
-                        }
-                        else if (token.id() == PTokenId.TEMPLATE) {
-                            fAssociatedID[0] = token.id();
-                        }
-                        // template ('sss/ss.rbm')
-                    } while (doOneMore); 
-                    
+                    }
+
                 } else if (token.id() == PTokenId.VARIABLE) {
                     fTokenOff[0] = xml.offset();
                     fValue[0] = token.text().toString();
@@ -171,18 +156,67 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
             return new Tuple(fValue[0], fAssociatedID[0], fTokenOff[0]);
         }
         return null;
+
+    }
+
+    private boolean matchChains(DecisionNode node, TokenSequence<PTokenId> xml) {
+
+        boolean doOneMore;
         
+        do {
+            doOneMore = false;
+            xml.movePrevious();
+            Token<PTokenId> token = xml.token();
+            if (token.id() == PTokenId.WHITESPACE) {
+                doOneMore = true;
+            } else {
+                for (DecisionNode ch : node.children) {
+                    if (ch.id.equals(token.id())) {
+                        if (ch.children.length == 0) {
+                            //we are at the end.
+                            return true;
+                        } else {
+                            node = ch;
+                            doOneMore = true;
+                        }
+                    }
+                }
+            } 
+            // template ('sss/ss.rbm')
+        } while (doOneMore);
+        return false;
+    }
+    
+    private DecisionNode createStringChains() {
+        return new DecisionNode(PTokenId.STRING_LITERAL,
+                new DecisionNode[]{
+                    new DecisionNode(PTokenId.LPAREN,
+                            new DecisionNode[]{
+                                new DecisionNode(PTokenId.TEMPLATE, new DecisionNode[0])
+                            }),
+                    new DecisionNode(PTokenId.LBRACKET,
+                            new DecisionNode[]{
+                                new DecisionNode(PTokenId.IDENTIFIER, new DecisionNode[0])
+                            })
+                }
+        );
     }
 
     private void performJump(Tuple tup, Document doc) {
-        String path = null;
+        String path = tup.value;
+        if (path.startsWith("'")) {
+            path = path.substring(1);
+        }
+        if (path.endsWith("'")) {
+            path = path.substring(0, path.length() - 1);
+        }
         String variableName = null;
         if (tup.associatedId == PTokenId.TEMPLATE) {
-            path = tup.value.replaceFirst("\\/", "/templates/");
-            path = path.replace("'", "");
+            path = path.replaceFirst("\\/", "/templates/");
+//            path = path.replace("'", "");
         } else if (tup.associatedId == PTokenId.VARIABLE) {
             //substring removes $
-            String[] splitValue = tup.value.substring(1).split("\\:\\:");
+            String[] splitValue = path.substring(1).split("\\:\\:");
             if (splitValue.length > 2) {
                 StringBuilder sb = new StringBuilder();
                 for (int i = 0; i < splitValue.length - 1; i++) {
@@ -197,9 +231,9 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
                 }
                 variableName = "$" + splitValue[splitValue.length -1];
                 path = sb.toString();
-            }            
+            }
         } else {
-            String[] splitValue = tup.value.split("\\:\\:");
+            String[] splitValue = path.split("\\:\\:");
             if (splitValue.length > 0) {
                 String module = splitValue[0];
                 String file;
@@ -274,7 +308,7 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
                             } catch (IOException | BadLocationException ex) {
                                 Exceptions.printStackTrace(ex);
                             }
-                            
+
                         }
                     } catch (DataObjectNotFoundException ex) {
                         Exceptions.printStackTrace(ex);
@@ -284,7 +318,7 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
             }
         }
     }
-    
+
     private FileObject findFile(FileObject fo, String path) {
         FileObject manifests = fo.getParent();
         if ("nodes".equals(manifests.getName()) && manifests.getParent() != null) {
@@ -322,6 +356,16 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
         return null;
     }
 
+    private static class DecisionNode {
+        final DecisionNode[] children;
+        final PTokenId id;
+
+        public DecisionNode(PTokenId id, DecisionNode[] children) {
+            this.children = children;
+            this.id = id;
+        }
+    }
+
     private final class Tuple {
         final String value;
         final int tokenOffset;
@@ -334,6 +378,6 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
             this.associatedId = pTokenId;
             this.tokenOffset = offset;
         }
-        
+
     }
 }
