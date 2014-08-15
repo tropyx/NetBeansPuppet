@@ -230,6 +230,10 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
                     }
                 }
                 variableName = "$" + splitValue[splitValue.length -1];
+                if (variableName.endsWith(":")) {
+                    //$java::params::all_versions:
+                    variableName = variableName.substring(0, variableName.length() - 1);
+                }
                 path = sb.toString();
             }
         } else {
@@ -257,58 +261,9 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
                 if (res != null) {
                     try {
                         DataObject dobj = DataObject.find(res);
-                        EditCookie ec = dobj.getLookup().lookup(EditCookie.class);
-                        boolean opened = false;
-                        if (ec != null) {
-                            ec.edit();
-                            opened = true;
-                        } else {
-                            OpenCookie oc = dobj.getLookup().lookup(OpenCookie.class);
-                            if (oc != null) {
-                                oc.open();
-                                opened = true;
-                            }
-                        }
+                        boolean opened = openDataObject(dobj);
                         if (opened && variableName != null) {
-                            EditorCookie editc = dobj.getLookup().lookup(EditorCookie.class);
-                            final int[] foffset = new int[1];
-                            foffset[0] = -1;
-                            BaseDocument bd = null;
-                            try {
-                                final StyledDocument targetdoc = editc.openDocument();
-                                bd = (BaseDocument) targetdoc;
-                                final String fVariableName = variableName;
-                                doc.render(new Runnable() {
-
-                                    @Override
-                                    public void run() {
-                                        TokenHierarchy th = TokenHierarchy.get(targetdoc);
-                                        TokenSequence<PTokenId> xml = th.tokenSequence();
-                                        xml.move(0);
-                                        while (xml.moveNext()) {
-                                            Token<PTokenId> token = xml.token();
-                                            // when it's not a value -> do nothing.
-                                            if (token == null) {
-                                                return;
-                                            }
-                                            if (token.id() == PTokenId.VARIABLE) {
-                                                if (fVariableName.equals(token.text().toString())) {
-                                                    foffset[0] = token.offset(th);
-                                                }
-                                            }
-                                        }
-                                    }
-                                });
-                                if (foffset[0] != -1) {
-                                    int line = Utilities.getLineOffset(bd, foffset[0]);
-                                    int row = Utilities.getRowIndent(bd, foffset[0]);
-                                    LineCookie lc = dobj.getLookup().lookup(LineCookie.class);
-                                    lc.getLineSet().getOriginal(line).show(Line.ShowOpenType.REUSE, Line.ShowVisibilityType.FOCUS, row);
-                                }
-                            } catch (IOException | BadLocationException ex) {
-                                Exceptions.printStackTrace(ex);
-                            }
-
+                            openAtVariableDefinition(dobj, variableName);
                         }
                     } catch (DataObjectNotFoundException ex) {
                         Exceptions.printStackTrace(ex);
@@ -317,6 +272,63 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
                 }
             }
         }
+    }
+
+    private void openAtVariableDefinition(DataObject dobj, String variableName) throws IndexOutOfBoundsException {
+        EditorCookie editc = dobj.getLookup().lookup(EditorCookie.class);
+        final int[] foffset = new int[1];
+        foffset[0] = -1;
+        BaseDocument bd = null;
+        try {
+            final StyledDocument targetdoc = editc.openDocument();
+            bd = (BaseDocument) targetdoc;
+            final String fVariableName = variableName;
+            targetdoc.render(new Runnable() {
+                
+                @Override
+                public void run() {
+                    TokenHierarchy th = TokenHierarchy.get(targetdoc);
+                    TokenSequence<PTokenId> xml = th.tokenSequence();
+                    xml.move(0);
+                    while (xml.moveNext()) {
+                        Token<PTokenId> token = xml.token();
+                        // when it's not a value -> do nothing.
+                        if (token == null) {
+                            return;
+                        }
+                        if (token.id() == PTokenId.VARIABLE) {
+                            if (fVariableName.equals(token.text().toString())) {
+                                foffset[0] = token.offset(th);
+                            }
+                        }
+                    }
+                }
+            });
+            if (foffset[0] != -1) {
+                int line = Utilities.getLineOffset(bd, foffset[0]);
+                int row = Utilities.getRowIndent(bd, foffset[0]);
+                LineCookie lc = dobj.getLookup().lookup(LineCookie.class);
+                lc.getLineSet().getOriginal(line).show(Line.ShowOpenType.REUSE, Line.ShowVisibilityType.FOCUS, row);
+            }
+        } catch (IOException | BadLocationException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+    }
+
+    private boolean openDataObject(DataObject dobj) {
+        EditCookie ec = dobj.getLookup().lookup(EditCookie.class);
+        boolean opened = false;
+        if (ec != null) {
+            ec.edit();
+            opened = true;
+        } else {
+            OpenCookie oc = dobj.getLookup().lookup(OpenCookie.class);
+            if (oc != null) {
+                oc.open();
+                opened = true;
+            }
+        }
+        return opened;
     }
 
     private FileObject findFile(FileObject fo, String path) {
@@ -355,6 +367,7 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
         }
         return null;
     }
+    
 
     private static class DecisionNode {
         final DecisionNode[] children;
