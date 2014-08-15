@@ -32,6 +32,7 @@ import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.text.Line;
 import org.openide.util.Exceptions;
+import org.openide.util.Pair;
 
 /**
  *
@@ -216,25 +217,10 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
 //            path = path.replace("'", "");
         } else if (tup.associatedId == PTokenId.VARIABLE) {
             //substring removes $
-            String[] splitValue = path.substring(1).split("\\:\\:");
-            if (splitValue.length > 2) {
-                StringBuilder sb = new StringBuilder();
-                for (int i = 0; i < splitValue.length - 1; i++) {
-                    sb.append(splitValue[i]);
-                    if (i == 0) {
-                        sb.append("/manifests/");
-                    } else if (i == splitValue.length - 2) {
-                        sb.append(".pp");
-                    } else {
-                        sb.append("/");
-                    }
-                }
-                variableName = "$" + splitValue[splitValue.length -1];
-                if (variableName.endsWith(":")) {
-                    //$java::params::all_versions:
-                    variableName = variableName.substring(0, variableName.length() - 1);
-                }
-                path = sb.toString();
+            Pair<String, String> pair = getPathAndVariable(path);
+            if (pair != null) {
+                path = pair.first();
+                variableName = pair.second();
             }
         } else {
             String[] splitValue = path.split("\\:\\:");
@@ -364,6 +350,36 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
                     }
                 }
             }
+        }
+        return null;
+    }
+    
+    /**
+     * 
+     * @param path first is path, second variable name
+     * @return 
+     */
+    Pair<String, String> getPathAndVariable(String path) {
+        String[] splitValue = path.substring(1).split("\\:\\:");
+        if (splitValue.length > 2) {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < splitValue.length - 1; i++) {
+                sb.append(splitValue[i]);
+                if (i == 0) {
+                    sb.append("/manifests/");
+                } else if (i == splitValue.length - 2) {
+                    sb.append(".pp");
+                } else {
+                    sb.append("/");
+                }
+            }
+            String variableName = "$" + splitValue[splitValue.length - 1];
+            if (variableName.endsWith(":")) {
+                //$java::params::all_versions:
+                variableName = variableName.substring(0, variableName.length() - 1);
+            }
+            path = sb.toString();
+            return Pair.of(path, variableName);
         }
         return null;
     }
