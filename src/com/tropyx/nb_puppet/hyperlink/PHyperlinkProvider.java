@@ -249,7 +249,7 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
                         DataObject dobj = DataObject.find(res);
                         boolean opened = openDataObject(dobj);
                         if (opened && variableName != null) {
-                            openAtVariableDefinition(dobj, variableName);
+                            cursorToVariableDefinition(dobj, variableName);
                         }
                     } catch (DataObjectNotFoundException ex) {
                         Exceptions.printStackTrace(ex);
@@ -260,7 +260,7 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
         }
     }
 
-    private void openAtVariableDefinition(DataObject dobj, String variableName) throws IndexOutOfBoundsException {
+    private void cursorToVariableDefinition(DataObject dobj, String variableName) throws IndexOutOfBoundsException {
         EditorCookie editc = dobj.getLookup().lookup(EditorCookie.class);
         final int[] foffset = new int[1];
         foffset[0] = -1;
