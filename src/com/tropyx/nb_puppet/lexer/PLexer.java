@@ -102,7 +102,7 @@ public class PLexer implements Lexer<PTokenId>
                         default : backup(1);
                     }
                     
-                    return token(PTokenId.OPERATOR);
+                    return token(PTokenId.EQUALS);
                 case '>' :
                     switch (c = nextChar())
                     {

@@ -100,14 +100,23 @@ public enum PTokenId implements TokenId
     STRING_LITERAL(null, "string"),
     VARIABLE(null, "variable-declaration"),
     
+    /** ( **/
     LPAREN("(", "separator"),
+    /** ) **/
     RPAREN(")", "separator"),
+    /** { **/
     LBRACE("{", "separator"),
+    /** } **/
     RBRACE("}", "separator"),
+    /** [ **/
     LBRACKET("[", "separator"),
+    /** ] **/
     RBRACKET("]", "separator"),
+    /** , **/
     COMMA(",", "separator"), 
-    COLON(":", "separator");
+    /** : **/
+    COLON(":", "separator"),
+    EQUALS("=", "operator");
     
     
     private final String name;

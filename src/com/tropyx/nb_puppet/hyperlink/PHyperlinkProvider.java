@@ -8,9 +8,13 @@ package com.tropyx.nb_puppet.hyperlink;
 import com.tropyx.nb_puppet.lexer.PLanguageProvider;
 import com.tropyx.nb_puppet.lexer.PTokenId;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Set;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.StyledDocument;
@@ -78,6 +82,25 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
     public String getTooltipText(Document doc, int offset, HyperlinkType type) {
         Tuple tup = getTuple(doc, offset);
         if (tup != null) {
+            if (tup.associatedId.equals(PTokenId.VARIABLE)) {
+                Pair<String, String> v = getPathAndVariable(tup.value);
+                DataObject dObject = NbEditorUtilities.getDataObject(doc);
+                if (dObject != null) {
+                    FileObject fo = dObject.getPrimaryFile();
+                    FileObject res = findFile(fo, v.first());
+                    if (res != null) {
+                        try {
+                            DataObject dobj = DataObject.find(res);
+                            String value = guessVariableValue(dobj, v.second());
+                            if (value != null) {
+                                return value;
+                            }
+                        } catch (DataObjectNotFoundException ex) {
+                            Exceptions.printStackTrace(ex);
+                        }
+                    }
+                }
+            }
             return "Jump to definition";
         }
         return null;
@@ -136,7 +159,7 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
                 } else if (token.id() == PTokenId.STRING_LITERAL) {
                     fTokenOff[0] = xml.offset();
                     fValue[0] = token.text().toString();
-                    if (matchChains(createStringChains(), xml)) {
+                    if (matchChains(createStringChains(), xml, true)) {
                         fAssociatedID[0] = xml.token().id();
                         if (token.id() == PTokenId.IDENTIFIER && !xml.token().text().toString().equals("Class")) {
                             fAssociatedID[0] = null;
@@ -160,18 +183,20 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
 
     }
 
-    private boolean matchChains(DecisionNode node, TokenSequence<PTokenId> xml) {
-
+    private boolean matchChains(DecisionNode node, TokenSequence<PTokenId> xml, boolean moveBack) {
         boolean doOneMore;
-        
         do {
             doOneMore = false;
-            xml.movePrevious();
+            boolean didMove = moveBack ? xml.movePrevious() : xml.moveNext();
+            if (!didMove) {
+                return false;
+            }
             Token<PTokenId> token = xml.token();
             if (token.id() == PTokenId.WHITESPACE) {
                 doOneMore = true;
             } else {
-                for (DecisionNode ch : node.children) {
+                DecisionNode currN = node;
+                for (DecisionNode ch : currN.children) {
                     if (ch.id.equals(token.id())) {
                         if (ch.children.length == 0) {
                             //we are at the end.
@@ -182,6 +207,9 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
                         }
                     }
                 }
+                if (currN.ignores(token.id())) {
+                    doOneMore = true;
+                }
             } 
             // template ('sss/ss.rbm')
         } while (doOneMore);
@@ -189,17 +217,13 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
     }
     
     private DecisionNode createStringChains() {
-        return new DecisionNode(PTokenId.STRING_LITERAL,
-                new DecisionNode[]{
-                    new DecisionNode(PTokenId.LPAREN,
-                            new DecisionNode[]{
-                                new DecisionNode(PTokenId.TEMPLATE, new DecisionNode[0])
-                            }),
-                    new DecisionNode(PTokenId.LBRACKET,
-                            new DecisionNode[]{
-                                new DecisionNode(PTokenId.IDENTIFIER, new DecisionNode[0])
-                            })
-                }
+        return of(PTokenId.STRING_LITERAL,
+                    of(PTokenId.LPAREN,
+                            of(PTokenId.TEMPLATE)
+                       ),
+                    of(PTokenId.LBRACKET,
+                            of(PTokenId.IDENTIFIER)
+                    )
         );
     }
 
@@ -384,15 +408,105 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
         return null;
     }
     
+    private String guessVariableValue(DataObject dobj, String variableName) throws IndexOutOfBoundsException {
+        EditorCookie editc = dobj.getLookup().lookup(EditorCookie.class);
+        try {
+            final StyledDocument targetdoc = editc.openDocument();
+            final String fVariableName = variableName;
+            final String[] fValue = new String[1]; 
+            targetdoc.render(new Runnable() {
+                
+                @Override
+                public void run() {
+                    TokenHierarchy th = TokenHierarchy.get(targetdoc);
+                    TokenSequence<PTokenId> xml = th.tokenSequence();
+                    xml.move(0);
+                    while (xml.moveNext()) {
+                        Token<PTokenId> token = xml.token();
+                        // when it's not a value -> do nothing.
+                        if (token == null) {
+                            return;
+                        }
+                        if (token.id() == PTokenId.VARIABLE) {
+                            int startOffset = token.offset(th);
+                            if (fVariableName.equals(token.text().toString())) {
+                                System.out.println("have var");
+                                if (matchChains(getVariableValueChain(), xml, false)) {
+                                    System.out.println("matches Chain");
+                                    try {
+                                        int len = xml.offset() - startOffset + xml.token().length();
+                                        fValue[0] = targetdoc.getText(startOffset, len);
+                                    } catch (BadLocationException ex) {
+                                        Exceptions.printStackTrace(ex);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+            });
+            return fValue[0];
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+        return null;
+    }
+    
+    private DecisionNode getVariableValueChain() {
+        return of(PTokenId.VARIABLE, 
+                    of(PTokenId.EQUALS, 
+                        of(PTokenId.STRING_LITERAL),
+                        of(PTokenId.LBRACKET, 
+                            of(PTokenId.RBRACKET)
+                        ).ignoreAll(),
+                        of(PTokenId.EXTLOOKUP, 
+                            of(PTokenId.RPAREN)
+                        ).ignoreAll()
+                    )
+                );
+    }
+    
+    DecisionNode of(PTokenId id, DecisionNode... children) {
+        return new DecisionNode(id, children);
+    }
+    
 
     private static class DecisionNode {
         final DecisionNode[] children;
         final PTokenId id;
+        private List<String> ignores = Collections.EMPTY_LIST;
+        boolean ignoreAll = false;
 
         public DecisionNode(PTokenId id, DecisionNode[] children) {
             this.children = children;
             this.id = id;
         }
+        
+        public boolean ignores(PTokenId id) {
+            for (DecisionNode ch : children) {
+                if (ch.id.equals(id)) {
+                    return false;
+                }
+            }
+            return ignoreAll || ignores.contains(id.toString());
+        } 
+        
+        public DecisionNode ignore(String... ids) {
+            ignores = Arrays.asList(ids);
+            return this;
+        }
+        
+        public DecisionNode ignoreAll() {
+            ignoreAll = true;
+            return this;
+        }
+
+        @Override
+        public String toString() {
+            return "DecisionNode{" + "id=" + id + '}';
+        }
+        
     }
 
     private final class Tuple {
