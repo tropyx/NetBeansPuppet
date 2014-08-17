@@ -8,7 +8,12 @@
   <packaging>nbm</packaging>
 
   <name>nbpuppet</name>
-
+    <licenses>
+        <license>
+            <name>General Public License 3.0</name>
+            <url>http://www.gnu.org/licenses/gpl-3.0.html</url>
+        </license>
+    </licenses>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <netbeans.run.params.ide/>
