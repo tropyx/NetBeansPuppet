@@ -98,6 +98,7 @@ public enum PTokenId implements TokenId
     LINE_COMMENT(null, "comment"),
     WHITESPACE(null, "whitespace"),
     STRING_LITERAL(null, "string"),
+    REGEXP_LITERAL(null, "regexp"),
     VARIABLE(null, "variable-declaration"),
     
     /** ( **/

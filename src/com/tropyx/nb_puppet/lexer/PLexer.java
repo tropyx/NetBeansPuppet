@@ -127,6 +127,7 @@ public class PLexer implements Lexer<PTokenId>
                 case '-':
                 case '*':
                 case '/':
+                    return finishRegexp(c);
                 case '%':
                     return token(PTokenId.OPERATOR);
     
@@ -991,6 +992,29 @@ private Token<PTokenId> finishNumberLiteral(int c, boolean inFraction) {
     @Override
     public void release()
     {
+    }
+
+    private Token<PTokenId> finishRegexp(int c) {
+        boolean escaped = false;
+        while (true) {
+            c = nextChar();
+            switch (c) {
+                case EOF:
+                    return null;
+                case '\\' : 
+                    escaped = true; 
+                    break;
+                case '/' : 
+                    if (escaped) {
+                        escaped = false;
+                    } else {
+                        return token(PTokenId.REGEXP_LITERAL);
+                    }
+                    break;
+                default:
+                    escaped = false;
+            }
+        }
     }
 
 }
