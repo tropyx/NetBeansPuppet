@@ -36,8 +36,9 @@ public enum LintCheck
     DUPLICATE_PARAMS("Duplicate params", "--no-duplicate_params-check"),
     UNQUOTED_FILE_MODE("Unquoted file mode", "--no-unquoted_file_mode-check"),
     FILE_MODE("File mode", "--no-file_mode-check"),
-    ENSURE_NOT_SYMLINK_TARGET("Ensure not symlink", "--no-ensure_not_symlink_target-check");
-    
+    ENSURE_NOT_SYMLINK_TARGET("Ensure not symlink", "--no-ensure_not_symlink_target-check"),
+    UNQUOTED_NODE_NAME("Unquoted_node_name check", "--no-unquoted_node_name-check");
+
     private final String displayName;
     private final String disableParam;
  

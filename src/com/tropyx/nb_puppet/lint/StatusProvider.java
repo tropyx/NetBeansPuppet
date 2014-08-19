@@ -1,6 +1,7 @@
 package com.tropyx.nb_puppet.lint;
 
 import com.tropyx.nb_puppet.lexer.PLanguageProvider;
+import static com.tropyx.nb_puppet.lint.ExecutePuppetLintAction.findBasedir;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -87,11 +88,12 @@ public final class StatusProvider implements UpToDateStatusProviderFactory {
         }
 
         private List<ErrorDescription> checkErrors(FileObject fo) {
+            FileObject basedir = findBasedir(fo.getParent());
             ArrayList<ErrorDescription> toRet = new ArrayList<>();
             ExternalProcessBuilder builder = new ExternalProcessBuilder("puppet-lint")
-                .workingDirectory(FileUtil.toFile(fo.getParent()))
+                .workingDirectory(FileUtil.toFile(basedir))
                 .redirectErrorStream(true)
-                .addArgument(fo.getNameExt())
+                .addArgument(FileUtil.getRelativePath(basedir, fo))
                 .addArgument("--log-format")
                 .addArgument("%{linenumber}||%{kind}||%{check}||%{message}");
             

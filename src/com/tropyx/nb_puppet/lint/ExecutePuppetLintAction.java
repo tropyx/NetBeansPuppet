@@ -11,11 +11,12 @@ import java.util.concurrent.Future;
 import org.netbeans.api.extexecution.ExecutionDescriptor;
 import org.netbeans.api.extexecution.ExecutionService;
 import org.netbeans.api.extexecution.ExternalProcessBuilder;
-import org.openide.loaders.DataObject;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionRegistration;
+import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
+import org.openide.loaders.DataObject;
 import org.openide.util.NbBundle.Messages;
 import org.openide.util.RequestProcessor;
 
@@ -42,9 +43,10 @@ public final class ExecutePuppetLintAction implements ActionListener
     @Override
     public void actionPerformed(ActionEvent ev)
     {
+        FileObject basedir = findBasedir(context.getPrimaryFile().getParent());
         ExternalProcessBuilder builder = new ExternalProcessBuilder("puppet-lint")
-                .workingDirectory(FileUtil.toFile(context.getPrimaryFile().getParent()))
-                .addArgument(context.getPrimaryFile().getNameExt())
+                .workingDirectory(FileUtil.toFile(basedir))
+                .addArgument(FileUtil.getRelativePath(basedir, context.getPrimaryFile()))
                 .addArgument("--with-filename");
 
         ExecutionDescriptor descriptor = new ExecutionDescriptor()
@@ -60,5 +62,16 @@ public final class ExecutePuppetLintAction implements ActionListener
                 Future<Integer> task = service.run();
             }
         });
+    }
+
+    static FileObject findBasedir(FileObject folder) {
+        FileObject parent = folder;
+        while (parent != null) {
+            if ("manifests".equals(parent.getName())) {
+                return parent.getParent().getParent();
+            }
+            parent = parent.getParent();
+        }
+        return folder;
     }
 }
