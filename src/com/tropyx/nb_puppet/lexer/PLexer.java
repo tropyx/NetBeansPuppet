@@ -814,14 +814,19 @@ public class PLexer implements Lexer<PTokenId>
     
     private Token<PTokenId> finishVariable(int c)
     {
+        int lastC = c;
         while (true)
         {
             if (c == EOF || !isVariableChar(c = translateSurrogates(c)))
             {
                 // For surrogate 2 chars must be backed up
                 backup((c >= Character.MIN_SUPPLEMENTARY_CODE_POINT) ? 2 : 1);
+                if (lastC == ':') {
+                    backup(1);
+                }
                 return tokenFactory.createToken(PTokenId.VARIABLE);
             }
+            lastC = c;
             c = nextChar();
         }
     }
