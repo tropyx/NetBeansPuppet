@@ -1,8 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package com.tropyx.nb_puppet.hyperlink;
 
 import com.tropyx.nb_puppet.lexer.PLanguageProvider;
@@ -13,8 +9,6 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Set;
-import javax.swing.event.HyperlinkEvent;
-import javax.swing.event.HyperlinkListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.StyledDocument;
@@ -63,6 +57,11 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
     public int[] getHyperlinkSpan(final Document doc, final int offset, HyperlinkType type) {
         Tuple tup = getTuple(doc, offset);
         if (tup != null) {
+            if (tup.stringSpan != null) {
+                return new int[] {
+                    tup.stringSpan.spanStart, tup.stringSpan.spanEnd
+                };
+            }
             return new int[]{
                 tup.tokenOffset, tup.tokenOffset + tup.value.length()
             };
@@ -82,10 +81,10 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
     public String getTooltipText(Document doc, int offset, HyperlinkType type) {
         Tuple tup = getTuple(doc, offset);
         if (tup != null) {
-            if (tup.associatedId.equals(PTokenId.VARIABLE)) {
-                Pair<String, String> v = getPathAndVariable(tup.value);
+            if (tup.associatedId.equals(PTokenId.VARIABLE) || tup.stringSpan != null) {
+                Pair<String, String> v = getPathAndVariable(tup.stringSpan != null ? tup.stringSpan.value : tup.value);
                 DataObject dObject = NbEditorUtilities.getDataObject(doc);
-                if (dObject != null) {
+                if (dObject != null && v != null) {
                     FileObject fo = dObject.getPrimaryFile();
                     FileObject res = findFile(fo, v.first());
                     if (res != null) {
@@ -108,6 +107,7 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
 
     Tuple getTuple(final Document doc, final int offset) {
         final String[] fValue = new String[1];
+        final StringSpan[] fSpan = new StringSpan[1];
         final int[] fTokenOff = new int[1];
         final PTokenId[] fAssociatedID = new PTokenId[1];
         doc.render(new Runnable() {
@@ -159,6 +159,13 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
                 } else if (token.id() == PTokenId.STRING_LITERAL) {
                     fTokenOff[0] = xml.offset();
                     fValue[0] = token.text().toString();
+                    if (fValue[0].startsWith("\"")) {
+                        StringSpan span = findProperty(fValue[0], fTokenOff[0], offset);
+                        if (span != null) {
+                            fSpan[0] = span; 
+                            fAssociatedID[0] = xml.token().id();
+                        }
+                    }
                     if (matchChains(createStringChains(), xml, true)) {
                         fAssociatedID[0] = xml.token().id();
                         if (token.id() == PTokenId.IDENTIFIER && !xml.token().text().toString().equals("Class")) {
@@ -177,7 +184,7 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
             }
         });
         if (fAssociatedID[0] != null) {
-            return new Tuple(fValue[0], fAssociatedID[0], fTokenOff[0]);
+            return new Tuple(fValue[0], fAssociatedID[0], fTokenOff[0], fSpan[0]);
         }
         return null;
 
@@ -239,9 +246,9 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
         if (tup.associatedId == PTokenId.TEMPLATE) {
             path = path.replaceFirst("\\/", "/templates/");
 //            path = path.replace("'", "");
-        } else if (tup.associatedId == PTokenId.VARIABLE) {
+        } else if (tup.associatedId == PTokenId.VARIABLE || tup.stringSpan != null) {
             //substring removes $
-            Pair<String, String> pair = getPathAndVariable(path);
+            Pair<String, String> pair = getPathAndVariable(tup.stringSpan != null ? tup.stringSpan.value : path);
             if (pair != null) {
                 path = pair.first();
                 variableName = pair.second();
@@ -384,7 +391,8 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
      * @return 
      */
     Pair<String, String> getPathAndVariable(String path) {
-        String[] splitValue = path.substring(1).split("\\:\\:");
+        path = path.replace("$", "").replace("{", "").replace("}", "");
+        String[] splitValue = path.split("\\:\\:");
         if (splitValue.length > 2) {
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < splitValue.length - 1; i++) {
@@ -420,7 +428,7 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
                 public void run() {
                     TokenHierarchy th = TokenHierarchy.get(targetdoc);
                     TokenSequence<PTokenId> xml = th.tokenSequence();
-                    xml.move(0);
+                    xml.moveStart();
                     while (xml.moveNext()) {
                         Token<PTokenId> token = xml.token();
                         // when it's not a value -> do nothing.
@@ -457,6 +465,7 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
         return of(PTokenId.VARIABLE, 
                     of(PTokenId.EQUALS, 
                         of(PTokenId.STRING_LITERAL),
+                        of(PTokenId.VARIABLE),
                         of(PTokenId.LBRACKET, 
                             of(PTokenId.RBRACKET)
                         ).ignoreAll(),
@@ -513,14 +522,54 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
         final String value;
         final int tokenOffset;
         final PTokenId associatedId;
+        final StringSpan stringSpan;
 
 
-        private Tuple(String value, PTokenId pTokenId, int offset)
+        private Tuple(String value, PTokenId pTokenId, int offset, StringSpan stringSpan)
         {
             this.value = value;
             this.associatedId = pTokenId;
             this.tokenOffset = offset;
+            this.stringSpan = stringSpan;
         }
 
     }
+    
+    private static class StringSpan {
+        final int spanStart;
+        final int spanEnd;
+        final String value;
+        public StringSpan(String val, int start, int end) {
+            this.value = val;
+            this.spanStart = start;
+            this.spanEnd = end; 
+        }
+    } 
+    
+    
+    private StringSpan findProperty(String textToken, int tokenOffset, int currentOffset) {
+        if (textToken == null) {
+            return null;
+        }
+        int ff = currentOffset - tokenOffset;
+
+        if (ff > -1 && ff < textToken.length()) {
+            String before = textToken.substring(0, ff);
+            String after = textToken.substring(ff, textToken.length());
+            int bo = before.lastIndexOf("${");
+            int bc = before.lastIndexOf("}");
+            int ao = after.indexOf("${");
+            int ac = after.indexOf("}");
+            if (bo > bc && ac > -1 && (ac < ao || ao == -1)) { //case where currentOffset is on property
+                return new StringSpan(textToken.substring(bo, before.length() + ac + 1), tokenOffset + bo, tokenOffset + ff + ac + 1);
+            }
+         
+            if (before.length() == 0 && ao == 0 && ac > 0) { //case where currentOffset is at beginning
+                return new StringSpan(textToken.substring(0, ac + 1), tokenOffset, tokenOffset +  ac + 1);
+            }
+            
+        }
+        return null;
+    }
+    
 }
