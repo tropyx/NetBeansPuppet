@@ -5,11 +5,20 @@ This is a module for editing Puppet configurations.  It identifies a puppet conf
 <br>
 This lets you use IDE tools like inbuilt git/subversion/mercurial support etc. to edit your puppet files.
 
+New in 1.1-mkleint version (in mkleint/NetBeansPuppet fork for now)
+<dl>
+   <li>Puppet file coloring</li>
+   <li>Hyperlinking to variable, class definitions</li>
+   <li>Puppet link errors/warnings in the editor</li>
+   <li>Improved project support (Find, Select in projects work, version control actions on project popup)</li>    
+   <li>Editor tabs with module name included</li>
+   <li>Works with NetBeans 8.0+</li>
+</dl>
 
 <dl>
   <dt>To Install:</dt>
-  <dd>Download the file <b>com-tropyx-nb_puppet.nbm</b> to your local machine, from here, or from netbeans.org:
-  http://plugins.netbeans.org/plugin/47067/puppet-configuration-editor
+  <dd>Download the file <a href="https://s3-us-west-2.amazonaws.com/nbpuppet/nbpuppet-1.1-mkleint-SNAPSHOT.nbm">nbpuppet-1.1-mkleint-SNAPSHOT.nbm</a> to your local machine
+      
   add it to your NetBeans IDE with:</dd>
 </dl>
 <pre>
