@@ -5,14 +5,15 @@ This is a module for editing Puppet configurations.  It identifies a puppet conf
 <br>
 This lets you use IDE tools like inbuilt git/subversion/mercurial support etc. to edit your puppet files.
 
-New in 1.1-mkleint version (in mkleint/NetBeansPuppet fork for now)
 <dl>
-   <li>Puppet file coloring</li>
-   <li>Hyperlinking to variable, class definitions</li>
-   <li>Puppet link errors/warnings in the editor</li>
-   <li>Improved project support (Find, Select in projects work, version control actions on project popup)</li>    
-   <li>Editor tabs with module name included</li>
-   <li>Works with NetBeans 8.0+</li>
+    <dt>New in 1.1-mkleint version (in mkleint/NetBeansPuppet fork for now)</dt>
+
+   <dd>Puppet file coloring</dd>
+   <dd>Hyperlinking to variable, class definitions</dd>
+   <dd>Puppet link errors/warnings in the editor</dd>
+   <dd>Improved project support (Find, Select in projects work, version control actions on project popup)</dd>    
+   <dd>Editor tabs with module name included</dd>
+   <dd>Works with NetBeans 8.0+</dd>
 </dl>
 
 <dl>
