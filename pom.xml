@@ -198,6 +198,8 @@
         <configuration>
             <sourceManifestFile>${basedir}/manifest.mf</sourceManifestFile>
             <netbeansUserdir>${basedir}/userdir</netbeansUserdir>
+            <licenseName>General Public License 3.0</licenseName>
+            <licenseFile>${basedir}/license.txt</licenseFile>
         </configuration>
       </plugin>
 
