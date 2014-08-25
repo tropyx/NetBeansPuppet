@@ -19,31 +19,48 @@ package com.tropyx.nb_puppet;
 
 import java.awt.Image;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.StringTokenizer;
+import java.util.concurrent.atomic.AtomicBoolean;
 import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.SwingUtilities;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import org.netbeans.api.annotations.common.StaticResource;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectInformation;
+import org.netbeans.api.project.ProjectUtils;
+import org.netbeans.api.queries.VisibilityQuery;
 import org.netbeans.spi.project.ProjectState;
+import org.netbeans.spi.project.support.LookupProviderSupport;
 import org.netbeans.spi.project.ui.LogicalViewProvider;
 import org.netbeans.spi.project.ui.support.CommonProjectActions;
-import org.netbeans.spi.project.ui.support.NodeFactorySupport;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
+import org.openide.loaders.ChangeableDataFilter;
+import org.openide.loaders.DataFilter;
 import org.openide.loaders.DataFolder;
-import org.openide.loaders.DataObjectNotFoundException;
+import org.openide.loaders.DataObject;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
-import org.openide.nodes.FilterNode;
 import org.openide.nodes.Node;
-import org.openide.util.Exceptions;
+import org.openide.nodes.NodeNotFoundException;
+import org.openide.nodes.NodeOp;
+import org.openide.util.ChangeSupport;
 import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.Lookups;
-import org.openide.util.lookup.ProxyLookup;
+
 
 public class PuppetProject implements Project {
+    @StaticResource()
+    public static final String PUPPET_ICON = "com/tropyx/nb_puppet/resources/puppet_icon.gif";
 
+    private static final String PUPPET_PROJECT_TYPE = "com-tropyx-nb_puppet";
     private final FileObject projectDir;
     private final ProjectState state;
     private Lookup lkp;
@@ -61,21 +78,59 @@ public class PuppetProject implements Project {
 @Override
 public Lookup getLookup() {
     if (lkp == null) {
-        lkp = Lookups.fixed(new Object[]{
+        lkp = LookupProviderSupport.createCompositeLookup(
+                Lookups.fixed(new Object[]{
                     this,
                     new Info(),
                     new PuppetProjectLogicalView(this),
                     new PuppetCustomizerProvider(this),
+                    new RecoPrivTemplatesImpl()
                    // new ReportsSubprojectProvider(this)
-                });
+                }), PUPPET_PROJECT_TYPE);
     }
     return lkp;
 }
 
+static final VisibilityQueryDataFilter INSTANCE = new VisibilityQueryDataFilter();
+
+    static final class VisibilityQueryDataFilter implements ChangeListener, ChangeableDataFilter, DataFilter.FileBased {
+        
+        private final ChangeSupport changeSupport = new ChangeSupport( this );
+        
+        public VisibilityQueryDataFilter() {
+            VisibilityQuery.getDefault().addChangeListener( this );
+        }
+                
+        public @Override boolean acceptDataObject(DataObject obj) {
+            return acceptFileObject(obj.getPrimaryFile());
+        }
+        
+        public @Override void stateChanged(ChangeEvent e) {
+            final Runnable r = new Runnable () {
+                public @Override void run() {
+                    changeSupport.fireChange();
+                }
+            };            
+            SwingUtilities.invokeLater(r);            
+        }        
+    
+        public @Override void addChangeListener(ChangeListener listener) {
+            changeSupport.addChangeListener( listener );
+        }        
+                        
+        public @Override void removeChangeListener(ChangeListener listener) {
+            changeSupport.removeChangeListener( listener );
+        }
+
+        public @Override boolean acceptFileObject(FileObject fo) {
+            return VisibilityQuery.getDefault().isVisible(fo);
+        }
+        
+    }
+
+
     class PuppetProjectLogicalView implements LogicalViewProvider {
 
-        @StaticResource()
-        public static final String PUPPET_ICON = "com/tropyx/nb_puppet/resources/puppet_icon.gif";
         private final PuppetProject project;
 
         public PuppetProjectLogicalView(PuppetProject project) {
@@ -84,49 +139,37 @@ public Lookup getLookup() {
 
         @Override
         public Node createLogicalView() {
-            try {
-                //Obtain the project directory's node:
-                FileObject projectDirectory = project.getProjectDirectory();
-                DataFolder projectFolder = DataFolder.findFolder(projectDirectory);
-                Node nodeOfProjectFolder = projectFolder.getNodeDelegate();
-                //Decorate the project directory's node:
-                return new ProjectNode(nodeOfProjectFolder, project);
-            } catch (DataObjectNotFoundException donfe) {
-                Exceptions.printStackTrace(donfe);
-                //Fallback-the directory couldn't be created -
-                //read-only filesystem or something evil happened
-                return new AbstractNode(Children.LEAF);
+            Lookup lkp = createNodeLookup();
+            return new ProjectNode(lkp, project);
+        }
+        private Lookup createNodeLookup() {
+            if (!project.getProjectDirectory().isValid()) {
+                return Lookups.fixed(project);
             }
+            return Lookups.fixed(project, DataFolder.findFolder( project.getProjectDirectory() ), project.getProjectDirectory());
+        }
+        
+        public Children createChilds(Lookup lkp) {
+            DataFolder df = lkp.lookup(DataFolder.class);
+            if (df != null) {
+                return df.createNodeChildren(INSTANCE);
+            }
+            return Children.LEAF;
         }
 
-        private final class ProjectNode extends FilterNode {
+        private final class ProjectNode extends AbstractNode {
 
             final PuppetProject project;
 
-            public ProjectNode(Node node, PuppetProject project) throws DataObjectNotFoundException {
-                super(node,
-                        //NodeFactorySupport.createCompositeChildren(
-                        //project,
-                        //"Projects/com-tropyx-nb_puppet/Nodes"),
-                         new FilterNode.Children(node),
-                        new ProxyLookup(
-                        new Lookup[]{
-                            Lookups.singleton(project),
-                            node.getLookup()
-                        }));
+            public ProjectNode(Lookup lkp, PuppetProject project) {
+                super(createChilds(lkp), lkp);
                 this.project = project;
+                setName(project.getProjectDirectory().toString());
             }
 
             @Override
             public Action[] getActions(boolean arg0) {
-                return new Action[]{
-                            CommonProjectActions.newFileAction(),
-                            CommonProjectActions.copyProjectAction(),
-                            CommonProjectActions.deleteProjectAction(),
-                            //CommonProjectActions.customizeProjectAction(),
-                            CommonProjectActions.closeProjectAction()
-
-                        };
+                return CommonProjectActions.forType(PUPPET_PROJECT_TYPE);
             }
 
             @Override
@@ -146,16 +189,69 @@ public Lookup getLookup() {
         }
 
         @Override
-        public Node findPath(Node root, Object target) {
-            //leave unimplemented for now
+        public Node findPath(Node node, Object target)
+        {
+            if (target instanceof FileObject)
+            {
+                FileObject fo = (FileObject) target;
+
+                Node[] nodes = node.getChildren().getNodes(true);
+                for (Node node1 : nodes)
+                {
+                    Node found = findNodeByFDObject(node1, fo);
+                    if (found != null)
+                    {
+                        return found;
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        private Node findNodeByFDObject(Node node, FileObject fo) {
+            FileObject ndfo = node.getLookup().lookup(FileObject.class);
+            if (ndfo == null) {
+                DataObject dobj = node.getLookup().lookup(DataObject.class);
+                if (dobj != null) {
+                    ndfo = dobj.getPrimaryFile();
+                }
+            }
+            if (ndfo != null) {
+                if ((ndfo.equals(fo))) {
+                    return node;
+                } else if (FileUtil.isParentOf(ndfo, fo)) {
+                    FileObject folder = fo.isFolder() ? fo : fo.getParent();
+                    String relPath = FileUtil.getRelativePath(ndfo, folder);
+                    List<String> path = new ArrayList<>();
+                    StringTokenizer strtok = new StringTokenizer(relPath, "/"); // NOI18N
+                    while (strtok.hasMoreTokens()) {
+                        String token = strtok.nextToken();
+                        path.add(token);
+                    }
+                    try {
+                        Node folderNode = folder.equals(ndfo) ? node : NodeOp.findPath(node, Collections.enumeration(path));
+                        if (fo.isFolder()) {
+                            return folderNode;
+                        } else {
+                            Node[] childs = folderNode.getChildren().getNodes(true);
+                            for (int j = 0; j < childs.length; j++)
+                            {
+                                DataObject dobj = childs[j].getLookup().lookup(DataObject.class);
+                                if (dobj != null && dobj.getPrimaryFile().getNameExt().equals(fo.getNameExt()))
+                                {
+                                    return childs[j];
+                                }
+                            }
+                        }
+                    } catch (NodeNotFoundException e) {}
+                }
+            }
             return null;
         }
     }
 
     private final class Info implements ProjectInformation {
-
-        @StaticResource()
-        public static final String PUPPET_ICON = "com/tropyx/nb_puppet/resources/puppet_icon.gif";
 
         @Override
         public Icon getIcon() {

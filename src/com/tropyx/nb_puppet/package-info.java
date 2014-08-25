@@ -19,6 +19,9 @@
         folder = "Puppet",
         content = "PuppetManifestTemplate.pp",
         displayName = "Puppet Manifest File",
+        category = {"puppet", "simple-files"},
+        position = 397,
+        requireProject = false,
         description = "PuppetManifestTypeDescription.html"
         )
 
