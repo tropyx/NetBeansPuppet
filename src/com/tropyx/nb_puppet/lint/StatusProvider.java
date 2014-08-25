@@ -14,6 +14,8 @@ import java.util.prefs.Preferences;
 import javax.swing.text.Document;
 import org.netbeans.api.editor.mimelookup.MimeRegistration;
 import org.netbeans.api.extexecution.ExternalProcessBuilder;
+import org.netbeans.api.project.FileOwnerQuery;
+import org.netbeans.api.project.Project;
 import org.netbeans.modules.editor.NbEditorUtilities;
 import org.netbeans.spi.editor.errorstripe.UpToDateStatus;
 import org.netbeans.spi.editor.errorstripe.UpToDateStatusProvider;
@@ -22,6 +24,7 @@ import org.netbeans.spi.editor.hints.ErrorDescription;
 import org.netbeans.spi.editor.hints.ErrorDescriptionFactory;
 import org.netbeans.spi.editor.hints.HintsController;
 import org.netbeans.spi.editor.hints.Severity;
+import org.netbeans.spi.project.AuxiliaryProperties;
 import org.openide.filesystems.FileChangeAdapter;
 import org.openide.filesystems.FileEvent;
 import org.openide.filesystems.FileObject;
@@ -50,10 +53,12 @@ public final class StatusProvider implements UpToDateStatusProviderFactory {
         private final Document document;
         private final AtomicBoolean dirty = new AtomicBoolean(true);
         private final AtomicBoolean running = new AtomicBoolean(false);
+        private final Project project;
 
         StatusProviderImpl(Document doc) {
             this.document = doc;
             FileObject fo = NbEditorUtilities.getFileObject(document);
+            project = FileOwnerQuery.getOwner(fo);
             fo.addFileChangeListener(new FileChangeAdapter() {
 
                 @Override
@@ -140,9 +145,17 @@ public final class StatusProvider implements UpToDateStatusProviderFactory {
 
         private ExternalProcessBuilder skipChecks(ExternalProcessBuilder builder)
         {
+            //global prefs
             Preferences nd = NbPreferences.forModule(StatusProvider.class).node("lint");
+            AuxiliaryProperties p = null;
+            if (project != null) {
+                p = project.getLookup().lookup(AuxiliaryProperties.class);
+            }
             for (LintCheck lc : LintCheck.values()) {
-                if (!nd.getBoolean(lc.name(), true)) {
+                if (p != null && "false".equals(p.get("lint." + lc.name(), true))) {
+                    builder = builder.addArgument(lc.getDisableParam());
+                }
+                else if (!nd.getBoolean(lc.name(), true)) {
                     builder = builder.addArgument(lc.getDisableParam());
                 }
             }
