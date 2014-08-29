@@ -1,8 +1,20 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright (C) 2014 mkleint
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.tropyx.nb_puppet.lexer;
 
 import org.netbeans.api.lexer.PartType;
@@ -862,8 +874,25 @@ public class PLexer implements Lexer<PTokenId>
         // Check whether the given char is non-ident and if so then return keyword
         if (c == EOF || !Character.isJavaIdentifierPart(c = translateSurrogates(c)))
         {
-            // For surrogate 2 chars must be backed up
-            backup((c >= Character.MIN_SUPPLEMENTARY_CODE_POINT) ? 2 : 1);
+            int count = 0;
+            int backupPoint = input.readLength();
+            while (true)
+            {
+                // There should be no surrogates possible for whitespace
+                // so do not call translateSurrogates()
+                if (c == EOF || !Character.isWhitespace(c))
+                {
+                    if (c == '{' || c == '=') {
+                        input.backup(input.readLength() - backupPoint);
+                        return finishIdentifier();
+                    }
+                    break;
+                }
+                count = count + (c >= Character.MIN_SUPPLEMENTARY_CODE_POINT ? 2 : 1);
+                c = nextChar();
+            }
+            
+            input.backup(input.readLength() - backupPoint);
             return token(functionId);
         } else // c is identifier part
         {
