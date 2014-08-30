@@ -108,7 +108,7 @@ public class PLexer implements Lexer<PTokenId>
                 case '=': 
                     switch (c = nextChar())
                     {
-                        case '>' : return token(PTokenId.OPERATOR); //TODO is this really operator?
+                        case '>' : return token(PTokenId.PARAM_ASSIGN); //TODO is this really operator?
                         case '=' : return token(PTokenId.OPERATOR);
                         case '~' : return token(PTokenId.OPERATOR);
                         default : backup(1);
@@ -243,24 +243,31 @@ public class PLexer implements Lexer<PTokenId>
                     
                         
                 case 'd' : 
-                    if ((c = nextChar()) == 'e'
-                     && (c = nextChar()) == 'f') {
-                        switch (c = nextChar())
-                        {
-                            case 'i' :
-                                if ((c = nextChar()) == 'n'
-                                 && (c = nextChar()) == 'e')
-                                {
-                                    return keywordOrIdentifier(PTokenId.DEFINE);
+                    if ((c = nextChar()) == 'e') {
+                        switch (c = nextChar()) {
+                            case 'f':
+                                switch (c = nextChar()) {
+                                    case 'i':
+                                        if ((c = nextChar()) == 'n'
+                                         && (c = nextChar()) == 'e') {
+                                            return keywordOrIdentifier(PTokenId.DEFINE);
+                                        }
+                                        break;
+                                    case 'a':
+                                        if ((c = nextChar()) == 'u'
+                                         && (c = nextChar()) == 'l'
+                                         && (c = nextChar()) == 't') {
+                                            return keywordOrIdentifier(PTokenId.DEFAULT);
+                                        }
+                                        break;
                                 }
                                 break;
-                            case 'a' :   
+                            case 'b': 
                                 if ((c = nextChar()) == 'u'
-                                 && (c = nextChar()) == 'l'
-                                 && (c = nextChar()) == 't')
-                                {
-                                    return keywordOrIdentifier(PTokenId.DEFAULT);
+                                 && (c = nextChar()) == 'g') {
+                                    return keywordOrIdentifier(PTokenId.DEBUG);
                                 }
+                                break;
                         }
                     }
                     return finishIdentifier(c);
@@ -288,6 +295,23 @@ public class PLexer implements Lexer<PTokenId>
                                 }
                             }
                             break;
+                        case 'm' :
+                            if ((c = nextChar()) == 'e' 
+                             && (c = nextChar()) == 'r'
+                             && (c = nextChar()) == 'g') {
+                                return functionOrIdentifier(PTokenId.EMERG);
+                            }
+                            break;
+                        case 'p' :
+                            if ((c = nextChar()) == 'p') {
+                                return functionOrIdentifier(PTokenId.EPP);
+                            }
+                            break;
+                        case 'r' :
+                            if ((c = nextChar()) == 'r') {
+                                return functionOrIdentifier(PTokenId.ERR);
+                            }
+                            break;
                         case 'x' :
                             if ((c = nextChar()) == 't' 
                              && (c = nextChar()) == 'l'
@@ -299,7 +323,6 @@ public class PLexer implements Lexer<PTokenId>
                                 return functionOrIdentifier(PTokenId.EXTLOOKUP);
                             }
                             break;
-                            
                     }
                     return finishIdentifier(c);
                 case 'f':
@@ -340,7 +363,50 @@ public class PLexer implements Lexer<PTokenId>
                             
                     }
                     return finishIdentifier(c);
-                            
+                
+                case 'h' :
+                    if ((c = nextChar()) == 'i'
+                     && (c = nextChar()) == 'e'
+                     && (c = nextChar()) == 'r'
+                     && (c = nextChar()) == 'a')
+                    {
+                        c = nextChar();
+                        if (c == '_') {
+                            switch (c = nextChar()) {
+                                case 'a':
+                                    if ((c = nextChar()) == 'r'
+                                     && (c = nextChar()) == 'r'
+                                     && (c = nextChar()) == 'a'
+                                     && (c = nextChar()) == 'y') {
+                                        return functionOrIdentifier(PTokenId.HIERA_ARRAY);
+                                    }
+                                    break;
+                                case 'h':
+                                    if ((c = nextChar()) == 'a'
+                                     && (c = nextChar()) == 's'
+                                     && (c = nextChar()) == 'h') {
+                                        return functionOrIdentifier(PTokenId.HIERA_HASH);
+                                    }
+                                    break;
+                                case 'i':
+                                    if ((c = nextChar()) == 'n'
+                                     && (c = nextChar()) == 'c'
+                                     && (c = nextChar()) == 'l'
+                                     && (c = nextChar()) == 'u'
+                                     && (c = nextChar()) == 'd'
+                                     && (c = nextChar()) == 'e') {
+                                        return functionOrIdentifier(PTokenId.HIERA_INCLUDE);
+                                    }
+                                    break;
+                            }
+                        } else {
+                            //hieara itself?
+                            backup(1);
+                            return functionOrIdentifier(PTokenId.HIERA);
+                        }
+                    }
+                    return finishIdentifier(c);
+                    
                 case 'i':
                     switch (c = nextChar())
                     {
@@ -626,7 +692,6 @@ public class PLexer implements Lexer<PTokenId>
                 // Rest of lowercase letters starting identifiers
                 case 'b':
                 case 'g':
-                case 'h':
                 case 'j':
                 case 'k':
                 case 'p':
