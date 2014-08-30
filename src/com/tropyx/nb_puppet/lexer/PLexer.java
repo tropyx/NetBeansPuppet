@@ -954,11 +954,7 @@ public class PLexer implements Lexer<PTokenId>
                 }
                 c = nextChar();
             }
-            System.out.println("read:" + input.readText().toString());
-            System.out.println("len:" + input.readLength() + " " + backupPoint);
             input.backup(input.readLength() - backupPoint);
-            System.out.println("read2:" + input.readText().toString());
-            System.out.println("len2:" + input.readLength() + " " + backupPoint);
             return token(functionId);
         } else // c is identifier part
         {
