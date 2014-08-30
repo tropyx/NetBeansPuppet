@@ -84,7 +84,8 @@ public Lookup getLookup() {
                     new Info(),
                     new PuppetProjectLogicalView(this),
                     new PuppetCustomizerProvider(this),
-                    new RecoPrivTemplatesImpl()
+                    new RecoPrivTemplatesImpl(),
+                    new AuxPropsImpl(this)
                    // new ReportsSubprojectProvider(this)
                 }), PUPPET_PROJECT_TYPE);
     }

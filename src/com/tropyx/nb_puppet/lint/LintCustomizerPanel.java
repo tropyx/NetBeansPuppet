@@ -15,37 +15,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.tropyx.nb_puppet.lexer;
+package com.tropyx.nb_puppet.lint;
 
-import java.util.Collection;
-import java.util.EnumSet;
-import org.netbeans.spi.lexer.LanguageHierarchy;
-import org.netbeans.spi.lexer.Lexer;
-import org.netbeans.spi.lexer.LexerRestartInfo;
+import javax.swing.JComponent;
+import org.netbeans.api.project.Project;
+import org.netbeans.spi.project.ui.support.ProjectCustomizer;
+import org.openide.util.Lookup;
 
-/**
- *
- * @author mkleint
- */
-public class PLangHierarchy extends LanguageHierarchy<PTokenId>
-{
+@ProjectCustomizer.CompositeCategoryProvider.Registration(projectType = "com-tropyx-nb_puppet", position = 100)
+public class LintCustomizerPanel implements ProjectCustomizer.CompositeCategoryProvider{
 
     @Override
-    protected Collection<PTokenId> createTokenIds()
-    {
-        return EnumSet.allOf (PTokenId.class);
+    public ProjectCustomizer.Category createCategory(Lookup context) {
+        return ProjectCustomizer.Category.create("Lint", "Puppet Lint", null);
     }
 
     @Override
-    protected Lexer<PTokenId> createLexer(LexerRestartInfo<PTokenId> lri)
-    {
-        return new PLexer(lri);
+    public JComponent createComponent(ProjectCustomizer.Category category, Lookup context) {
+        return new LintPanelUI(category, context.lookup(Project.class));
     }
 
-    @Override
-    protected String mimeType()
-    {
-        return PLanguageProvider.MIME_TYPE;
-    }
-    
 }

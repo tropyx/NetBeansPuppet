@@ -1,8 +1,20 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright (C) 2014 mkleint
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.tropyx.nb_puppet.lexer;
 
 import org.netbeans.api.lexer.TokenId;
@@ -53,22 +65,22 @@ public enum PTokenId implements TokenId
     CONTAIN("contain", "method-declaration"),//*
     CREATE_RESOURCES("create_resources", "method-declaration"),//*
     CRIT("crit", "method-declaration"),//*
-    DEBUG("debug", "method-declaration"),
+    DEBUG("debug", "method-declaration"), //*
     DEFINED("defined", "method-declaration"),
     EACH("each", "method-declaration"), //*
-    EMERG("emerg", "method-declaration"),
-    EPP("epp", "method-declaration"),
-    ERR("err", "method-declaration"),
+    EMERG("emerg", "method-declaration"), //*
+    EPP("epp", "method-declaration"), //*
+    ERR("err", "method-declaration"), //*
     EXTLOOKUP("extlookup", "method-declaration"),//*
     FAIL("fail", "method-declaration"), //*
     FILE("file", "method-declaration"),//*
     FILTER("filter", "method-declaration"),//*
     FQDN_RAND("fqdn_rand", "method-declaration"), //*
     GENERATE("generate", "method-declaration"),
-    HIERA("hiera", "method-declaration"),
-    HIERA_ARRAY("hiera_array", "method-declaration"),
-    HIERA_HASH("hiera_hash", "method-declaration"),
-    HIERA_INCLUDE("hiera_include", "method-declaration"),
+    HIERA("hiera", "method-declaration"),//*
+    HIERA_ARRAY("hiera_array", "method-declaration"),//*
+    HIERA_HASH("hiera_hash", "method-declaration"),//*
+    HIERA_INCLUDE("hiera_include", "method-declaration"),//*
     INCLUDE("include", "method-declaration"), //*
     INFO("info", "method-declaration"),
     INLINE_EPP("inline_epp", "method-declaration"),
@@ -117,7 +129,9 @@ public enum PTokenId implements TokenId
     COMMA(",", "separator"), 
     /** : **/
     COLON(":", "separator"),
-    EQUALS("=", "operator");
+    EQUALS("=", "operator"),
+    /** => */
+    PARAM_ASSIGN("=>", "operator");
     
     
     private final String name;
