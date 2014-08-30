@@ -135,11 +135,11 @@ public class PLexer implements Lexer<PTokenId>
                     
                     return token(PTokenId.OPERATOR);
                 
+                case '/':
+                    return finishRegexp(c);
                 case '+':
                 case '-':
                 case '*':
-                case '/':
-                    return finishRegexp(c);
                 case '%':
                     return token(PTokenId.OPERATOR);
     
@@ -936,11 +936,10 @@ public class PLexer implements Lexer<PTokenId>
 
     private Token<PTokenId> functionOrIdentifier(PTokenId functionId, int c)
     {
+        int backupPoint = input.readLength() - 1;
         // Check whether the given char is non-ident and if so then return keyword
         if (c == EOF || !Character.isJavaIdentifierPart(c = translateSurrogates(c)))
         {
-            int count = 0;
-            int backupPoint = input.readLength();
             while (true)
             {
                 // There should be no surrogates possible for whitespace
@@ -953,11 +952,13 @@ public class PLexer implements Lexer<PTokenId>
                     }
                     break;
                 }
-                count = count + (c >= Character.MIN_SUPPLEMENTARY_CODE_POINT ? 2 : 1);
                 c = nextChar();
             }
-            
+            System.out.println("read:" + input.readText().toString());
+            System.out.println("len:" + input.readLength() + " " + backupPoint);
             input.backup(input.readLength() - backupPoint);
+            System.out.println("read2:" + input.readText().toString());
+            System.out.println("len2:" + input.readLength() + " " + backupPoint);
             return token(functionId);
         } else // c is identifier part
         {
