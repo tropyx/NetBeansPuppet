@@ -5,7 +5,10 @@
         <folder name="text">
             <folder name="x-puppet-manifest">
                 <attr name="SystemFileSystem.localizingBundle" stringvalue="com.tropyx.nb_puppet.Bundle"/>
-
+                
+                <file name="com-tropyx-nb_puppet-lexer-PPIndexerFactory.instance">
+                    <attr name="instanceOf" stringvalue="org.netbeans.modules.parsing.spi.indexing.CustomIndexerFactory"/>
+                </file>
                 <folder name="FontsColors">
                     <folder name="NetBeans">
                         <folder name="Defaults">

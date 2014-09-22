@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.StringTokenizer;
-import java.util.concurrent.atomic.AtomicBoolean;
 import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -33,7 +32,6 @@ import javax.swing.event.ChangeListener;
 import org.netbeans.api.annotations.common.StaticResource;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectInformation;
-import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.queries.VisibilityQuery;
 import org.netbeans.spi.project.ProjectState;
 import org.netbeans.spi.project.support.LookupProviderSupport;
@@ -60,7 +58,7 @@ public class PuppetProject implements Project {
     @StaticResource()
     public static final String PUPPET_ICON = "com/tropyx/nb_puppet/resources/puppet_icon.gif";
 
-    private static final String PUPPET_PROJECT_TYPE = "com-tropyx-nb_puppet";
+    public static final String PUPPET_PROJECT_TYPE = "com-tropyx-nb_puppet";
     private final FileObject projectDir;
     private final ProjectState state;
     private Lookup lkp;
