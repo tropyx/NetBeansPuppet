@@ -129,6 +129,7 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
                     fValue[0] = token.text().toString();
                     boolean allowOneIdentifier = false;
                     boolean doOneMore;
+                    boolean dolink = true;
                     do {
                         doOneMore = false;
                         xml.movePrevious();
@@ -153,9 +154,15 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
                         else if (token.id() == PTokenId.INHERITS) {
                             fAssociatedID[0] = token.id();
                         }
+                        else if (token.id() == PTokenId.DEFINE || token.id() == PTokenId.CLASS) {
+                            dolink = false;
+                        }
                     //whitespace is clear, command and identifier are here for this case..
                         // require groovy::config, groovy::install
                     } while (doOneMore);
+                    if (dolink && fAssociatedID[0] == null && fValue[0].contains("::")) {
+                        fAssociatedID[0] = PTokenId.IDENTIFIER;
+                    }
                 } else if (token.id() == PTokenId.STRING_LITERAL) {
                     fTokenOff[0] = xml.offset();
                     fValue[0] = token.text().toString();
