@@ -14,7 +14,7 @@ This lets you use IDE tools like inbuilt git/subversion/mercurial support etc. t
    <dd>Improved project support (Find, Select in projects work, version control actions on project popup)</dd>    
    <dd>Editor tabs with module name included</dd>
    <dd>Works with NetBeans 8.0+</dd>
-   [ ![Codeship Status for mkleint/NetBeansPuppet](https://www.codeship.io/projects/fc108f80-35b9-0132-1d49-7a12fe8c1dfc/status)](https://www.codeship.io/projects/41169)
+   <dd><a href="https://www.codeship.io/projects/41169"><img src="https://www.codeship.io/projects/fc108f80-35b9-0132-1d49-7a12fe8c1dfc/status">Codeship Status for mkleint/NetBeansPuppet</a>
 </dl>
 
 <dl>
