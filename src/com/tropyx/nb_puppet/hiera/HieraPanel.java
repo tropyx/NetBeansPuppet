@@ -16,11 +16,8 @@
  */
 package com.tropyx.nb_puppet.hiera;
 
-import com.tropyx.nb_puppet.lint.LintCheck;
-import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.JCheckBox;
 import org.netbeans.api.project.Project;
 import org.netbeans.spi.project.AuxiliaryProperties;
 import org.netbeans.spi.project.ui.support.ProjectCustomizer;

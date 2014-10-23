@@ -60,6 +60,7 @@ public class EyamlPanel extends javax.swing.JPanel implements Runnable {
             setBackground(UIManager.getColor("NbExplorerView.background"));
         }
         this.lookup = lookup;
+        
     }
 
     /**
@@ -153,7 +154,6 @@ public class EyamlPanel extends javax.swing.JPanel implements Runnable {
                 @Override
                 public void run() {
                     EditorKit kit = MimeLookup.getLookup("text/x-yaml").lookup(EditorKit.class);
-                    System.out.println("kit=" + kit);
                     NbEditorDocument doc = (NbEditorDocument) kit.createDefaultDocument();
                     pane = new JEditorPane("text/x-yaml", null);
                     pane.setDocument(doc);
@@ -165,7 +165,6 @@ public class EyamlPanel extends javax.swing.JPanel implements Runnable {
                         Exceptions.printStackTrace(ex);
                     }
                     pane.setEditable(false);
-                    System.out.println("pane=" + pane);
                     pane.requestFocus();
                     pane.setCaretPosition(0);
                     revalidate();
