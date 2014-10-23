@@ -14,9 +14,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+package com.tropyx.nb_puppet.hiera;
 
-package com.tropyx.nb_puppet.lint;
-
+import com.tropyx.nb_puppet.lint.LintCheck;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -29,37 +29,39 @@ import org.netbeans.spi.project.ui.support.ProjectCustomizer;
  *
  * @author mkleint
  */
-public class LintPanelUI extends javax.swing.JPanel {
+public class HieraPanel extends javax.swing.JPanel {
+    private ProjectCustomizer.Category category;
+    private Project project;
     private AuxiliaryProperties prefs;
+    public static final String HIERALOCATION = "hiera.location";
+    
 
-    /**
-     * Creates new form LintPanelUI
-     */
-    public LintPanelUI() {
+    public HieraPanel() {
         initComponents();
     }
-
-    LintPanelUI(ProjectCustomizer.Category category, Project project) {
+    
+    HieraPanel(ProjectCustomizer.Category category, Project lookup) {
         this();
+        this.category = category;
+        this.project = lookup;
         category.setOkButtonListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
                 doSave();
             }
-
         });
         prefs = project.getLookup().lookup(AuxiliaryProperties.class);
-        for (LintCheck v : LintCheck.values()) {
-            String enable = prefs.get("lint." + v.name(), true);
-            if (enable == null) {
-                enable = "true";
-            }
-            final JCheckBox jCheckBox = new JCheckBox(v.getDisplayName(), Boolean.parseBoolean(enable));
-            jCheckBox.putClientProperty("lint", v);
-            jCheckBox.putClientProperty("wasEnabled", enable);
-            plnChecks.add(jCheckBox);
+        String value = prefs.get(HIERALOCATION, true);
+        if (value == null) {
+            value = "hiera.yaml";
         }
+        txtHieraLocation.setText(value);
+        
+    }
+
+    private void doSave() {
+         prefs.put(HIERALOCATION, txtHieraLocation.getText(), true);
     }
 
     /**
@@ -71,14 +73,12 @@ public class LintPanelUI extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jScrollPane1 = new javax.swing.JScrollPane();
-        plnChecks = new javax.swing.JPanel();
-        jLabel1 = new javax.swing.JLabel();
+        lblHiera = new javax.swing.JLabel();
+        txtHieraLocation = new javax.swing.JTextField();
 
-        plnChecks.setLayout(new java.awt.GridLayout(LintCheck.values().length, 1));
-        jScrollPane1.setViewportView(plnChecks);
+        org.openide.awt.Mnemonics.setLocalizedText(lblHiera, org.openide.util.NbBundle.getMessage(HieraPanel.class, "HieraPanel.lblHiera.text")); // NOI18N
 
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(LintPanelUI.class, "LintPanelUI.jLabel1.text")); // NOI18N
+        txtHieraLocation.setText(org.openide.util.NbBundle.getMessage(HieraPanel.class, "HieraPanel.txtHieraLocation.text")); // NOI18N
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -86,39 +86,25 @@ public class LintPanelUI extends javax.swing.JPanel {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel1)
-                        .addContainerGap(210, Short.MAX_VALUE))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING)))
+                .addComponent(lblHiera)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(txtHieraLocation, javax.swing.GroupLayout.DEFAULT_SIZE, 284, Short.MAX_VALUE)
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addComponent(jLabel1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 278, Short.MAX_VALUE))
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblHiera)
+                    .addComponent(txtHieraLocation, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(266, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JPanel plnChecks;
+    private javax.swing.JLabel lblHiera;
+    private javax.swing.JTextField txtHieraLocation;
     // End of variables declaration//GEN-END:variables
-
-    private void doSave() {
-        for (Component a : plnChecks.getComponents()) {
-            if (a instanceof JCheckBox) {
-                JCheckBox aa = (JCheckBox)a;
-                String wasEnabled = (String) aa.getClientProperty("wasEnabled");
-                LintCheck en = (LintCheck) aa.getClientProperty("lint");
-                if (!wasEnabled.equals(Boolean.toString(aa.isSelected()))) {
-                    prefs.put("lint." + en.name(), Boolean.toString(aa.isSelected()), true);
-                }
-            }
-        }
-    }
-
 }
