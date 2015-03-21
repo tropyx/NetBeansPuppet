@@ -19,7 +19,7 @@ This lets you use IDE tools like inbuilt git/subversion/mercurial support etc. t
 
 <dl>
   <dt>To Install:</dt>
-  <dd>Download the file <a href="https://s3-us-west-2.amazonaws.com/nbpuppet/nbpuppet-1.1-mkleint-SNAPSHOT.nbm">nbpuppet-1.1-mkleint-SNAPSHOT.nbm</a> to your local machine
+  <dd>Download the latest release <a href="https://github.com/mkleint/NetBeansPuppet/releases/tag/v1.2">nbpuppet-1.2-mkleint</a> to your local machine
       
   add it to your NetBeans IDE with:</dd>
 </dl>
