@@ -129,19 +129,51 @@ public class PLexer implements Lexer<PTokenId>
                     switch (c = nextChar())
                     {
                         case '=' : return token(PTokenId.OPERATOR);
-                        case '<' : return token(PTokenId.OPERATOR);
+                        case '<' : {
+                            if ((c = nextChar()) == '|') {
+                                return token(PTokenId.REXPORTCOLLECTOR);
+                            } else {
+                                backup(1);
+                                return token(PTokenId.OPERATOR);
+                            }
+                        }
+                        case '|' : return token(PTokenId.LCOLLECTOR);
                         default : backup(1);
                     }
                     
                     return token(PTokenId.OPERATOR);
-                
+                case '|' : 
+                    switch (c = nextChar()) 
+                    {
+                        case '>' : {
+                            if ((c = nextChar()) == '>') {
+                                return token(PTokenId.REXPORTCOLLECTOR);
+                            } else {
+                                backup(1);
+                                return token(PTokenId.RCOLLECTOR);
+                            }
+                        }
+                        default : backup(1);
+                    }
                 case '/':
                     return finishRegexp(c);
                 case '+':
-                case '-':
                 case '*':
                 case '%':
                     return token(PTokenId.OPERATOR);
+                case '-':
+                    switch (c = nextChar())
+                    {
+                        case '>' : return token(PTokenId.ORDER_ARROW);
+                        default : backup(1);
+                    }
+                    return token(PTokenId.OPERATOR);
+                case '~':
+                    switch (c = nextChar())
+                    {
+                        case '>' : return token(PTokenId.NOTIF_ARROW);
+                        default : backup(1);
+                    }
     
                 case '?':
                     return token(PTokenId.QUESTIONMARK); 
@@ -1095,8 +1127,11 @@ private Token<PTokenId> finishNumberLiteral(int c, boolean inFraction) {
         while (true) {
             c = nextChar();
             switch (c) {
+                case '\r': consumeNewline();
+                case '\n':
                 case EOF:
-                    return null;
+                    return tokenFactory.createToken(PTokenId.REGEXP_LITERAL,
+                            input.readLength(), PartType.START);
                 case '\\' : 
                     escaped = true; 
                     break;

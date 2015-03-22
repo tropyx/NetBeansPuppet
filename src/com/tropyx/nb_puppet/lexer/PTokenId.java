@@ -131,7 +131,19 @@ public enum PTokenId implements TokenId
     COLON(":", "separator"),
     EQUALS("=", "operator"),
     /** => */
-    PARAM_ASSIGN("=>", "operator");
+    PARAM_ASSIGN("=>", "operator"),
+    /** -> */
+    ORDER_ARROW("->", "operator"),
+    /** ~> */
+    NOTIF_ARROW("~>", "operator"),
+    /** <| */
+    LCOLLECTOR("<|", "operator"),
+    /** |> */
+    RCOLLECTOR("|>", "operator"),
+    /** <<| */
+    LEXPORTCOLLECTOR("<<|", "operator"),
+    /** |>> */
+    REXPORTCOLLECTOR("|>>", "operator");
     
     
     private final String name;
