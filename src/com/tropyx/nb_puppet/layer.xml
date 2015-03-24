@@ -15,6 +15,21 @@
                         </folder>
                     </folder>
                 </folder>
+                <folder name="Toolbars">
+                    <folder name="Default">
+                        <file name="comment">
+                            <attr name="position" intvalue="19200"/>
+                        </file>
+                        <file name="uncomment">
+                            <attr name="position" intvalue="19300"/>
+                        </file>
+                    </folder>
+                </folder>
+                <file name="EditorKit.instance">
+                    <attr name="instanceClass" stringvalue="com.tropyx.nb_puppet.PPEditorKit"/>
+                    <attr name="instanceOf" stringvalue="javax.swing.text.EditorKit,com.tropyx.nb_puppet.PPEditorKit"/>
+                    <attr name="beaninfo" boolvalue="false"/>
+                </file>
             </folder>
         </folder>
     </folder>

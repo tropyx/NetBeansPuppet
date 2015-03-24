@@ -18,6 +18,8 @@
 package com.tropyx.nb_puppet;
 
 import java.io.IOException;
+import javax.swing.text.EditorKit;
+import javax.swing.text.StyledDocument;
 import org.netbeans.core.api.multiview.MultiViews;
 import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.text.MultiViewEditorElement;
@@ -176,6 +178,11 @@ public class PuppetManifestTypeDataObject extends MultiDataObject {
                 return getPrimaryFile().getNameExt();
             }
         };
+
+        @Override
+        protected StyledDocument createStyledDocument(EditorKit kit) {
+            return super.createStyledDocument(kit); 
+        }
 
         private final FileChangeListener listener = new FileChangeAdapter() {
             public @Override void fileChanged(FileEvent fe) {
