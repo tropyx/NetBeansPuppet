@@ -156,7 +156,12 @@ public class PLexer implements Lexer<PTokenId>
                         default : backup(1);
                     }
                 case '/':
-                    return finishRegexp(c);
+                    if ((c = nextChar()) == '*') {
+                        return finishMultiComment();
+                    } else {
+                        backup(1);
+                        return finishRegexp();
+                    }
                 case '+':
                 case '*':
                 case '%':
@@ -1122,8 +1127,9 @@ private Token<PTokenId> finishNumberLiteral(int c, boolean inFraction) {
     {
     }
 
-    private Token<PTokenId> finishRegexp(int c) {
+    private Token<PTokenId> finishRegexp() {
         boolean escaped = false;
+        int c;
         while (true) {
             c = nextChar();
             switch (c) {
@@ -1147,5 +1153,31 @@ private Token<PTokenId> finishNumberLiteral(int c, boolean inFraction) {
             }
         }
     }
+    private Token<PTokenId> finishMultiComment() {
+        boolean candidate = false;
+        int c;
+        while (true) {
+            c = nextChar();
+            switch (c) {
+//                case '\r': consumeNewline();
+//                case '\n':
+                case EOF:
+                    return tokenFactory.createToken(PTokenId.COMMENT,
+                            input.readLength(), PartType.START);
+                case '*' : 
+                    candidate = true; 
+                    break;
+                case '/' : 
+                    if (candidate) {
+                        return token(PTokenId.COMMENT);
+                    }
+                    candidate = false;
+                    break;
+                default:
+                    candidate = false;
+            }
+        }
+    }
+    
 
 }
