@@ -2,5 +2,4 @@ Manifest-Version: 1.0
 OpenIDE-Module: com.tropyx.nb_puppet
 OpenIDE-Module-Layer: com/tropyx/nb_puppet/layer.xml
 OpenIDE-Module-Localizing-Bundle: com/tropyx/nb_puppet/Bundle.properties
-OpenIDE-Module-Specification-Version: 1.0
 

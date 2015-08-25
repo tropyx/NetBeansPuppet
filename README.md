@@ -14,12 +14,13 @@ This lets you use IDE tools like inbuilt git/subversion/mercurial support etc. t
    <dd>Improved project support (Find, Select in projects work, version control actions on project popup)</dd>    
    <dd>Editor tabs with module name included</dd>
    <dd>Works with NetBeans 8.0+</dd>
+   <dd><a href="https://www.codeship.io/projects/41169"><img src="https://www.codeship.io/projects/fc108f80-35b9-0132-1d49-7a12fe8c1dfc/status">Codeship Status for mkleint/NetBeansPuppet</a>
 </dl>
 
 <dl>
   <dt>To Install:</dt>
-  <dd>Download the file <a href="https://s3-us-west-2.amazonaws.com/nbpuppet/nbpuppet-1.1-mkleint-SNAPSHOT.nbm">nbpuppet-1.1-mkleint-SNAPSHOT.nbm</a> to your local machine
-      
+  <dd>Download the latest release <a href="https://github.com/mkleint/NetBeansPuppet/releases/tag/v1.2.1">nbpuppet-1.2.1-mkleint</a> to your local machine
+    (if extension is .zip, then unzip it - github issue not allowing to upload a .nbm file)  
   add it to your NetBeans IDE with:</dd>
 </dl>
 <pre>

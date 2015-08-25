@@ -1,8 +1,20 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright (C) 2014 mkleint
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.tropyx.nb_puppet.lexer;
 
 import org.netbeans.api.lexer.PartType;
@@ -96,7 +108,7 @@ public class PLexer implements Lexer<PTokenId>
                 case '=': 
                     switch (c = nextChar())
                     {
-                        case '>' : return token(PTokenId.OPERATOR); //TODO is this really operator?
+                        case '>' : return token(PTokenId.PARAM_ASSIGN); //TODO is this really operator?
                         case '=' : return token(PTokenId.OPERATOR);
                         case '~' : return token(PTokenId.OPERATOR);
                         default : backup(1);
@@ -117,19 +129,56 @@ public class PLexer implements Lexer<PTokenId>
                     switch (c = nextChar())
                     {
                         case '=' : return token(PTokenId.OPERATOR);
-                        case '<' : return token(PTokenId.OPERATOR);
+                        case '<' : {
+                            if ((c = nextChar()) == '|') {
+                                return token(PTokenId.REXPORTCOLLECTOR);
+                            } else {
+                                backup(1);
+                                return token(PTokenId.OPERATOR);
+                            }
+                        }
+                        case '|' : return token(PTokenId.LCOLLECTOR);
                         default : backup(1);
                     }
                     
                     return token(PTokenId.OPERATOR);
-                
-                case '+':
-                case '-':
-                case '*':
+                case '|' : 
+                    switch (c = nextChar()) 
+                    {
+                        case '>' : {
+                            if ((c = nextChar()) == '>') {
+                                return token(PTokenId.REXPORTCOLLECTOR);
+                            } else {
+                                backup(1);
+                                return token(PTokenId.RCOLLECTOR);
+                            }
+                        }
+                        default : backup(1);
+                    }
                 case '/':
-                    return finishRegexp(c);
+                    if ((c = nextChar()) == '*') {
+                        return finishMultiComment();
+                    } else {
+                        backup(1);
+                        return finishRegexp();
+                    }
+                case '+':
+                case '*':
                 case '%':
                     return token(PTokenId.OPERATOR);
+                case '-':
+                    switch (c = nextChar())
+                    {
+                        case '>' : return token(PTokenId.ORDER_ARROW);
+                        default : backup(1);
+                    }
+                    return token(PTokenId.OPERATOR);
+                case '~':
+                    switch (c = nextChar())
+                    {
+                        case '>' : return token(PTokenId.NOTIF_ARROW);
+                        default : backup(1);
+                    }
     
                 case '?':
                     return token(PTokenId.QUESTIONMARK); 
@@ -231,24 +280,31 @@ public class PLexer implements Lexer<PTokenId>
                     
                         
                 case 'd' : 
-                    if ((c = nextChar()) == 'e'
-                     && (c = nextChar()) == 'f') {
-                        switch (c = nextChar())
-                        {
-                            case 'i' :
-                                if ((c = nextChar()) == 'n'
-                                 && (c = nextChar()) == 'e')
-                                {
-                                    return keywordOrIdentifier(PTokenId.DEFINE);
+                    if ((c = nextChar()) == 'e') {
+                        switch (c = nextChar()) {
+                            case 'f':
+                                switch (c = nextChar()) {
+                                    case 'i':
+                                        if ((c = nextChar()) == 'n'
+                                         && (c = nextChar()) == 'e') {
+                                            return keywordOrIdentifier(PTokenId.DEFINE);
+                                        }
+                                        break;
+                                    case 'a':
+                                        if ((c = nextChar()) == 'u'
+                                         && (c = nextChar()) == 'l'
+                                         && (c = nextChar()) == 't') {
+                                            return keywordOrIdentifier(PTokenId.DEFAULT);
+                                        }
+                                        break;
                                 }
                                 break;
-                            case 'a' :   
+                            case 'b': 
                                 if ((c = nextChar()) == 'u'
-                                 && (c = nextChar()) == 'l'
-                                 && (c = nextChar()) == 't')
-                                {
-                                    return keywordOrIdentifier(PTokenId.DEFAULT);
+                                 && (c = nextChar()) == 'g') {
+                                    return keywordOrIdentifier(PTokenId.DEBUG);
                                 }
+                                break;
                         }
                     }
                     return finishIdentifier(c);
@@ -276,6 +332,23 @@ public class PLexer implements Lexer<PTokenId>
                                 }
                             }
                             break;
+                        case 'm' :
+                            if ((c = nextChar()) == 'e' 
+                             && (c = nextChar()) == 'r'
+                             && (c = nextChar()) == 'g') {
+                                return functionOrIdentifier(PTokenId.EMERG);
+                            }
+                            break;
+                        case 'p' :
+                            if ((c = nextChar()) == 'p') {
+                                return functionOrIdentifier(PTokenId.EPP);
+                            }
+                            break;
+                        case 'r' :
+                            if ((c = nextChar()) == 'r') {
+                                return functionOrIdentifier(PTokenId.ERR);
+                            }
+                            break;
                         case 'x' :
                             if ((c = nextChar()) == 't' 
                              && (c = nextChar()) == 'l'
@@ -287,7 +360,6 @@ public class PLexer implements Lexer<PTokenId>
                                 return functionOrIdentifier(PTokenId.EXTLOOKUP);
                             }
                             break;
-                            
                     }
                     return finishIdentifier(c);
                 case 'f':
@@ -328,7 +400,50 @@ public class PLexer implements Lexer<PTokenId>
                             
                     }
                     return finishIdentifier(c);
-                            
+                
+                case 'h' :
+                    if ((c = nextChar()) == 'i'
+                     && (c = nextChar()) == 'e'
+                     && (c = nextChar()) == 'r'
+                     && (c = nextChar()) == 'a')
+                    {
+                        c = nextChar();
+                        if (c == '_') {
+                            switch (c = nextChar()) {
+                                case 'a':
+                                    if ((c = nextChar()) == 'r'
+                                     && (c = nextChar()) == 'r'
+                                     && (c = nextChar()) == 'a'
+                                     && (c = nextChar()) == 'y') {
+                                        return functionOrIdentifier(PTokenId.HIERA_ARRAY);
+                                    }
+                                    break;
+                                case 'h':
+                                    if ((c = nextChar()) == 'a'
+                                     && (c = nextChar()) == 's'
+                                     && (c = nextChar()) == 'h') {
+                                        return functionOrIdentifier(PTokenId.HIERA_HASH);
+                                    }
+                                    break;
+                                case 'i':
+                                    if ((c = nextChar()) == 'n'
+                                     && (c = nextChar()) == 'c'
+                                     && (c = nextChar()) == 'l'
+                                     && (c = nextChar()) == 'u'
+                                     && (c = nextChar()) == 'd'
+                                     && (c = nextChar()) == 'e') {
+                                        return functionOrIdentifier(PTokenId.HIERA_INCLUDE);
+                                    }
+                                    break;
+                            }
+                        } else {
+                            //hieara itself?
+                            backup(1);
+                            return functionOrIdentifier(PTokenId.HIERA);
+                        }
+                    }
+                    return finishIdentifier(c);
+                    
                 case 'i':
                     switch (c = nextChar())
                     {
@@ -614,7 +729,6 @@ public class PLexer implements Lexer<PTokenId>
                 // Rest of lowercase letters starting identifiers
                 case 'b':
                 case 'g':
-                case 'h':
                 case 'j':
                 case 'k':
                 case 'p':
@@ -859,11 +973,25 @@ public class PLexer implements Lexer<PTokenId>
 
     private Token<PTokenId> functionOrIdentifier(PTokenId functionId, int c)
     {
+        int backupPoint = input.readLength() - 1;
         // Check whether the given char is non-ident and if so then return keyword
         if (c == EOF || !Character.isJavaIdentifierPart(c = translateSurrogates(c)))
         {
-            // For surrogate 2 chars must be backed up
-            backup((c >= Character.MIN_SUPPLEMENTARY_CODE_POINT) ? 2 : 1);
+            while (true)
+            {
+                // There should be no surrogates possible for whitespace
+                // so do not call translateSurrogates()
+                if (c == EOF || !Character.isWhitespace(c))
+                {
+                    if (c == '{' || c == '=') {
+                        input.backup(input.readLength() - backupPoint);
+                        return finishIdentifier();
+                    }
+                    break;
+                }
+                c = nextChar();
+            }
+            input.backup(input.readLength() - backupPoint);
             return token(functionId);
         } else // c is identifier part
         {
@@ -999,13 +1127,17 @@ private Token<PTokenId> finishNumberLiteral(int c, boolean inFraction) {
     {
     }
 
-    private Token<PTokenId> finishRegexp(int c) {
+    private Token<PTokenId> finishRegexp() {
         boolean escaped = false;
+        int c;
         while (true) {
             c = nextChar();
             switch (c) {
+                case '\r': consumeNewline();
+                case '\n':
                 case EOF:
-                    return null;
+                    return tokenFactory.createToken(PTokenId.REGEXP_LITERAL,
+                            input.readLength(), PartType.START);
                 case '\\' : 
                     escaped = true; 
                     break;
@@ -1021,5 +1153,31 @@ private Token<PTokenId> finishNumberLiteral(int c, boolean inFraction) {
             }
         }
     }
+    private Token<PTokenId> finishMultiComment() {
+        boolean candidate = false;
+        int c;
+        while (true) {
+            c = nextChar();
+            switch (c) {
+//                case '\r': consumeNewline();
+//                case '\n':
+                case EOF:
+                    return tokenFactory.createToken(PTokenId.COMMENT,
+                            input.readLength(), PartType.START);
+                case '*' : 
+                    candidate = true; 
+                    break;
+                case '/' : 
+                    if (candidate) {
+                        return token(PTokenId.COMMENT);
+                    }
+                    candidate = false;
+                    break;
+                default:
+                    candidate = false;
+            }
+        }
+    }
+    
 
 }

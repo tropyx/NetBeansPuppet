@@ -129,6 +129,7 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
                     fValue[0] = token.text().toString();
                     boolean allowOneIdentifier = false;
                     boolean doOneMore;
+                    boolean dolink = true;
                     do {
                         doOneMore = false;
                         xml.movePrevious();
@@ -153,9 +154,15 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
                         else if (token.id() == PTokenId.INHERITS) {
                             fAssociatedID[0] = token.id();
                         }
+                        else if (token.id() == PTokenId.DEFINE || token.id() == PTokenId.CLASS) {
+                            dolink = false;
+                        }
                     //whitespace is clear, command and identifier are here for this case..
                         // require groovy::config, groovy::install
                     } while (doOneMore);
+                    if (dolink && fAssociatedID[0] == null && fValue[0].contains("::")) {
+                        fAssociatedID[0] = PTokenId.IDENTIFIER;
+                    }
                 } else if (token.id() == PTokenId.STRING_LITERAL) {
                     fTokenOff[0] = xml.offset();
                     fValue[0] = token.text().toString();
@@ -176,7 +183,7 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
                 } else if (token.id() == PTokenId.VARIABLE) {
                     fTokenOff[0] = xml.offset();
                     fValue[0] = token.text().toString();
-                    if (fValue[0].indexOf("::") != fValue[0].lastIndexOf("::") //heuristics, want XXX::YYY::variable name only 
+                    if (fValue[0].contains("::") 
                             && !fValue[0].startsWith("$::")) {
                         fAssociatedID[0] = token.id();
                     }
@@ -191,12 +198,15 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
     }
 
     private boolean matchChains(DecisionNode node, TokenSequence<PTokenId> xml, boolean moveBack) {
+        return matchChainsRes(node, xml, moveBack) != null;
+    }
+    private Token<PTokenId> matchChainsRes(DecisionNode node, TokenSequence<PTokenId> xml, boolean moveBack) {
         boolean doOneMore;
         do {
             doOneMore = false;
             boolean didMove = moveBack ? xml.movePrevious() : xml.moveNext();
             if (!didMove) {
-                return false;
+                return null;
             }
             Token<PTokenId> token = xml.token();
             if (token.id() == PTokenId.WHITESPACE) {
@@ -207,7 +217,7 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
                     if (ch.id.equals(token.id())) {
                         if (ch.children.length == 0) {
                             //we are at the end.
-                            return true;
+                            return token;
                         } else {
                             node = ch;
                             doOneMore = true;
@@ -220,7 +230,7 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
             } 
             // template ('sss/ss.rbm')
         } while (doOneMore);
-        return false;
+        return null;
     }
     
     private DecisionNode createStringChains() {
@@ -294,6 +304,7 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
     private void cursorToVariableDefinition(DataObject dobj, String variableName) throws IndexOutOfBoundsException {
         EditorCookie editc = dobj.getLookup().lookup(EditorCookie.class);
         final int[] foffset = new int[1];
+        final String[] fInherit = new String[1];
         foffset[0] = -1;
         BaseDocument bd = null;
         try {
@@ -313,6 +324,12 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
                         if (token == null) {
                             return;
                         }
+                        if (fInherit[0] == null && token.id() == PTokenId.CLASS) {
+                            Token<PTokenId> tk = matchChainsRes(of(PTokenId.CLASS, of(PTokenId.IDENTIFIER, of(PTokenId.INHERITS, of(PTokenId.IDENTIFIER)))), xml, false);
+                            if (tk != null) {
+                                fInherit[0] = tk.text().toString();
+                            }
+                        }
                         if (token.id() == PTokenId.VARIABLE) {
                             if (fVariableName.equals(token.text().toString())) {
                                 foffset[0] = token.offset(th);
@@ -326,6 +343,10 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
                 int row = Utilities.getRowIndent(bd, foffset[0]);
                 LineCookie lc = dobj.getLookup().lookup(LineCookie.class);
                 lc.getLineSet().getOriginal(line).show(Line.ShowOpenType.REUSE, Line.ShowVisibilityType.FOCUS, row);
+            } else {
+                if (fInherit[0] != null) {
+                    performJump(new Tuple("$" + fInherit[0] + "::" + variableName.replace("$", ""), PTokenId.VARIABLE, -1, null), bd);
+                }
             }
         } catch (IOException | BadLocationException ex) {
             Exceptions.printStackTrace(ex);
@@ -393,12 +414,15 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
     Pair<String, String> getPathAndVariable(String path) {
         path = path.replace("$", "").replace("{", "").replace("}", "");
         String[] splitValue = path.split("\\:\\:");
-        if (splitValue.length > 2) {
+        if (splitValue.length > 1) {
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < splitValue.length - 1; i++) {
                 sb.append(splitValue[i]);
                 if (i == 0) {
                     sb.append("/manifests/");
+                    if (splitValue.length == 2) {
+                        sb.append("init.pp");
+                    }
                 } else if (i == splitValue.length - 2) {
                     sb.append(".pp");
                 } else {
