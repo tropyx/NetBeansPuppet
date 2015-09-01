@@ -4,16 +4,21 @@
 
   <groupId>com.tropyx</groupId>
   <artifactId>nbpuppet</artifactId>
-  <version>1.2.2</version>
+  <version>1.2.3</version>
   <packaging>nbm</packaging>
 
   <name>nbpuppet</name>
-    <licenses>
-        <license>
-            <name>General Public License 3.0</name>
-            <url>http://www.gnu.org/licenses/gpl-3.0.html</url>
-        </license>
-    </licenses>
+  <licenses>
+      <license>
+          <name>General Public License 3.0</name>
+          <url>http://www.gnu.org/licenses/gpl-3.0.html</url>
+      </license>
+  </licenses>
+  <url>https://github.com/tropyx/NetBeansPuppet</url>
+  <organization>
+      <name>github.com/tropyx</name>
+      <url>http://github.com/tropyx</url>
+  </organization>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <netbeans.run.params.ide/>
@@ -210,7 +215,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>nbm-maven-plugin</artifactId>
-        <version>4.0</version>
+        <version>4.0.1</version>
         <extensions>true</extensions>
         <configuration>
             <sourceManifestFile>${basedir}/manifest.mf</sourceManifestFile>
