@@ -47,6 +47,7 @@ public final class ExecutePuppetLintAction implements ActionListener
         ExternalProcessBuilder builder = new ExternalProcessBuilder("puppet-lint")
                 .workingDirectory(FileUtil.toFile(basedir))
                 .addArgument(FileUtil.getRelativePath(basedir, context.getPrimaryFile()))
+                .addArgument("--relative") //TODO only for single modules?
                 .addArgument("--with-filename");
 
         ExecutionDescriptor descriptor = new ExecutionDescriptor()

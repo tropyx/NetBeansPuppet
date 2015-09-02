@@ -1,6 +1,7 @@
 
 package com.tropyx.nb_puppet.hyperlink;
 
+import com.tropyx.nb_puppet.PuppetProject;
 import com.tropyx.nb_puppet.lexer.PLanguageProvider;
 import com.tropyx.nb_puppet.lexer.PTokenId;
 import java.io.IOException;
@@ -16,6 +17,8 @@ import org.netbeans.api.editor.mimelookup.MimeRegistration;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenSequence;
+import org.netbeans.api.project.FileOwnerQuery;
+import org.netbeans.api.project.Project;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.editor.Utilities;
 import org.netbeans.lib.editor.hyperlink.spi.HyperlinkProviderExt;
@@ -370,38 +373,48 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
     }
 
     private FileObject findFile(FileObject fo, String path) {
-        FileObject manifests = fo.getParent();
-        if ("nodes".equals(manifests.getName()) && manifests.getParent() != null) {
-            manifests = manifests.getParent();
+        Project prj = FileOwnerQuery.getOwner(fo);
+        if (prj == null) {
+            return null; //just assume we always have a project now.
         }
-        if ("manifests".equals(manifests.getName()) && manifests.getParent() != null) {
-            FileObject entireSearchSpace = null;
-            if (manifests.getFileObject("site.pp") == null) {
-                //in modules/xxx/manifests
-                FileObject moduleDir = manifests.getParent();
-                if (moduleDir.getParent() != null) {
-                    FileObject modulesParentDir = moduleDir.getParent();
-                    FileObject res = modulesParentDir.getFileObject(path);
-                    if (res != null) {
-                        return res;
-                    }
-                    entireSearchSpace = modulesParentDir.getParent();
+        PuppetProject pp = prj.getLookup().lookup(PuppetProject.class);
+        if (pp == null) {
+            return null; //and it should be a puppet project
+        }
+
+        FileObject entireSearchSpace = null;
+        if (pp.isModule()) {
+            //in modules/xxx/manifests
+            FileObject modulesParentDir = prj.getProjectDirectory().getParent();
+            if (modulesParentDir != null) {
+                FileObject res = modulesParentDir.getFileObject(path);
+                if (res != null) {
+                    return res;
                 }
-            } else {
-                //in manifests/site.pp related dir
-                entireSearchSpace = manifests.getParent();
+                entireSearchSpace = modulesParentDir.getParent();
             }
-            if (entireSearchSpace != null) {
-                //now lets try a different 
-                Enumeration<? extends FileObject> en = entireSearchSpace.getFolders(false);
-                while (en.hasMoreElements()) {
-                    FileObject candidate = en.nextElement();
-                    FileObject res = candidate.getFileObject(path);
-                    if (res != null) {
-                        return res;
-                    }
+        } else {
+            //in manifests/site.pp related dir
+            entireSearchSpace = prj.getProjectDirectory();
+        }
+        if (entireSearchSpace != null) {
+            //now lets try a different
+            Enumeration<? extends FileObject> en = entireSearchSpace.getFolders(false);
+            while (en.hasMoreElements()) {
+                FileObject candidate = en.nextElement();
+                FileObject res = candidate.getFileObject(path);
+                if (res != null) {
+                    return res;
                 }
             }
+        }
+        //if the complex setup failed, we might be in individual module only
+        // but the project root folder is named differently and doesn't match
+        // IMPORTANT: needs to be the last check because we strip information here
+        // and should be really desperate, there's a chance in mismatch
+        if (pp.isModule()) {
+            String shorterPath = path.substring(path.indexOf("/"));
+            return prj.getProjectDirectory().getFileObject(shorterPath);
         }
         return null;
     }
@@ -462,9 +475,7 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
                         if (token.id() == PTokenId.VARIABLE) {
                             int startOffset = token.offset(th);
                             if (fVariableName.equals(token.text().toString())) {
-                                System.out.println("have var");
                                 if (matchChains(getVariableValueChain(), xml, false)) {
-                                    System.out.println("matches Chain");
                                     try {
                                         int len = xml.offset() - startOffset + xml.token().length();
                                         fValue[0] = targetdoc.getText(startOffset, len);
@@ -508,7 +519,7 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
     private static class DecisionNode {
         final DecisionNode[] children;
         final PTokenId id;
-        private List<String> ignores = Collections.EMPTY_LIST;
+        private List<String> ignores = Collections.emptyList();
         boolean ignoreAll = false;
 
         public DecisionNode(PTokenId id, DecisionNode[] children) {

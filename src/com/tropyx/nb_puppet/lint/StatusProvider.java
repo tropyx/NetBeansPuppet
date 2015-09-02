@@ -1,5 +1,6 @@
 package com.tropyx.nb_puppet.lint;
 
+import com.tropyx.nb_puppet.PuppetProject;
 import com.tropyx.nb_puppet.lexer.PLanguageProvider;
 import static com.tropyx.nb_puppet.lint.ExecutePuppetLintAction.findBasedir;
 import java.io.BufferedReader;
@@ -150,6 +151,9 @@ public final class StatusProvider implements UpToDateStatusProviderFactory {
             AuxiliaryProperties p = null;
             if (project != null) {
                 p = project.getLookup().lookup(AuxiliaryProperties.class);
+                if (project.getLookup().lookup(PuppetProject.class).isModule()) {
+                    builder = builder.addArgument("--relative");
+                }
             }
             for (LintCheck lc : LintCheck.values()) {
                 if (p != null && "false".equals(p.get("lint." + lc.name(), true))) {

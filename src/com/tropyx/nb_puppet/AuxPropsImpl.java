@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.spi.project.AuxiliaryProperties;
 import org.openide.filesystems.FileChangeAdapter;
@@ -38,8 +39,9 @@ import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
 
 public class AuxPropsImpl implements AuxiliaryProperties {
-    private final Project project;
+    private final PuppetProject project;
     private final Properties props = new Properties();
+    private final static String PROP_INHERIT = "inherit";
     private final AtomicBoolean reload = new AtomicBoolean(true);
     private final File propertiesFile;
     
@@ -66,18 +68,26 @@ public class AuxPropsImpl implements AuxiliaryProperties {
         }
     };
 
-    public AuxPropsImpl(Project p) {
+    public AuxPropsImpl(PuppetProject p) {
         this.project = p;
         File f = FileUtil.toFile(p.getProjectDirectory());
         propertiesFile = FileUtil.normalizeFile(new File(f, "nb-project.properties"));
         FileUtil.addFileChangeListener(listener, propertiesFile);
+    }
+    private boolean shouldInherit() {
+        assert Thread.holdsLock(this);
+        return project.isModule() && !"false".equals(props.get(PROP_INHERIT));
     }
     
     @Override
     public synchronized String get(String key, boolean shared) {
         if (shared) {
             checkReload();
-            return (String) props.get(key);
+            String toRet = (String) props.get(key);
+            if (toRet == null && shouldInherit()) {
+                toRet = getSharedFromParent(key);
+            }
+            return toRet;
         }
         return null;   
     }
@@ -138,6 +148,20 @@ public class AuxPropsImpl implements AuxiliaryProperties {
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);
         }
+    }
+
+    private String getSharedFromParent(String key) {
+        assert Thread.holdsLock(this);
+        FileObject fo = project.getProjectDirectory().getParent();
+        if (fo != null) {
+            Project parent = FileOwnerQuery.getOwner(fo);
+            if (parent != null) {
+                if (null != parent.getLookup().lookup(PuppetProject.class)) {
+                    return parent.getLookup().lookup(AuxiliaryProperties.class).get(key, true);
+                }
+            }
+        }
+        return null;
     }
 
 }

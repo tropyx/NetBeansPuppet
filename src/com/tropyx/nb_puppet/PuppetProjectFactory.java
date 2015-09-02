@@ -28,19 +28,29 @@ import org.openide.util.lookup.ServiceProvider;
 public class PuppetProjectFactory implements ProjectFactory {
 
     public static final String PROJECT_FILE = "manifests/site.pp";
+    public static final String MODULE_FILE = "manifests/init.pp";
 
     //Specifies when a project is a project, i.e.,
     //if a site.pp is present in a manigests folder
     //then it's probably a set of puppet configuration files:
     @Override
     public boolean isProject(FileObject projectDirectory) {
+        return isSite(projectDirectory) || isModule(projectDirectory);
+    }
+
+    public static boolean isModule(FileObject projectDirectory) {
+        return projectDirectory.getFileObject(MODULE_FILE) != null;
+    }
+
+    public static boolean isSite(FileObject projectDirectory) {
         return projectDirectory.getFileObject(PROJECT_FILE) != null;
     }
+
 
     //Specifies when the project will be opened, i.e., if the project exists:
     @Override
     public Project loadProject(FileObject dir, ProjectState state) throws IOException {
-        return isProject(dir) ? new PuppetProject(dir, state) : null;
+        return isProject(dir) ? new PuppetProject(dir, state, isSite(dir)) : null;
     }
 
     @Override

@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.StringTokenizer;
-import java.util.concurrent.atomic.AtomicBoolean;
 import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -35,6 +34,7 @@ import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectInformation;
 import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.queries.VisibilityQuery;
+import org.netbeans.spi.project.LookupMerger;
 import org.netbeans.spi.project.ProjectState;
 import org.netbeans.spi.project.support.LookupProviderSupport;
 import org.netbeans.spi.project.ui.LogicalViewProvider;
@@ -47,6 +47,7 @@ import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
+import org.openide.nodes.FilterNode;
 import org.openide.nodes.Node;
 import org.openide.nodes.NodeNotFoundException;
 import org.openide.nodes.NodeOp;
@@ -64,10 +65,19 @@ public class PuppetProject implements Project {
     private final FileObject projectDir;
     private final ProjectState state;
     private Lookup lkp;
+    private final boolean site;
 
-    PuppetProject(FileObject dir, ProjectState state) {
+    PuppetProject(FileObject dir, ProjectState state, boolean isSite) {
         this.projectDir = dir;
         this.state = state;
+        this.site = isSite;
+    }
+
+    public boolean isSite() {
+        return site;
+    }
+    public boolean isModule() {
+        return !site;
     }
 
     @Override

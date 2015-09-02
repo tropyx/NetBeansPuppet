@@ -20,6 +20,7 @@ package com.tropyx.nb_puppet;
 import java.io.IOException;
 import javax.swing.text.EditorKit;
 import javax.swing.text.StyledDocument;
+import org.netbeans.api.project.ProjectManager;
 import org.netbeans.core.api.multiview.MultiViews;
 import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.text.MultiViewEditorElement;
@@ -256,7 +257,13 @@ public class PuppetManifestTypeDataObject extends MultiDataObject {
     }
 
     static String annotateWithKey(FileObject primaryFile) {
-        final FileObject parent = primaryFile.getParent();
+        FileObject parent = primaryFile.getParent();
+        while (parent != null && !"manifests".equals(parent.getNameExt())) {
+            if (ProjectManager.getDefault().isProject(parent)) {
+                break;
+            }
+            parent = parent.getParent();
+        }
         if (parent != null && "manifests".equals(parent.getNameExt())) {
             FileObject pp = parent.getParent();
             if (pp != null) {
