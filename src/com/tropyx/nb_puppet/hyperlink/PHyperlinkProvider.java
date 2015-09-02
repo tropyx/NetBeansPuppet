@@ -50,10 +50,7 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
     @Override
     public boolean isHyperlinkPoint(final Document doc, final int offset, HyperlinkType type) {
         Tuple tup = getTuple(doc, offset);
-        if (tup != null) {
-            return true;
-        }
-        return false;
+        return tup != null;
     }
 
     @Override
@@ -309,7 +306,7 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
         final int[] foffset = new int[1];
         final String[] fInherit = new String[1];
         foffset[0] = -1;
-        BaseDocument bd = null;
+        BaseDocument bd;
         try {
             final StyledDocument targetdoc = editc.openDocument();
             bd = (BaseDocument) targetdoc;
