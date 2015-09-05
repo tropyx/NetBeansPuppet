@@ -4,6 +4,7 @@ import com.tropyx.nb_puppet.PuppetProject;
 import com.tropyx.nb_puppet.lexer.PLanguageProvider;
 import static com.tropyx.nb_puppet.lint.ExecutePuppetLintAction.findBasedir;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -99,8 +100,13 @@ public final class StatusProvider implements UpToDateStatusProviderFactory {
         private List<ErrorDescription> checkErrors(FileObject fo) {
             FileObject basedir = findBasedir(fo.getParent());
             ArrayList<ErrorDescription> toRet = new ArrayList<>();
+            final File folder = FileUtil.toFile(basedir);
+            if (folder == null) {
+                //is in zip file?
+                return toRet;
+            }
             ExternalProcessBuilder builder = new ExternalProcessBuilder("puppet-lint")
-                .workingDirectory(FileUtil.toFile(basedir))
+                .workingDirectory(folder)
                 .redirectErrorStream(true)
                 .addArgument(FileUtil.getRelativePath(basedir, fo))
                 .addArgument("--log-format")
