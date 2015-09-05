@@ -36,6 +36,7 @@ import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.api.queries.VisibilityQuery;
 import org.netbeans.spi.project.LookupMerger;
 import org.netbeans.spi.project.ProjectState;
+import org.netbeans.spi.project.support.GenericSources;
 import org.netbeans.spi.project.support.LookupProviderSupport;
 import org.netbeans.spi.project.ui.LogicalViewProvider;
 import org.netbeans.spi.project.ui.support.CommonProjectActions;
@@ -95,6 +96,7 @@ public Lookup getLookup() {
                     new PuppetProjectLogicalView(this),
                     new PuppetCustomizerProvider(this),
                     new RecoPrivTemplatesImpl(),
+                    GenericSources.genericOnly(this),
                     new AuxPropsImpl(this)
                    // new ReportsSubprojectProvider(this)
                 }), PUPPET_PROJECT_TYPE);
