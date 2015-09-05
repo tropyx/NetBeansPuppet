@@ -96,7 +96,11 @@ public class AuxPropsImpl implements AuxiliaryProperties {
     public synchronized void put(String key, String value, boolean shared) {
         if (shared) {
             checkReload();
-            props.put(key, value);
+            if (value == null) {
+                props.remove(key);
+            } else {
+                props.put(key, value);
+            }
             triggerSave();
         }
     }

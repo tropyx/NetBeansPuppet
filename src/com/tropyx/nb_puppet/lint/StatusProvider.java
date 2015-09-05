@@ -8,7 +8,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
@@ -103,7 +106,9 @@ public final class StatusProvider implements UpToDateStatusProviderFactory {
                 .addArgument("--log-format")
                 .addArgument("%{linenumber}||%{kind}||%{check}||%{message}");
             
-            builder = skipChecks(builder);
+            for (String skip : skipChecks()) {
+                builder = builder.addArgument(skip);
+            }
             
             Process process;
             InputStream in = null;
@@ -144,26 +149,37 @@ public final class StatusProvider implements UpToDateStatusProviderFactory {
             return toRet;
         }
 
-        private ExternalProcessBuilder skipChecks(ExternalProcessBuilder builder)
+        private Set<String> skipChecks()
         {
+            Set<String> toRet = new HashSet<>();
             //global prefs
             Preferences nd = NbPreferences.forModule(StatusProvider.class).node("lint");
             AuxiliaryProperties p = null;
             if (project != null) {
                 p = project.getLookup().lookup(AuxiliaryProperties.class);
                 if (project.getLookup().lookup(PuppetProject.class).isModule()) {
-                    builder = builder.addArgument("--relative");
+                    toRet.add("--relative");
+                }
+                if (RakefileExtractor.isUseRakefile(p)) {
+                    FileObject fo = project.getProjectDirectory().getFileObject("Rakefile");
+                    if (fo != null) {
+                        try {
+                            toRet.addAll(Arrays.asList(RakefileExtractor.getConfiguration(fo)));
+                        } catch (IOException ex) {
+                            Exceptions.printStackTrace(ex);
+                        }
+                    }
                 }
             }
             for (LintCheck lc : LintCheck.values()) {
                 if (p != null && "false".equals(p.get("lint." + lc.name(), true))) {
-                    builder = builder.addArgument(lc.getDisableParam());
+                    toRet.add(lc.getDisableParam());
                 }
                 else if (!nd.getBoolean(lc.name(), true)) {
-                    builder = builder.addArgument(lc.getDisableParam());
+                    toRet.add(lc.getDisableParam());
                 }
             }
-            return builder;
+            return toRet;
         }
 
     }
