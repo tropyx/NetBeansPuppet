@@ -11,6 +11,8 @@ import java.util.concurrent.Future;
 import org.netbeans.api.extexecution.ExecutionDescriptor;
 import org.netbeans.api.extexecution.ExecutionService;
 import org.netbeans.api.extexecution.ExternalProcessBuilder;
+import org.netbeans.api.project.FileOwnerQuery;
+import org.netbeans.api.project.Project;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionRegistration;
@@ -66,6 +68,10 @@ public final class ExecutePuppetLintAction implements ActionListener
     }
 
     static FileObject findBasedir(FileObject folder) {
+        Project prj = FileOwnerQuery.getOwner(folder);
+        if (prj != null) {
+            return prj.getProjectDirectory();
+        }
         FileObject parent = folder;
         while (parent != null) {
             if ("manifests".equals(parent.getName())) {

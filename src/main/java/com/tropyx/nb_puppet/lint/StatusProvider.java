@@ -114,7 +114,7 @@ public final class StatusProvider implements UpToDateStatusProviderFactory {
                 .redirectErrorStream(true)
                 .addArgument(FileUtil.getRelativePath(basedir, fo))
                 .addArgument("--log-format")
-                .addArgument("%{linenumber}||%{kind}||%{check}||%{message}");
+                .addArgument("%{line}||%{kind}||%{check}||%{message}");
             
             for (String skip : skipChecks()) {
                 builder = builder.addArgument(skip);
@@ -209,6 +209,9 @@ public final class StatusProvider implements UpToDateStatusProviderFactory {
 //        }
         if ("trailing_whitespace".equals(type)) {
             return Collections.<Fix>singletonList(new TrailingWhitespaceFix(document, startindex, endindex));
+        }
+        if ("arrow_alignment".equals(type)) {
+            return Collections.<Fix>singletonList(new ArrowAlignmentFix(document, startindex, endindex));
         }
         return Collections.emptyList();
     }
