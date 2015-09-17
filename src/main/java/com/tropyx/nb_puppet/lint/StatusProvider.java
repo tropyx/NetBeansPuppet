@@ -207,6 +207,9 @@ public final class StatusProvider implements UpToDateStatusProviderFactory {
 //        if ("variables_not_enclosed".equals(type)) {
 //            return Collections.<Fix>singletonList(new VariablesNotEnclosedFix(document, startindex, endindex));
 //        }
+        if ("trailing_whitespace".equals(type)) {
+            return Collections.<Fix>singletonList(new TrailingWhitespaceFix(document, startindex, endindex));
+        }
         return Collections.emptyList();
     }
 

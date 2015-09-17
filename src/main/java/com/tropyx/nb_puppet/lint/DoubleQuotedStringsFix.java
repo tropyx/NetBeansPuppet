@@ -16,39 +16,24 @@ class DoubleQuotedStringsFix extends AbstractFix {
         super(document, startindex, endindex, "Double Quoted Strings - replace with single quotes");
     }
 
-
     @Override
-    public ChangeInfo implement() throws Exception {
-        final List<Integer> toReplace = new ArrayList<>();
-        document.render(new Runnable() {
-            @Override
-            public void run() {
-                TokenHierarchy th = TokenHierarchy.get(document);
-                TokenSequence<PTokenId> ts = th.tokenSequence();
-                ts.move(startindex);
-                ts.moveNext();
-                Token<PTokenId> token = ts.token();
-                // when it's not a value -> do nothing.
-                while (token != null && token.offset(th) < endindex) {
-                    if (token.id() == PTokenId.STRING_LITERAL) {
-                        String txt = token.text().toString();
-                        if (txt.startsWith("\"") && txt.endsWith("\"")) {
-                            int start = ts.offset();
-                            int end = start + token.length() - 1;
-                            toReplace.add(start);
-                            toReplace.add(end);
-                        }
+    protected DocumentChange changeForToken(Token<PTokenId> token, TokenSequence<PTokenId> ts) {
+        if (token.id() == PTokenId.STRING_LITERAL) {
+            String txt = token.text().toString();
+            if (txt.startsWith("\"") && txt.endsWith("\"")) {
+                final int start = ts.offset();
+                final int end = start + token.length() - 1;
+                return new DocumentChange() {
+                    @Override
+                    public void run() throws Exception {
+                        document.remove(start, 1);
+                        document.insertString(start, "'", null);
+                        document.remove(end, 1);
+                        document.insertString(end, "'", null);
                     }
-                    ts.moveNext();
-                    token = ts.token();
-                }
+                };
             }
-        });
-        Collections.reverse(toReplace);
-        for (int offset : toReplace) {
-            document.remove(offset, 1);
-            document.insertString(offset, "'", null);
         }
-        return new ChangeInfo();
+        return null;
     }
 }
