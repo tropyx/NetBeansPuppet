@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -21,12 +22,15 @@ import org.netbeans.api.editor.mimelookup.MimeRegistration;
 import org.netbeans.api.extexecution.ExternalProcessBuilder;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
+import org.netbeans.editor.BaseDocument;
+import org.netbeans.editor.Utilities;
 import org.netbeans.modules.editor.NbEditorUtilities;
 import org.netbeans.spi.editor.errorstripe.UpToDateStatus;
 import org.netbeans.spi.editor.errorstripe.UpToDateStatusProvider;
 import org.netbeans.spi.editor.errorstripe.UpToDateStatusProviderFactory;
 import org.netbeans.spi.editor.hints.ErrorDescription;
 import org.netbeans.spi.editor.hints.ErrorDescriptionFactory;
+import org.netbeans.spi.editor.hints.Fix;
 import org.netbeans.spi.editor.hints.HintsController;
 import org.netbeans.spi.editor.hints.Severity;
 import org.netbeans.spi.project.AuxiliaryProperties;
@@ -132,7 +136,7 @@ public final class StatusProvider implements UpToDateStatusProviderFactory {
                         Severity level = "warning".equals(vals[1]) ? Severity.WARNING : Severity.ERROR;
                         String type = vals[2];
                         String message = vals[3];
-                        ErrorDescription err = ErrorDescriptionFactory.createErrorDescription(level, message, document, lineNum);
+                        ErrorDescription err = ErrorDescriptionFactory.createErrorDescription(level, message, findFixesForType(type, document, lineNum), document, lineNum);
                         toRet.add(err);
                     }
                     line = br.readLine();
@@ -189,5 +193,22 @@ public final class StatusProvider implements UpToDateStatusProviderFactory {
         }
 
     }
+
+    private static List<Fix> findFixesForType(String type, final Document document, int lineNum) {
+        System.out.println("type:" + type);
+        final int startindex = Utilities.getRowStartFromLineOffset((BaseDocument) document, lineNum - 1);
+        final int endindex = Utilities.getRowStartFromLineOffset((BaseDocument) document, lineNum);
+        if ("double_quoted_strings".equals(type)) {
+            return Collections.<Fix>singletonList(new DoubleQuotedStringsFix(document, startindex, endindex));
+        }
+        if ("only_variable_string".equals(type)) {
+            return Collections.<Fix>singletonList(new OnlyVariableStringFix(document, startindex, endindex));
+        }
+//        if ("variables_not_enclosed".equals(type)) {
+//            return Collections.<Fix>singletonList(new VariablesNotEnclosedFix(document, startindex, endindex));
+//        }
+        return Collections.emptyList();
+    }
+
 
 }
