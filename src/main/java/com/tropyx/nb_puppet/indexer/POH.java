@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.tropyx.nb_puppet.lexer;
+package com.tropyx.nb_puppet.indexer;
 
 import com.tropyx.nb_puppet.PuppetProject;
 import org.netbeans.api.java.classpath.ClassPath;

@@ -196,13 +196,13 @@
     <dependency>
       <groupId>org.netbeans.modules</groupId>
       <artifactId>org-netbeans-modules-editor-settings-storage</artifactId>
-      <version>RELEASE80</version>
+      <version>${netbeans.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.netbeans.modules</groupId>
       <artifactId>org-netbeans-modules-lexer-nbbridge</artifactId>
-      <version>RELEASE80</version>
+      <version>${netbeans.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
