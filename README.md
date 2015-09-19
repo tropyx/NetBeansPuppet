@@ -6,20 +6,22 @@ This is a module for editing Puppet configurations.  It identifies a puppet conf
 This lets you use IDE tools like inbuilt git/subversion/mercurial support etc. to edit your puppet files.
 
 <dl>
-    <dt>New in 1.1-mkleint version (in mkleint/NetBeansPuppet fork for now)</dt>
+    <dt>Features include:</dt>
 
    <dd>Puppet file coloring</dd>
    <dd>Hyperlinking to variable, class definitions</dd>
-   <dd>Puppet link errors/warnings in the editor</dd>
+   <dd>Puppet lint errors/warnings in the editor, configuration read from Rakefile</dd>
+   <dd>Create new Puppet module from template, recognize existing projects by manifests/site.pp or manifests/init.pp presence.</dd>
    <dd>Improved project support (Find, Select in projects work, version control actions on project popup)</dd>    
    <dd>Editor tabs with module name included</dd>
+   <dd>.erb files have mimetype (coloring etc) based on previous extension (.sh.erb/yaml.erb/..)</dd>
    <dd>Works with NetBeans 8.0+</dd>
+   <dd><a href="https://www.codeship.io/projects/41169"><img src="https://www.codeship.io/projects/fc108f80-35b9-0132-1d49-7a12fe8c1dfc/status">Codeship Status for NetBeansPuppet</a>
 </dl>
 
 <dl>
   <dt>To Install:</dt>
-  <dd>Download the file <a href="https://s3-us-west-2.amazonaws.com/nbpuppet/nbpuppet-1.1-mkleint-SNAPSHOT.nbm">nbpuppet-1.1-mkleint-SNAPSHOT.nbm</a> to your local machine
-      
+  <dd>Download the latest release <a href="https://github.com/tropyx/NetBeansPuppet/releases/tag/v1.3.0">nbpuppet-1.3.0</a> to your local machine
   add it to your NetBeans IDE with:</dd>
 </dl>
 <pre>

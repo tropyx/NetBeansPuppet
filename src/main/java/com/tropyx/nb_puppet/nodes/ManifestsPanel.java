@@ -1,0 +1,249 @@
+/*
+ * Copyright (C) 2015 github.com/tropyx
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package com.tropyx.nb_puppet.nodes;
+
+import com.tropyx.nb_puppet.PuppetProject;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.concurrent.Callable;
+import javax.swing.SwingUtilities;
+import org.netbeans.api.project.FileOwnerQuery;
+import org.netbeans.api.project.Project;
+import org.openide.explorer.ExplorerManager;
+import org.openide.explorer.view.BeanTreeView;
+import org.openide.filesystems.FileChangeAdapter;
+import org.openide.filesystems.FileEvent;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
+import org.openide.loaders.DataObject;
+import org.openide.loaders.DataObjectNotFoundException;
+import org.openide.nodes.AbstractNode;
+import org.openide.nodes.Children;
+import org.openide.nodes.Node;
+import org.openide.util.RequestProcessor;
+
+/**
+ *
+ * @author  mkleint
+ */
+public class ManifestsPanel extends javax.swing.JPanel implements ExplorerManager.Provider, Runnable {
+
+    private final transient ExplorerManager explorerManager = new ExplorerManager();
+    private static final RequestProcessor RP = new RequestProcessor(ManifestsPanel.class);
+    private final BeanTreeView treeView;
+    private DataObject current;
+    private final FileChangeAdapter adapter = new FileChangeAdapter(){
+            @Override
+            public void fileChanged(FileEvent fe) {
+                showWaitNode();
+                RequestProcessor.getDefault().post(ManifestsPanel.this);
+            }
+        };
+
+    public ManifestsPanel() {
+        initComponents();
+        treeView = (BeanTreeView)jScrollPane1;
+    }
+    
+    @Override
+    public ExplorerManager getExplorerManager() {
+        return explorerManager;
+    }
+
+    void navigate(DataObject d) {
+        if (current != null) {
+            current.getPrimaryFile().removeFileChangeListener(adapter);
+        }
+        current = d;
+        current.getPrimaryFile().addFileChangeListener(adapter);
+        showWaitNode();
+        RequestProcessor.getDefault().post(this);
+    }
+    
+    @Override
+    public void run() {
+        if (current != null && "text/x-puppet-manifest".equals(current.getPrimaryFile().getMIMEType())) {
+            final FileObject curr = current.getPrimaryFile();
+            final Project p = FileOwnerQuery.getOwner(curr);
+            if (p != null && p.getLookup().lookup(PuppetProject.class) != null) {
+                SwingUtilities.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                       treeView.setRootVisible(false);
+                       explorerManager.setRootContext(new AbstractNode(Children.createLazy(new Callable<Children>() {
+
+                           @Override
+                           public Children call() throws Exception {
+                               return new ManifestChildren(p);
+                           }
+                       })));
+                    } 
+                });
+            } else {
+                SwingUtilities.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                       treeView.setRootVisible(false);
+                       explorerManager.setRootContext(createEmptyNode());
+                    } 
+                });
+            }
+        }
+    }
+
+    /**
+     * 
+     */
+    void release() {
+        if (current != null) {
+            current.getPrimaryFile().removeFileChangeListener(adapter);
+        }
+        current = null;
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+               treeView.setRootVisible(false);
+               explorerManager.setRootContext(createEmptyNode());
+            } 
+        });
+    }
+
+    /**
+     * 
+     */
+    public void showWaitNode() {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+               treeView.setRootVisible(true);
+               explorerManager.setRootContext(createWaitNode());
+            } 
+        });
+    }
+
+    /** This method is called from within the constructor to
+     * initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is
+     * always regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        jScrollPane1 = new BeanTreeView();
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
+        this.setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 292, Short.MAX_VALUE)
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 307, Short.MAX_VALUE)
+        );
+    }// </editor-fold>//GEN-END:initComponents
+
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JScrollPane jScrollPane1;
+    // End of variables declaration//GEN-END:variables
+
+    
+    private static Node createWaitNode() {
+        AbstractNode an = new AbstractNode(Children.LEAF);
+        an.setDisplayName("Please wait...");
+        return an;
+    }
+
+    private static Node createEmptyNode() {
+        AbstractNode an = new AbstractNode(Children.LEAF);
+        return an;
+    }
+
+    private static class ManifestChildren extends Children.Keys<FileObject> {
+
+        private final Project p;
+        private final FileObject manifests;
+        private final FileChangeAdapter listener = new FileChangeAdapter() {
+
+            @Override
+            public void fileDeleted(FileEvent fe) {
+                readFos();
+            }
+
+            @Override
+            public void fileDataCreated(FileEvent fe) {
+                readFos();
+            }
+
+        };
+
+        public ManifestChildren(Project p) {
+            this.p = p;
+            this.manifests = p.getProjectDirectory().getFileObject("manifests");
+            if (manifests != null) {
+                manifests.addRecursiveListener(FileUtil.weakFileChangeListener(listener, manifests));
+            }
+        }
+
+        @Override
+        protected void addNotify() {
+            readFos();
+        }
+
+        public void readFos() {
+            RP.post(new Runnable() {
+                @Override
+                public void run() {
+                    List<FileObject> fos = new ArrayList<>();
+                    if (manifests != null) {
+                        Enumeration<? extends FileObject> en = manifests.getChildren(true);
+                        while (en.hasMoreElements()) {
+                            FileObject fo = en.nextElement();
+                            if ("text/x-puppet-manifest".equals(fo.getMIMEType())) {
+                                fos.add(fo);
+                            }
+                        }
+                    }
+                    Collections.sort(fos, new Comparator<FileObject>() {
+                        @Override
+                        public int compare(FileObject o1, FileObject o2) {
+                            return o1.getName().compareTo(o2.getName());
+                        }
+
+                    });
+                    setKeys(fos);
+                }
+            });
+        }
+
+        @Override
+        protected Node[] createNodes(FileObject key) {
+            try {
+                return new Node[]{DataObject.find(key).getNodeDelegate().cloneNode()};
+            } catch (DataObjectNotFoundException ex) {
+                return new Node[0];
+            }
+        }
+    }
+
+}
