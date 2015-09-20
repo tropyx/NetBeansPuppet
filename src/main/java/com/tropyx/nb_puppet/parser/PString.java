@@ -17,37 +17,19 @@
 
 package com.tropyx.nb_puppet.parser;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class PNode {
+public class PString extends PElement {
+    private String value;
     
-    public static int ROOT = 0;
-    public static int RESOURCE = 1;
-    
-
-    private final int type;    
-    private final List<PNode> children = new ArrayList<>();
-    private final PNode parent;
-
-    public PNode(int type, PNode parent) {
-        this.type = type;
-        this.parent = parent;
-        if (parent != null) {
-            parent.addChild(this);
-        }
+    public PString(PElement parent) {
+        super(STRING, parent);
     }
 
-    public List<PNode> getChildren() {
-        return children;
-    }
-    
-    
-    public int getType() {
-        return type;
+    public String getValue() {
+        return value;
     }
 
-    private void addChild(PNode aThis) {
-        children.add(aThis);
+    void setValue(String value) {
+        this.value = value;
     }
+    
 }

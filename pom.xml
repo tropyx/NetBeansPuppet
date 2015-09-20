@@ -188,24 +188,6 @@
       <version>${netbeans.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.netbeans.modules</groupId>
-      <artifactId>org-netbeans-modules-editor-mimelookup-impl</artifactId>
-      <version>${netbeans.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.netbeans.modules</groupId>
-      <artifactId>org-netbeans-modules-editor-settings-storage</artifactId>
-      <version>${netbeans.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.netbeans.modules</groupId>
-      <artifactId>org-netbeans-modules-lexer-nbbridge</artifactId>
-      <version>${netbeans.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.netbeans.api</groupId>
       <artifactId>org-netbeans-modules-editor-mimelookup</artifactId>
       <version>${netbeans.version}</version>
@@ -235,6 +217,25 @@
       <groupId>org.netbeans.api</groupId>
       <artifactId>org-netbeans-api-java-classpath</artifactId>
       <version>${netbeans.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.netbeans.modules</groupId>
+      <artifactId>org-netbeans-modules-editor-mimelookup-impl</artifactId>
+      <version>${netbeans.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.netbeans.modules</groupId>
+      <artifactId>org-netbeans-modules-editor-settings-storage</artifactId>
+      <version>${netbeans.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.netbeans.modules</groupId>
+      <artifactId>org-netbeans-modules-lexer-nbbridge</artifactId>
+      <version>${netbeans.version}</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 

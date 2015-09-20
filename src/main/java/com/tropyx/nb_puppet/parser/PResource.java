@@ -17,11 +17,11 @@
 
 package com.tropyx.nb_puppet.parser;
 
-public class ResourcePNode extends PNode {
+public class PResource extends PElement {
     private String title;
     private String resourceType;
     
-    public ResourcePNode(PNode parent) {
+    public PResource(PElement parent) {
         super(RESOURCE, parent);
     }
 

@@ -17,6 +17,9 @@
 package com.tropyx.nb_puppet.parser;
 
 import com.tropyx.nb_puppet.lexer.PTokenId;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.swing.event.ChangeListener;
 import org.netbeans.api.lexer.Token;
@@ -68,61 +71,129 @@ class PuppetParser extends Parser {
     private PuppetParserResult doParse(Snapshot snapshot, Task task) {
         TokenSequence<PTokenId> ts = (TokenSequence<PTokenId>) snapshot.getTokenHierarchy().tokenSequence();
         ts.moveStart();
-        ts.moveNext();
-        Token<PTokenId> token = ts.token();
-        // when it's not a value -> do nothing.
-        if (token == null) {
-
-            return null;
-        }
-        final PNode root = new PNode(PNode.ROOT, null);
-        if (token.id() == PTokenId.IDENTIFIER || token.id() == PTokenId.FILE) {
-            String identifier = token.text().toString();
-            token = nextSkipWhitespace(ts);
-            if (token != null) {
-                if (token.id() == PTokenId.LBRACE) {
-                    //resource?
-                    processResource(ts, root, identifier);
-                }
-            } else {
-                //just identifier
+        final PElement root = new PElement(PElement.ROOT, null);
+        Token<PTokenId> token = nextSkipWhitespace(ts);
+        while (token != null && ts.isValid()) {
+            if (token.id() == PTokenId.CLASS) {
+                parseClass(root, ts);
+            } 
+            else if (token.id() == PTokenId.NODE) {
+                //http://docs.puppetlabs.com/puppet/4.2/reference/lang_node_definitions.html
+            } else if (token.id() == PTokenId.DEFINE) {
+                //http://docs.puppetlabs.com/puppet/4.2/reference/lang_defined_types.html
             }
+            token = nextSkipWhitespace(ts);
         }
+
         return new PuppetParserResult(snapshot, root);
     }
 
-    private Token<PTokenId> nextSkipWhitespace(TokenSequence<PTokenId> ts) {
-        ts.moveNext();
+    private Token<PTokenId> skipWhitespace(TokenSequence<PTokenId> ts) {
         while (ts.token() != null && ts.token().id() == PTokenId.WHITESPACE)
         {
-            ts.moveNext();
+            if (!ts.moveNext()) {
+                return null;
+            }
         }
         return ts.token();
     }
 
-    private void processResource(TokenSequence<PTokenId> ts, PNode root, String resourceIdentifier) {
-        ResourcePNode nd = new ResourcePNode(root);
-        nd.setResourceType(resourceIdentifier);
-        parseResourceTitle(nextSkipWhitespace(ts), ts, nd);
-        while (ts.token().id() != PTokenId.RBRACE ) {
-            parseResourceParam(nextSkipWhitespace(ts), ts, nd);
+    private Token<PTokenId> nextSkipWhitespace(TokenSequence<PTokenId> ts) {
+        if (!ts.moveNext()) {
+            return null;
         }
+        return skipWhitespace(ts);
+    }
+
+    private String collectText(TokenSequence<PTokenId> ts, PTokenId... stopTokens) {
+        StringBuilder name = new StringBuilder();
+        Token<PTokenId> token = ts.token();
+        List<PTokenId> stops = Arrays.asList(stopTokens);
+        while (token != null && !stops.contains(token.id())) {
+            name.append(token.text().toString());
+            ts.moveNext();
+            token = ts.token();
+        }
+        if (token == null) {
+            return null;
+        }
+        return name.toString();
     }
 
     private String stripString(String toString) {
         return toString.substring(1, toString.length() - 1);
     }
 
-    private void parseResourceParam(Token<PTokenId> next, TokenSequence<PTokenId> ts, ResourcePNode nd) {
-        String paramName = null;
-        while (ts.token().id() != PTokenId.RBRACE || ts.token().id() != PTokenId.COMMA) {
-            if (paramName == null && ts.token().id() == PTokenId.IDENTIFIER) {
-                
+    //http://docs.puppetlabs.com/puppet/4.2/reference/lang_classes.html
+    private void parseClass(PElement root, TokenSequence<PTokenId> ts) {
+        PClass pc = new PClass(root);
+        Token<PTokenId> token;
+        if (null == nextSkipWhitespace(ts)) {
+            return;
+        }
+        String name = collectText(ts, PTokenId.WHITESPACE, PTokenId.LBRACE, PTokenId.LPAREN);
+        if (name != null) {
+            pc.setName(name);
+            token = skipWhitespace(ts);
+            if (token != null && token.id() == PTokenId.LPAREN) {
+                //params
+                parseClassParams(pc, ts);
+                token = nextSkipWhitespace(ts);
             }
-        }        
+            if (token != null && token.id() == PTokenId.INHERITS) {
+                //inherits
+                nextSkipWhitespace(ts);
+                String inherit = collectText(ts, PTokenId.WHITESPACE, PTokenId.LBRACE);
+                if (inherit != null) {
+                    PClassRef ref = new PClassRef(pc);
+                    ref.setName(inherit);
+                    pc.setInherits(new PClassRef[] { ref });
+                    token = nextSkipWhitespace(ts);
+                } else {
+                    token = null;
+                }
+            }
+            if (token != null && token.id() == PTokenId.LBRACE) {
+                //we are done for class
+                //internals or skip to RBRACE
+            }
+        }
     }
 
-    private void parseResourceTitle(Token<PTokenId> nextSkipWhitespace, TokenSequence<PTokenId> ts, ResourcePNode nd) {
+    private void parseClassParams(PClass pc, TokenSequence<PTokenId> ts) {
+        Token<PTokenId> token = nextSkipWhitespace(ts);
+        String type = null;
+        String var = null;
+        String def = null;
+        List<PClassParam> params = new ArrayList<>();
+        while (token != null && token.id() != PTokenId.RPAREN) {
+            if (type == null && token.id() == PTokenId.IDENTIFIER) {
+                type = token.text().toString();
+            }
+            if (var == null && token.id() == PTokenId.VARIABLE) {
+                var = token.text().toString();
+                type = type != null ? type : "Any";
+            }
+            if (token.id() == PTokenId.EQUALS) {
+            }
+            if (token.id() == PTokenId.COMMA) {
+                assert var != null && type != null;
+                PClassParam param = new PClassParam(null, var);
+                param.setTypeType(type);
+                params.add(param);
+                type = null;
+                var = null;
+            }
+            //TODO default values
+            token = nextSkipWhitespace(ts);
+        }
+        if (var != null) {
+            assert type != null;
+            PClassParam param = new PClassParam(null, var);
+            param.setTypeType(type);
+            params.add(param);
+        }
+        pc.setParams(params.toArray(new PClassParam[0]));
     }
 
 }

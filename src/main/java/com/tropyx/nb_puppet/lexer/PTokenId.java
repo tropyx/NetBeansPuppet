@@ -129,6 +129,7 @@ public enum PTokenId implements TokenId
     COMMA(",", "separator"), 
     /** : **/
     COLON(":", "separator"),
+    /** = **/
     EQUALS("=", "operator"),
     /** => */
     PARAM_ASSIGN("=>", "operator"),

@@ -17,24 +17,39 @@
 
 package com.tropyx.nb_puppet.parser;
 
-import org.netbeans.modules.parsing.api.Snapshot;
-import org.netbeans.modules.parsing.spi.Parser;
-
-public class PuppetParserResult extends Parser.Result {
-    private final PElement root;
-
-    public PuppetParserResult(Snapshot _snapshot, PElement root) {
-        super(_snapshot);
-        this.root = root;
-    }
+public class PClass extends PElement {
+    private String name;
+    private PClassRef[] inherits;
+    private PClassParam[] params;
     
-    @Override
-    protected void invalidate() {
-        
+    public PClass(PElement parent) {
+        super(CLASS, parent);
     }
 
-    public PElement getRootNode() {
-        return root;
+    public String getName() {
+        return name;
     }
 
+    void setName(String name) {
+        this.name = name;
+    }
+
+    public PClassRef[] getInherits() {
+        return inherits;
+    }
+
+    void setInherits(PClassRef[] inherits) {
+        this.inherits = inherits;
+    }
+
+    public PClassParam[] getParams() {
+        return params;
+    }
+
+    public void setParams(PClassParam[] params) {
+        this.params = params;
+    }
+
+
+    
 }
