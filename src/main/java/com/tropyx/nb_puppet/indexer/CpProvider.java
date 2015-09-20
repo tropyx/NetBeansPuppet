@@ -41,10 +41,12 @@ public class CpProvider implements ClassPathProvider {
         if (ClassPath.SOURCE.equals(type)) {
             ClassPath cp = CP.get();
             if (cp == null) {
-                CP.compareAndSet(null, ClassPathSupport.createClassPath(project.getProjectDirectory()));
-                cp = CP.get();
+                FileObject fo = project.getProjectDirectory().getFileObject("manifests");
+                if (fo != null) {
+                    CP.compareAndSet(null, ClassPathSupport.createClassPath(fo));
+                    cp = CP.get();
+                }
             }
-            System.out.println("cp=" + cp);
             return cp;
         }
         return ClassPath.EMPTY;

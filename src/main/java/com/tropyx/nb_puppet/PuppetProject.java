@@ -85,23 +85,23 @@ public class PuppetProject implements Project {
         return projectDir;
     }
 
-@Override
-public Lookup getLookup() {
-    if (lkp == null) {
-        lkp = LookupProviderSupport.createCompositeLookup(
-                Lookups.fixed(new Object[]{
-                    this,
-                    new Info(),
-                    new PuppetProjectLogicalView(this),
-                    new PuppetCustomizerProvider(this),
-                    new RecoPrivTemplatesImpl(),
-                    GenericSources.genericOnly(this),
-                    new AuxPropsImpl(this)
-                   // new ReportsSubprojectProvider(this)
-                }), PUPPET_PROJECT_TYPE);
+    @Override
+    public synchronized Lookup getLookup() {
+        if (lkp == null) {
+            lkp = LookupProviderSupport.createCompositeLookup(
+                    Lookups.fixed(new Object[]{
+                this,
+                new Info(),
+                new PuppetProjectLogicalView(this),
+                new PuppetCustomizerProvider(this),
+                new RecoPrivTemplatesImpl(),
+                GenericSources.genericOnly(this),
+                new AuxPropsImpl(this)
+            // new ReportsSubprojectProvider(this)
+            }), "Projects/" + PUPPET_PROJECT_TYPE);
+        }
+        return lkp;
     }
-    return lkp;
-}
 
 static final VisibilityQueryDataFilter INSTANCE = new VisibilityQueryDataFilter();
 

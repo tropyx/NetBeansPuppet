@@ -9,8 +9,9 @@
                     <attr name="instanceClass" stringvalue="com.tropyx.nb_puppet.parser.PuppetParserFactory"/>
                     <attr name="instanceOf" stringvalue="org.netbeans.modules.parsing.spi.ParserFactory"/>
                 </file>
-                <file name="com-tropyx-nb_puppet-lexer-PPIndexerFactory.instance">
-                    <attr name="instanceOf" stringvalue="org.netbeans.modules.parsing.spi.indexing.CustomIndexerFactory"/>
+                <file name="PPIndexerFactory.instance">
+                    <attr name="instanceOf" stringvalue="org.netbeans.modules.parsing.spi.indexing.EmbeddingIndexerFactory"/>
+                    <attr name="instanceClass" stringvalue="com.tropyx.nb_puppet.indexer.PPIndexerFactory"/>
                 </file>
                 <folder name="FontsColors">
                     <folder name="NetBeans">

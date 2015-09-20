@@ -17,40 +17,30 @@
 
 package com.tropyx.nb_puppet.indexer;
 
+import org.netbeans.modules.parsing.api.Snapshot;
+import org.netbeans.modules.parsing.spi.Parser;
 import org.netbeans.modules.parsing.spi.indexing.Context;
-import org.netbeans.modules.parsing.spi.indexing.CustomIndexer;
-import org.netbeans.modules.parsing.spi.indexing.CustomIndexerFactory;
+import org.netbeans.modules.parsing.spi.indexing.EmbeddingIndexer;
+import org.netbeans.modules.parsing.spi.indexing.EmbeddingIndexerFactory;
 import org.netbeans.modules.parsing.spi.indexing.Indexable;
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.URLMapper;
 
-public class PPIndexerFactory extends CustomIndexerFactory {
+public class PPIndexerFactory extends EmbeddingIndexerFactory {
 
     public PPIndexerFactory() {
     }
+
+    @Override
+    public void scanFinished(Context context) {
+//        System.out.println("scan finished" + context.getRootURI());
+        super.scanFinished(context); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public boolean scanStarted(Context context) {
+//        System.out.println("scan started" + context.getRootURI());
+        return super.scanStarted(context); //To change body of generated methods, choose Tools | Templates.
+    }
     
-
-    @Override
-    public CustomIndexer createIndexer() {
-        return new CustomIndexer() {
-
-            @Override
-            protected void index(Iterable<? extends Indexable> files, Context context) {
-                for (Indexable indx : files) {
-                    FileObject fo = URLMapper.findFileObject(indx.getURL());
-                    if (fo != null) {
-                        System.out.println("indexing " + fo);
-                    }
-                    
-                }
-            }
-        };
-    }
-
-    @Override
-    public boolean supportsEmbeddedIndexers() {
-        return true;
-    }
 
     @Override
     public void filesDeleted(Iterable<? extends Indexable> deleted, Context context) {
@@ -74,6 +64,19 @@ public class PPIndexerFactory extends CustomIndexerFactory {
     @Override
     public int getIndexVersion() {
         return 1;
+    }
+
+    @Override
+    public EmbeddingIndexer createIndexer(Indexable indexable, Snapshot snapshot) {
+        return new EmbeddingIndexer() {
+
+             @Override
+             protected void index(Indexable indexable, Parser.Result parserResult, Context context) {
+                 System.out.println("index:" + indexable.getURL());
+                 System.out.println("result:" + parserResult);
+             }
+         };
+
     }
 
 }

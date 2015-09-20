@@ -30,7 +30,7 @@ import org.netbeans.modules.parsing.spi.SourceModificationEvent;
 class PuppetParser extends Parser {
 
     private final AtomicBoolean cancelled = new AtomicBoolean();
-    ;
+
     private PuppetParserResult result;
 
     public PuppetParser() {
@@ -120,6 +120,9 @@ class PuppetParser extends Parser {
                 
             }
         }        
+    }
+
+    private void parseResourceTitle(Token<PTokenId> nextSkipWhitespace, TokenSequence<PTokenId> ts, ResourcePNode nd) {
     }
 
 }

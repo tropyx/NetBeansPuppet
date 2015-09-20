@@ -37,7 +37,6 @@ public class POH extends ProjectOpenedHook {
     
     @Override
     protected void projectOpened() {
-        System.out.println("POHOpned");
         if (cp == null) {
             cp = project.getLookup().lookup(ClassPathProvider.class).findClassPath(project.getProjectDirectory(), ClassPath.SOURCE);
             GlobalPathRegistry.getDefault().register(ClassPath.SOURCE, new ClassPath[] {cp});
