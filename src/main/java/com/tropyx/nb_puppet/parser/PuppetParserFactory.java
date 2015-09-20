@@ -18,14 +18,7 @@
 package com.tropyx.nb_puppet.parser;
 
 import java.util.Collection;
-import java.util.Collections;
-import javax.swing.text.Document;
-import org.netbeans.modules.parsing.api.ParserManager;
-import org.netbeans.modules.parsing.api.ResultIterator;
 import org.netbeans.modules.parsing.api.Snapshot;
-import org.netbeans.modules.parsing.api.Source;
-import org.netbeans.modules.parsing.api.UserTask;
-import org.netbeans.modules.parsing.spi.ParseException;
 import org.netbeans.modules.parsing.spi.Parser;
 import org.netbeans.modules.parsing.spi.ParserFactory;
 
@@ -38,20 +31,6 @@ public class PuppetParserFactory extends ParserFactory {
     @Override
     public Parser createParser(Collection<Snapshot> clctn) {
         return new PuppetParser();
-    }
-
-    public static PNode parse(Document sourceFo) throws ParseException {
-        Source source = Source.create(sourceFo);
-        final PNode[] root = new PNode[1];
-        UserTask task = new UserTask() {
-
-            @Override
-            public void run(ResultIterator resultIterator) throws Exception {
-                root[0] = ((PuppetParserResult)resultIterator.getParserResult()).getRootNode();
-            }
-        };
-        ParserManager.parse(Collections.singleton(source), task);
-        return root[0];
     }
 
 }

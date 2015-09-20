@@ -19,10 +19,13 @@ package com.tropyx.nb_puppet.parser;
 
 import javax.swing.text.Document;
 import javax.swing.text.PlainDocument;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.netbeans.junit.NbTestCase;
+import org.netbeans.modules.parsing.api.ResultIterator;
+import org.netbeans.modules.parsing.api.Snapshot;
+import org.netbeans.modules.parsing.api.Source;
+import org.netbeans.modules.parsing.api.UserTask;
+import org.netbeans.modules.parsing.spi.ParseException;
 
 /**
  *
@@ -34,25 +37,29 @@ public class PuppetParserTest extends NbTestCase {
         super(name);
     }
 
-    @Before
-    public void setUp() {
-    }
-    
-    @After
-    public void tearDown() {
-    }
-
     /**
      * Test of parse method, of class PuppetParser.
      */
-    @Test
+//    @Test
     public void testParse() throws Exception {
         Document doc = new PlainDocument();
         doc.putProperty("mimeType", "text/x-puppet-manifest");
         doc.insertString(0, "file { 'title' : p1 => 'v'}", null);
-        PNode nd = PuppetParserFactory.parse(doc);
-        System.out.println("nd=" + nd);
+        PuppetParserResult result = doParse(doc);
+        result.getRootNode();
+    }
 
+    public PuppetParserResult doParse(Document doc) throws ParseException {
+        Snapshot snap = Source.create(doc).createSnapshot();
+        PuppetParser pp = new PuppetParser();
+        UserTask ut = new UserTask() {
+
+            @Override
+            public void run(ResultIterator resultIterator) throws Exception {
+            }
+        };
+        pp.parse(snap, ut, null);
+        return (PuppetParserResult) pp.getResult(ut);
     }
 
     
