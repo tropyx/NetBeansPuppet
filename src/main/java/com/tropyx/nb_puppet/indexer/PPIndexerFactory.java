@@ -17,14 +17,19 @@
 
 package com.tropyx.nb_puppet.indexer;
 
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.netbeans.modules.parsing.api.Snapshot;
-import org.netbeans.modules.parsing.spi.Parser;
 import org.netbeans.modules.parsing.spi.indexing.Context;
 import org.netbeans.modules.parsing.spi.indexing.EmbeddingIndexer;
 import org.netbeans.modules.parsing.spi.indexing.EmbeddingIndexerFactory;
 import org.netbeans.modules.parsing.spi.indexing.Indexable;
+import org.netbeans.modules.parsing.spi.indexing.support.IndexingSupport;
 
 public class PPIndexerFactory extends EmbeddingIndexerFactory {
+
+    private static final Logger LOG = Logger.getLogger(PPIndexerFactory.class.getName());
 
     public PPIndexerFactory() {
     }
@@ -44,15 +49,25 @@ public class PPIndexerFactory extends EmbeddingIndexerFactory {
 
     @Override
     public void filesDeleted(Iterable<? extends Indexable> deleted, Context context) {
-        for (Indexable d : deleted) {
-            System.out.println("de:" + d.getURL());
+        try {
+            IndexingSupport is = IndexingSupport.getInstance(context);
+            for (Indexable i : deleted) {
+                is.removeDocuments(i);
+            }
+        } catch (IOException ioe) {
+            LOG.log(Level.WARNING, null, ioe);
         }
     }
 
     @Override
     public void filesDirty(Iterable<? extends Indexable> dirty, Context context) {
-        for (Indexable d : dirty) {
-            System.out.println("di:" + d.getURL());
+        try {
+            IndexingSupport is = IndexingSupport.getInstance(context);
+            for (Indexable i : dirty) {
+                is.markDirtyDocuments(i);
+            }
+        } catch (IOException ioe) {
+            LOG.log(Level.WARNING, null, ioe);
         }
     }
 
@@ -68,15 +83,7 @@ public class PPIndexerFactory extends EmbeddingIndexerFactory {
 
     @Override
     public EmbeddingIndexer createIndexer(Indexable indexable, Snapshot snapshot) {
-        return new EmbeddingIndexer() {
-
-             @Override
-             protected void index(Indexable indexable, Parser.Result parserResult, Context context) {
-                 System.out.println("index:" + indexable.getURL());
-                 System.out.println("result:" + parserResult);
-             }
-         };
-
+        return new PPIndexer();
     }
 
 }

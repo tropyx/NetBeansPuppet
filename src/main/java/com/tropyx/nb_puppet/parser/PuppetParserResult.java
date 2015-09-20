@@ -33,7 +33,7 @@ public class PuppetParserResult extends Parser.Result {
         
     }
 
-    PNode getRootNode() {
+    public PNode getRootNode() {
         return root;
     }
 
