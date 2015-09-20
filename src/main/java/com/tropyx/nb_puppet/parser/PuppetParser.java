@@ -147,7 +147,7 @@ class PuppetParser extends Parser {
                 if (inherit != null) {
                     PClassRef ref = new PClassRef(pc);
                     ref.setName(inherit);
-                    pc.setInherits(new PClassRef[] { ref });
+                    pc.setInherits(ref);
                     token = nextSkipWhitespace(ts);
                 } else {
                     token = null;

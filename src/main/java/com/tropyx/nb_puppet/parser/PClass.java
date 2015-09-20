@@ -19,8 +19,8 @@ package com.tropyx.nb_puppet.parser;
 
 public class PClass extends PElement {
     private String name;
-    private PClassRef[] inherits;
-    private PClassParam[] params;
+    private PClassRef inherits;
+    private PClassParam[] params = new PClassParam[0];
     
     public PClass(PElement parent) {
         super(CLASS, parent);
@@ -34,11 +34,11 @@ public class PClass extends PElement {
         this.name = name;
     }
 
-    public PClassRef[] getInherits() {
+    public PClassRef getInherits() {
         return inherits;
     }
 
-    void setInherits(PClassRef[] inherits) {
+    void setInherits(PClassRef inherits) {
         this.inherits = inherits;
     }
 
@@ -47,6 +47,7 @@ public class PClass extends PElement {
     }
 
     public void setParams(PClassParam[] params) {
+        assert params != null;
         this.params = params;
     }
 

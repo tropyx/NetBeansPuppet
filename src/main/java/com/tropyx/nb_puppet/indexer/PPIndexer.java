@@ -1,6 +1,9 @@
 
 package com.tropyx.nb_puppet.indexer;
 
+import com.tropyx.nb_puppet.parser.PClass;
+import com.tropyx.nb_puppet.parser.PClassParam;
+import com.tropyx.nb_puppet.parser.PElement;
 import com.tropyx.nb_puppet.parser.PuppetParserResult;
 import java.io.IOException;
 import java.util.logging.Level;
@@ -35,7 +38,20 @@ public class PPIndexer extends EmbeddingIndexer {
         IndexDocument document = support.createDocument(indexable);
         //TODO...
         PuppetParserResult res = (PuppetParserResult) parserResult;
-        res.getRootNode();
+        PElement root = res.getRootNode();
+        for (PElement ch : root.getChildren()) {
+            if (ch.getType() == PElement.CLASS) {
+                PClass cl = (PClass)ch;
+                String name = cl.getName();
+                document.addPair("class", name, true, true);
+                if (cl.getInherits() != null) {
+                    document.addPair("inherits", cl.getInherits().getName(), true, true);
+                }
+                for (PClassParam param : cl.getParams()) {
+                    document.addPair("param", param.getVariable().getName(), false, true);
+                }
+            }
+        }
 
         support.addDocument(document);
     }

@@ -57,7 +57,7 @@ public class PuppetParserTest extends NbTestCase {
         PuppetParserResult result = doParse("class aaa inherits aaa::params { }");
         PClass c = assertAndGetClassElement(result);
         assertEquals("aaa", c.getName());
-        assertEquals("aaa::params", c.getInherits()[0].getName());
+        assertEquals("aaa::params", c.getInherits().getName());
     }
 
     @Test
@@ -65,7 +65,7 @@ public class PuppetParserTest extends NbTestCase {
         PuppetParserResult result = doParse("class aaa() inherits aaa::params { }");
         PClass c = assertAndGetClassElement(result);
         assertEquals("aaa", c.getName());
-        assertEquals("aaa::params", c.getInherits()[0].getName());
+        assertEquals("aaa::params", c.getInherits().getName());
     }
 
     @Test
