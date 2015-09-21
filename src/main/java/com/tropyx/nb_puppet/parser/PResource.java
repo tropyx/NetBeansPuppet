@@ -17,29 +17,37 @@
 
 package com.tropyx.nb_puppet.parser;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class PResource extends PElement {
-    private String title;
-    private String resourceType;
+    private PElement title;
+    private final String resourceType;
+    private final List<PResourceAttribute> atributes = new ArrayList<>();
     
-    public PResource(PElement parent) {
-        super(RESOURCE, parent);
+    public PResource(PElement parent, String resourceType) {
+        super(RESOURCE_ATTR, parent);
+        this.resourceType = resourceType;
     }
 
     public String getResourceType() {
         return resourceType;
     }
 
-    void setTitle(String title) {
+    void setTitle(PElement title) {
         this.title = title;
     }
 
-    void setResourceType(String resourceType) {
-        this.resourceType = resourceType;
-    }
-    
-    public String getTitle() {
+    public PElement getTitle() {
         return title;
     }
-    
+
+    public List<PResourceAttribute> getAtributes() {
+        return atributes;
+    }
+
+    public void addAttribute(PResourceAttribute attribute) {
+        this.atributes.add(attribute);
+    }
     
 }

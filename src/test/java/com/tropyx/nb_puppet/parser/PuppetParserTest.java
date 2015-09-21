@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 mkleint
+ * Copyright (C) 2015 mkleint
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -96,6 +96,87 @@ public class PuppetParserTest extends NbTestCase {
         p = c.getParams()[2];
         assertEquals("$dd", p.getVariable().getName());
         assertEquals("Any", p.getTypeType());
+    }
+
+    @Test
+    public void testClassIncludeParse() throws Exception {
+        PuppetParserResult result = doParse(
+                "class aaa::param { "
+             +  " include bbb::param"
+             + " }");
+        PClass c = assertAndGetClassElement(result);
+        assertEquals("aaa::param", c.getName());
+        assertEquals(1, c.getIncludes().size());
+        assertEquals("bbb::param", c.getIncludes().get(0).getName());
+    }
+
+    @Test
+    public void testClassIncludesParse() throws Exception {
+        PuppetParserResult result = doParse(
+                "class aaa::param { "
+             +  " include bbb::param"
+             +  " include ccc::param"
+             + " }");
+        PClass c = assertAndGetClassElement(result);
+        assertEquals("aaa::param", c.getName());
+        assertEquals(2, c.getIncludes().size());
+        assertEquals("bbb::param", c.getIncludes().get(0).getName());
+        assertEquals("ccc::param", c.getIncludes().get(1).getName());
+    }
+
+    @Test
+    public void testClassBracingParse() throws Exception {
+        PuppetParserResult result = doParse(
+                "class aaa::param { "
+             +  " {  } "
+             +  " { { } }"
+             + " }"
+             + "   include bbb:param");
+        PClass c = assertAndGetClassElement(result);
+        assertEquals("aaa::param", c.getName());
+        assertEquals(0, c.getIncludes().size());
+    }
+
+    @Test
+    public void testSimpleResourceParse() throws Exception {
+        PuppetParserResult result = doParse(
+                "class aaa::install { "
+             +  " file { \"fff\":"
+              + " ensure => present, "
+             +  " path => \'aaaa\',"
+             + " }"
+             + " }");
+        PClass c = assertAndGetClassElement(result);
+        assertEquals("aaa::install", c.getName());
+        PResource res = (PResource) c.getChildren().get(0);
+        assertEquals("file", res.getResourceType());
+        assertNotNull(res.getTitle());
+        assertEquals(PString.STRING, res.getTitle().getType());
+        assertEquals(2, res.getAtributes().size());
+        assertEquals("ensure", res.getAtributes().get(0).getName());
+        assertEquals("present", res.getAtributes().get(0).getValue());
+    }
+
+    @Test
+    public void testSimpleResourceParse2() throws Exception {
+        PuppetParserResult result = doParse(
+                "class aaa::install { "
+             +  " file { $aaa::params::fff :"
+              + " ensure => present, "
+             +  " path => \'aaaa\',"
+              + " foo => 644"
+             + " }"
+             + " }");
+        PClass c = assertAndGetClassElement(result);
+        assertEquals("aaa::install", c.getName());
+        PResource res = (PResource) c.getChildren().get(0);
+        assertEquals("file", res.getResourceType());
+        assertNotNull(res.getTitle());
+        assertEquals(PString.VARIABLE, res.getTitle().getType());
+        assertEquals("$aaa::params::fff", ((PVariable)res.getTitle()).getName());
+        assertEquals(3, res.getAtributes().size());
+        assertEquals("foo", res.getAtributes().get(2).getName());
+        assertEquals("644", res.getAtributes().get(2).getValue());
     }
 
     private PClass assertAndGetClassElement(PuppetParserResult result) {

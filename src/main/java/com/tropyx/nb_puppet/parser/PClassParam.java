@@ -28,9 +28,7 @@ public class PClassParam extends PElement {
 
     PClassParam(PElement parent, String var) {
         this(parent);
-        PVariable vari = new PVariable(null);
-        vari.setName(var);
-        setVariable(vari);
+        setVariable(new PVariable(this, var));
     }
 
     public String getTypeType() {

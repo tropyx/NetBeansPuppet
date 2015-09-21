@@ -29,23 +29,31 @@ public class PElement {
     public static final int CLASS_PARAM = 4;
     public static final int VARIABLE = 5;
     public static final int STRING = 6;
+    public static final int RESOURCE_ATTR = 7;
 
     
 
     private final int type;    
     private final List<PElement> children = new ArrayList<>();
-    private final PElement parent;
+    private PElement parent;
 
     public PElement(int type, PElement parent) {
         this.type = type;
-        this.parent = parent;
-        if (parent != null) {
-            parent.addChild(this);
-        }
+        setParent(parent);
     }
 
     public List<PElement> getChildren() {
         return children;
+    }
+
+    public final void setParent(PElement parent) {
+        if (this.parent != null) {
+            throw new IllegalStateException("Cannot reassign parent element");
+        }
+        this.parent = parent;
+        if (parent != null) {
+            parent.addChild(this);
+        }
     }
     
     

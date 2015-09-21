@@ -20,8 +20,15 @@ package com.tropyx.nb_puppet.parser;
 public class PString extends PElement {
     private String value;
     
-    public PString(PElement parent) {
+    public PString(PElement parent, String value) {
         super(STRING, parent);
+        this.value = value;
+        if (this.value.startsWith("\"")) {
+            this.value = this.value.substring(1);
+        }
+        if (this.value.endsWith("\"")) {
+            this.value = this.value.substring(0, this.value.length());
+        }
     }
 
     public String getValue() {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 mkleint
+ * Copyright (C) 2015 mkleint
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,10 +17,15 @@
 
 package com.tropyx.nb_puppet.parser;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class PClass extends PElement {
     private String name;
     private PClassRef inherits;
     private PClassParam[] params = new PClassParam[0];
+    private final List<PClassRef> includes = new ArrayList<>();
+    private final List<PClassRef> requires = new ArrayList<>();
     
     public PClass(PElement parent) {
         super(CLASS, parent);
@@ -51,6 +56,19 @@ public class PClass extends PElement {
         this.params = params;
     }
 
+    public void addInclude(PClassRef ref) {
+        includes.add(ref);
+    }
 
+    public List<PClassRef> getIncludes() {
+        return includes;
+    }
+
+    void addRequire(PClassRef pClassRef) {
+        requires.add(pClassRef);
+    }
     
+    public List<PClassRef> getRequires() {
+        return requires;
+    }
 }

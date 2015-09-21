@@ -17,20 +17,28 @@
 
 package com.tropyx.nb_puppet.parser;
 
-public class PClassRef extends PElement {
-    private String name;
+public class PResourceAttribute extends PElement {
+    private final String name;
+    private String value;
     
-    public PClassRef(PElement parent, String name) {
-        super(CLASS_REF, parent);
-        setName(name);
+    public PResourceAttribute(PElement parent, String name) {
+        super(RESOURCE, parent);
+        this.name = name;
     }
 
     public String getName() {
         return name;
     }
 
-    private void setName(String name) {
-        this.name = name;
+    public String getValue() {
+        return value;
     }
+
+    public void setValue(String value) {
+        this.value = value;
+    }
+
+
+
     
 }

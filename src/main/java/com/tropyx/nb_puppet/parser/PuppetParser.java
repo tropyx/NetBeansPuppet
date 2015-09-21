@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 mkleint
+ * Copyright (C) 2015 mkleint
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -145,9 +145,7 @@ class PuppetParser extends Parser {
                 nextSkipWhitespace(ts);
                 String inherit = collectText(ts, PTokenId.WHITESPACE, PTokenId.LBRACE);
                 if (inherit != null) {
-                    PClassRef ref = new PClassRef(pc);
-                    ref.setName(inherit);
-                    pc.setInherits(ref);
+                    pc.setInherits(new PClassRef(pc, inherit));
                     token = nextSkipWhitespace(ts);
                 } else {
                     token = null;
@@ -156,6 +154,7 @@ class PuppetParser extends Parser {
             if (token != null && token.id() == PTokenId.LBRACE) {
                 //we are done for class
                 //internals or skip to RBRACE
+                parseClassBody(pc, ts);
             }
         }
     }
@@ -178,7 +177,7 @@ class PuppetParser extends Parser {
             }
             if (token.id() == PTokenId.COMMA) {
                 assert var != null && type != null;
-                PClassParam param = new PClassParam(null, var);
+                PClassParam param = new PClassParam(pc, var);
                 param.setTypeType(type);
                 params.add(param);
                 type = null;
@@ -189,11 +188,108 @@ class PuppetParser extends Parser {
         }
         if (var != null) {
             assert type != null;
-            PClassParam param = new PClassParam(null, var);
+            PClassParam param = new PClassParam(pc, var);
             param.setTypeType(type);
             params.add(param);
         }
         pc.setParams(params.toArray(new PClassParam[0]));
+    }
+
+    private void parseClassBody(PClass pc, TokenSequence<PTokenId> ts) {
+        Token<PTokenId> token = nextSkipWhitespace(ts);
+        int rbraceCount = 1;
+        while (token != null &&  rbraceCount != 0) {
+            if (token.id() == PTokenId.RBRACE) {
+                rbraceCount--;
+            }
+            else if (token.id() == PTokenId.LBRACE) {
+                rbraceCount++;
+            }
+            else if (token.id() == PTokenId.INCLUDE) {
+                token = nextSkipWhitespace(ts);
+                if (token != null && token.id() == PTokenId.IDENTIFIER) {
+                    pc.addInclude(new PClassRef(null, token.text().toString()));
+                } else {
+                    continue;
+                }
+            }
+            else if (token.id() == PTokenId.REQUIRE) {
+                token = nextSkipWhitespace(ts);
+                if (token != null && token.id() == PTokenId.IDENTIFIER) {
+                    pc.addRequire(new PClassRef(null, token.text().toString()));
+                } else {
+                    continue;
+                }
+            } else if (token.id() == PTokenId.VARIABLE) {
+                //TODO
+            } else if (token.id() == PTokenId.IDENTIFIER) {
+                // resource??
+                String val = token.text().toString();
+                token = nextSkipWhitespace(ts);
+                if (token != null && token.id() == PTokenId.LBRACE) {
+                    parseResource(pc, val, ts);
+                } else {
+                    continue;
+                }
+            }
+            token = nextSkipWhitespace(ts);
+        }
+        
+    }
+
+    private void parseResource(PClass pc, String type, TokenSequence<PTokenId> ts) {
+        Token<PTokenId> token = nextSkipWhitespace(ts);
+        if (token != null) {
+            PElement title;
+            if (token.id() == PTokenId.STRING_LITERAL) {
+                title = new PString(null, token.text().toString());
+            } else if (token.id() == PTokenId.VARIABLE) {
+                title = new PVariable(null, token.text().toString());
+            } else {
+                throw new IllegalStateException("token:" + token.text().toString() + " of type:" + token.id());
+            }
+            token = nextSkipWhitespace(ts);
+            if (token != null && token.id() == PTokenId.COLON) {
+                PResource resource = new PResource(pc, type);
+                title.setParent(resource);
+                resource.setTitle(title);
+                parseResourceAttrs(resource, ts);
+            }
+        }
+    }
+
+    private void parseResourceAttrs(PResource resource, TokenSequence<PTokenId> ts) {
+        Token<PTokenId> token = nextSkipWhitespace(ts);
+        String attr = null;
+        String val = null;
+        while (token != null && token.id() != PTokenId.RBRACE) {
+            if (attr == null && token.id() == PTokenId.IDENTIFIER) {
+                attr = token.text().toString();
+            }
+            if (token.id() == PTokenId.PARAM_ASSIGN) {
+                //TODO turn to types rather than string
+                token = nextSkipWhitespace(ts);
+                val = collectText(ts, PTokenId.COMMA, PTokenId.RBRACE).trim();
+                token = ts.token();
+                continue;
+            }
+            if (token.id() == PTokenId.COMMA) {
+                assert attr != null && val != null;
+                PResourceAttribute param = new PResourceAttribute(resource, attr);
+                param.setValue(val);
+                resource.addAttribute(param);
+                attr = null;
+                val = null;
+            }
+            //TODO default values
+            token = nextSkipWhitespace(ts);
+        }
+        if (attr != null) {
+            assert val != null;
+            PResourceAttribute param = new PResourceAttribute(resource, attr);
+            param.setValue(val);
+            resource.addAttribute(param);
+        }
     }
 
 }

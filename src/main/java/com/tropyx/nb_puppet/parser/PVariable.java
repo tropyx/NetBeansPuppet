@@ -18,18 +18,14 @@
 package com.tropyx.nb_puppet.parser;
 
 public class PVariable extends PElement {
-    private String name;
+    private final String name;
     
-    public PVariable(PElement parent) {
+    public PVariable(PElement parent, String name) {
         super(VARIABLE, parent);
+        this.name = name;
     }
 
     public String getName() {
         return name;
     }
-
-    void setName(String name) {
-        this.name = name;
-    }
-    
 }
