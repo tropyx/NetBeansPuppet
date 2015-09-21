@@ -20,8 +20,8 @@ package com.tropyx.nb_puppet.parser;
 public class PClassRef extends PElement {
     private String name;
     
-    public PClassRef(PElement parent, String name) {
-        super(CLASS_REF, parent);
+    public PClassRef(PElement parent, int offset, String name) {
+        super(CLASS_REF, parent, offset);
         setName(name);
     }
 

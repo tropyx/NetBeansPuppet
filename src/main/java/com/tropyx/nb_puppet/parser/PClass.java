@@ -27,8 +27,8 @@ public class PClass extends PElement {
     private final List<PClassRef> includes = new ArrayList<>();
     private final List<PClassRef> requires = new ArrayList<>();
     
-    public PClass(PElement parent) {
-        super(CLASS, parent);
+    public PClass(PElement parent, int offset) {
+        super(CLASS, parent, offset);
     }
 
     public String getName() {

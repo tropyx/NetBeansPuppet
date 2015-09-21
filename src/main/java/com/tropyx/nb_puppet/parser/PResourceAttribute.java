@@ -21,8 +21,8 @@ public class PResourceAttribute extends PElement {
     private final String name;
     private String value;
     
-    public PResourceAttribute(PElement parent, String name) {
-        super(RESOURCE, parent);
+    public PResourceAttribute(PElement parent, int offset, String name) {
+        super(RESOURCE, parent, offset);
         this.name = name;
     }
 

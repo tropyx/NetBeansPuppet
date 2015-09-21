@@ -22,13 +22,13 @@ public class PClassParam extends PElement {
     private PVariable variable;
     private PElement defaultValue;
     
-    public PClassParam(PElement parent) {
-        super(CLASS_PARAM, parent);
+    public PClassParam(PElement parent, int offset) {
+        super(CLASS_PARAM, parent, offset);
     }
 
-    PClassParam(PElement parent, String var) {
-        this(parent);
-        setVariable(new PVariable(this, var));
+    PClassParam(PElement parent, int offset, String var) {
+        this(parent, offset);
+        setVariable(new PVariable(this, offset, var)); //TODO proper offset
     }
 
     public String getTypeType() {

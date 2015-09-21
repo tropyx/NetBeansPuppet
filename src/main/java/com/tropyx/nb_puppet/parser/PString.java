@@ -20,8 +20,8 @@ package com.tropyx.nb_puppet.parser;
 public class PString extends PElement {
     private String value;
     
-    public PString(PElement parent, String value) {
-        super(STRING, parent);
+    public PString(PElement parent, int offset, String value) {
+        super(STRING, parent, offset);
         this.value = value;
         if (this.value.startsWith("\"")) {
             this.value = this.value.substring(1);

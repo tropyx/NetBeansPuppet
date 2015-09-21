@@ -20,8 +20,8 @@ package com.tropyx.nb_puppet.parser;
 public class PVariable extends PElement {
     private final String name;
     
-    public PVariable(PElement parent, String name) {
-        super(VARIABLE, parent);
+    public PVariable(PElement parent, int offset, String name) {
+        super(VARIABLE, parent, offset);
         this.name = name;
     }
 

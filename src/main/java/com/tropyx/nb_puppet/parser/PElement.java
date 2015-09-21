@@ -36,9 +36,11 @@ public class PElement {
     private final int type;    
     private final List<PElement> children = new ArrayList<>();
     private PElement parent;
+    private final int offset;
 
-    public PElement(int type, PElement parent) {
+    public PElement(int type, PElement parent, int offset) {
         this.type = type;
+        this.offset = offset;
         setParent(parent);
     }
 
@@ -55,7 +57,10 @@ public class PElement {
             parent.addChild(this);
         }
     }
-    
+
+    public int getOffset() {
+        return offset;
+    }
     
     public int getType() {
         return type;
