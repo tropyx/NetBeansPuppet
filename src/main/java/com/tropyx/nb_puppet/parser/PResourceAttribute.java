@@ -19,10 +19,10 @@ package com.tropyx.nb_puppet.parser;
 
 public class PResourceAttribute extends PElement {
     private final String name;
-    private String value;
+    private PElement value;
     
     public PResourceAttribute(PElement parent, int offset, String name) {
-        super(RESOURCE, parent, offset);
+        super(RESOURCE_ATTR, parent, offset);
         this.name = name;
     }
 
@@ -30,15 +30,17 @@ public class PResourceAttribute extends PElement {
         return name;
     }
 
-    public String getValue() {
+    public PElement getValue() {
         return value;
     }
 
-    public void setValue(String value) {
+    public void setValue(PElement value) {
         this.value = value;
     }
 
-
-
+    @Override
+    public String toString() {
+        return super.toString() + "[" + name + "->" + value.getClass() + "]";
+    }
     
 }

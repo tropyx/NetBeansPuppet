@@ -49,5 +49,10 @@ public class PResource extends PElement {
     public void addAttribute(PResourceAttribute attribute) {
         this.atributes.add(attribute);
     }
+
+    @Override
+    public String toString() {
+        return super.toString() + "[" + resourceType + ']';
+    }
     
 }

@@ -71,4 +71,11 @@ public class PClass extends PElement {
     public List<PClassRef> getRequires() {
         return requires;
     }
+
+    @Override
+    public String toString() {
+        return super.toString() + "[" + name + "]";
+    }
+
+
 }

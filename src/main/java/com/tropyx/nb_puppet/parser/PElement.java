@@ -30,8 +30,11 @@ public class PElement {
     public static final int VARIABLE = 5;
     public static final int STRING = 6;
     public static final int RESOURCE_ATTR = 7;
-
-    
+    public static final int ARRAY = 8;
+    public static final int HASH = 9;
+    public static final int REGEXP = 10;
+    public static final int REFERENCE = 11;
+    public static final int BLOB = 12;
 
     private final int type;    
     private final List<PElement> children = new ArrayList<>();
@@ -46,6 +49,19 @@ public class PElement {
 
     public List<PElement> getChildren() {
         return children;
+    }
+
+    public <T extends PElement> List<T> getChildrenOfType(Class<T> clazz, boolean recursive) {
+        List<T> toRet = new ArrayList<>();
+        for (PElement ch : children) {
+            if (clazz.equals(ch.getClass())) {
+                toRet.add((T)ch);
+            }
+            if (recursive) {
+                toRet.addAll(ch.getChildrenOfType(clazz, recursive));
+            }
+        }
+        return toRet;
     }
 
     public final void setParent(PElement parent) {
@@ -69,4 +85,23 @@ public class PElement {
     private void addChild(PElement aThis) {
         children.add(aThis);
     }
+
+    public String toStringRecursive() {
+        StringBuilder sb = new StringBuilder(toString());
+        if (children.size() > 0) {
+            for (PElement ch : children) {
+                String s = ch.toStringRecursive();
+                s = s.replace("\n", "\n  ");
+                sb.append("\n  ").append(s);
+            }
+        }
+        return sb.toString();
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName();
+    }
+
+
 }

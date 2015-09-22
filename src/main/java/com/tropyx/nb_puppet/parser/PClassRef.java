@@ -32,5 +32,10 @@ public class PClassRef extends PElement {
     private void setName(String name) {
         this.name = name;
     }
-    
+
+    @Override
+    public String toString() {
+        return super.toString() + "[" + name + "]";
+    }
+
 }

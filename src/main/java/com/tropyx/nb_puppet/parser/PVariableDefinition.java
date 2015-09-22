@@ -17,31 +17,24 @@
 
 package com.tropyx.nb_puppet.parser;
 
-public class PString extends PElement {
-    private String value;
+/**
+ * variable definition
+ */
+public class PVariableDefinition extends PElement {
+    private final String name;
     
-    public PString(PElement parent, int offset, String value) {
-        super(STRING, parent, offset);
-        this.value = value;
-        if (this.value.startsWith("\"")) {
-            this.value = this.value.substring(1);
-        }
-        if (this.value.endsWith("\"")) {
-            this.value = this.value.substring(0, this.value.length());
-        }
+    public PVariableDefinition(PElement parent, int offset, String name) {
+        super(VARIABLE, parent, offset);
+        this.name = name;
     }
 
-    public String getValue() {
-        return value;
-    }
-
-    void setValue(String value) {
-        this.value = value;
+    public String getName() {
+        return name;
     }
 
     @Override
     public String toString() {
-        return super.toString() + "[" +  value +  ']';
+        return super.toString() + "[" + name + "]";
     }
-    
+
 }

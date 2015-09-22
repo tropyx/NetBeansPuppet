@@ -17,6 +17,9 @@
 
 package com.tropyx.nb_puppet.parser;
 
+/**
+ * variable usage
+ */
 public class PVariable extends PElement {
     private final String name;
     
@@ -28,4 +31,11 @@ public class PVariable extends PElement {
     public String getName() {
         return name;
     }
+
+    @Override
+    public String toString() {
+        return super.toString() + "[" + name + "]";
+    }
+
+
 }

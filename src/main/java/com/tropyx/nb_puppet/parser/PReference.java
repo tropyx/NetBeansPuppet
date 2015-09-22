@@ -17,31 +17,27 @@
 
 package com.tropyx.nb_puppet.parser;
 
-public class PString extends PElement {
-    private String value;
-    
-    public PString(PElement parent, int offset, String value) {
-        super(STRING, parent, offset);
-        this.value = value;
-        if (this.value.startsWith("\"")) {
-            this.value = this.value.substring(1);
-        }
-        if (this.value.endsWith("\"")) {
-            this.value = this.value.substring(0, this.value.length());
-        }
+public class PReference extends PElement {
+
+    private final String resourceType;
+
+    private PElement title;
+
+
+    public PReference(PElement parent, int offset, String resourceType) {
+        super(REFERENCE, parent, offset);
+        this.resourceType = resourceType;
     }
 
-    public String getValue() {
-        return value;
+    public String getResourceType() {
+        return resourceType;
     }
 
-    void setValue(String value) {
-        this.value = value;
+    public PElement getTitle() {
+        return title;
     }
 
-    @Override
-    public String toString() {
-        return super.toString() + "[" +  value +  ']';
+    public void setTitle(PElement title) {
+        this.title = title;
     }
-    
 }
