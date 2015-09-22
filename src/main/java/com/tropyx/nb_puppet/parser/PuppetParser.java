@@ -72,7 +72,7 @@ class PuppetParser extends Parser {
         TokenSequence<PTokenId> ts = (TokenSequence<PTokenId>) snapshot.getTokenHierarchy().tokenSequence();
         ts.moveStart();
         final PElement root = new PElement(PElement.ROOT, null, 0 );
-        Token<PTokenId> token = nextSkipWhitespace(ts);
+        Token<PTokenId> token = nextSkipWhitespaceComment(ts);
         while (token != null && ts.isValid()) {
             if (token.id() == PTokenId.CLASS) {
                 parseClass(root, ts);
@@ -82,14 +82,14 @@ class PuppetParser extends Parser {
             } else if (token.id() == PTokenId.DEFINE) {
                 //http://docs.puppetlabs.com/puppet/4.2/reference/lang_defined_types.html
             }
-            token = nextSkipWhitespace(ts);
+            token = nextSkipWhitespaceComment(ts);
         }
 
         return new PuppetParserResult(snapshot, root);
     }
 
-    private Token<PTokenId> skipWhitespace(TokenSequence<PTokenId> ts) {
-        while (ts.token() != null && ts.token().id() == PTokenId.WHITESPACE)
+    private Token<PTokenId> skipWhitespaceComment(TokenSequence<PTokenId> ts) {
+        while (ts.token() != null && (ts.token().id() == PTokenId.WHITESPACE || ts.token().id() == PTokenId.COMMENT))
         {
             if (!ts.moveNext()) {
                 return null;
@@ -98,11 +98,11 @@ class PuppetParser extends Parser {
         return ts.token();
     }
 
-    private Token<PTokenId> nextSkipWhitespace(TokenSequence<PTokenId> ts) {
+    private Token<PTokenId> nextSkipWhitespaceComment(TokenSequence<PTokenId> ts) {
         if (!ts.moveNext()) {
             return null;
         }
-        return skipWhitespace(ts);
+        return skipWhitespaceComment(ts);
     }
 
     private String collectText(TokenSequence<PTokenId> ts, PTokenId... stopTokens) {
@@ -128,26 +128,26 @@ class PuppetParser extends Parser {
     private void parseClass(PElement root, TokenSequence<PTokenId> ts) {
         PClass pc = new PClass(root, ts.offset());
         Token<PTokenId> token;
-        if (null == nextSkipWhitespace(ts)) {
+        if (null == nextSkipWhitespaceComment(ts)) {
             return;
         }
         String name = collectText(ts, PTokenId.WHITESPACE, PTokenId.LBRACE, PTokenId.LPAREN);
         if (name != null) {
             pc.setName(name);
-            token = skipWhitespace(ts);
+            token = skipWhitespaceComment(ts);
             if (token != null && token.id() == PTokenId.LPAREN) {
                 //params
                 parseClassParams(pc, ts);
-                token = nextSkipWhitespace(ts);
+                token = nextSkipWhitespaceComment(ts);
             }
             if (token != null && token.id() == PTokenId.INHERITS) {
                 //inherits
-                nextSkipWhitespace(ts);
+                nextSkipWhitespaceComment(ts);
                 int off = ts.offset();
                 String inherit = collectText(ts, PTokenId.WHITESPACE, PTokenId.LBRACE);
                 if (inherit != null) {
                     pc.setInherits(new PClassRef(pc, off, inherit));
-                    token = nextSkipWhitespace(ts);
+                    token = nextSkipWhitespaceComment(ts);
                 } else {
                     token = null;
                 }
@@ -161,7 +161,7 @@ class PuppetParser extends Parser {
     }
 
     private void parseClassParams(PClass pc, TokenSequence<PTokenId> ts) {
-        Token<PTokenId> token = nextSkipWhitespace(ts);
+        Token<PTokenId> token = nextSkipWhitespaceComment(ts);
         String type = null;
         int offset = 0;
         String var = null;
@@ -189,7 +189,7 @@ class PuppetParser extends Parser {
                 offset = 0;
             }
             //TODO default values
-            token = nextSkipWhitespace(ts);
+            token = nextSkipWhitespaceComment(ts);
         }
         if (var != null) {
             assert type != null;
@@ -201,7 +201,7 @@ class PuppetParser extends Parser {
     }
 
     private void parseClassBody(PClass pc, TokenSequence<PTokenId> ts) {
-        Token<PTokenId> token = nextSkipWhitespace(ts);
+        Token<PTokenId> token = nextSkipWhitespaceComment(ts);
         int rbraceCount = 1;
         while (token != null &&  rbraceCount != 0) {
             if (token.id() == PTokenId.RBRACE) {
@@ -211,7 +211,7 @@ class PuppetParser extends Parser {
                 rbraceCount++;
             }
             else if (token.id() == PTokenId.INCLUDE) {
-                token = nextSkipWhitespace(ts);
+                token = nextSkipWhitespaceComment(ts);
                 if (token != null && token.id() == PTokenId.IDENTIFIER) {
                     pc.addInclude(new PClassRef(pc, ts.offset(), token.text().toString()));
                 } else {
@@ -219,7 +219,7 @@ class PuppetParser extends Parser {
                 }
             }
             else if (token.id() == PTokenId.REQUIRE) {
-                token = nextSkipWhitespace(ts);
+                token = nextSkipWhitespaceComment(ts);
                 if (token != null && token.id() == PTokenId.IDENTIFIER) {
                     pc.addRequire(new PClassRef(pc, ts.offset(), token.text().toString()));
                 } else {
@@ -231,20 +231,20 @@ class PuppetParser extends Parser {
                 // resource??
                 String val = token.text().toString();
                 int off = ts.offset();
-                token = nextSkipWhitespace(ts);
+                token = nextSkipWhitespaceComment(ts);
                 if (token != null && token.id() == PTokenId.LBRACE) {
                     parseResource(pc, val, ts, off);
                 } else {
                     continue;
                 }
             }
-            token = nextSkipWhitespace(ts);
+            token = nextSkipWhitespaceComment(ts);
         }
         
     }
 
     private void parseResource(PClass pc, String type, TokenSequence<PTokenId> ts, int resOff) {
-        Token<PTokenId> token = nextSkipWhitespace(ts);
+        Token<PTokenId> token = nextSkipWhitespaceComment(ts);
         if (token != null) {
             PElement title;
             if (token.id() == PTokenId.STRING_LITERAL) {
@@ -254,7 +254,7 @@ class PuppetParser extends Parser {
             } else {
                 throw new IllegalStateException("token:" + token.text().toString() + " of type:" + token.id());
             }
-            token = nextSkipWhitespace(ts);
+            token = nextSkipWhitespaceComment(ts);
             if (token != null && token.id() == PTokenId.COLON) {
                 PResource resource = new PResource(pc, resOff, type);
                 title.setParent(resource);
@@ -265,7 +265,7 @@ class PuppetParser extends Parser {
     }
 
     private void parseResourceAttrs(PResource resource, TokenSequence<PTokenId> ts) {
-        Token<PTokenId> token = nextSkipWhitespace(ts);
+        Token<PTokenId> token = nextSkipWhitespaceComment(ts);
         String attr = null;
         String val = null;
         int off = 0;
@@ -276,7 +276,8 @@ class PuppetParser extends Parser {
             }
             if (token.id() == PTokenId.PARAM_ASSIGN) {
                 //TODO turn to types rather than string
-                token = nextSkipWhitespace(ts);
+                token = nextSkipWhitespaceComment(ts);
+                //TODO generally wrong, comma and rbrace can be embedded in hashes or arrays
                 val = collectText(ts, PTokenId.COMMA, PTokenId.RBRACE).trim();
                 token = ts.token();
                 continue;
@@ -291,7 +292,7 @@ class PuppetParser extends Parser {
                 off = 0;
             }
             //TODO default values
-            token = nextSkipWhitespace(ts);
+            token = nextSkipWhitespaceComment(ts);
         }
         if (attr != null) {
             assert val != null;
