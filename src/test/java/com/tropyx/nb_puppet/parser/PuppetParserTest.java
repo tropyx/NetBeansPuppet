@@ -99,6 +99,22 @@ public class PuppetParserTest extends NbTestCase {
     }
 
     @Test
+    public void testClassWithBlobParamParse() throws Exception {
+        PuppetParserResult result = doParse("class aaa ( $bb = { aa => 'aa', cc => 'cc' }, $dd = 'dd,' ) { }");
+        PClass c = assertAndGetClassElement(result);
+        assertEquals("aaa", c.getName());
+        assertNotNull(c.getParams());
+        assertEquals(2, c.getParams().length);
+        PClassParam p = c.getParams()[0];
+        assertEquals("$bb", p.getVariable().getName());
+        assertEquals("Any", p.getTypeType());
+        p = c.getParams()[1];
+        assertEquals("$dd", p.getVariable().getName());
+        assertEquals("Any", p.getTypeType());
+    }
+
+
+    @Test
     public void testClassIncludeParse() throws Exception {
         PuppetParserResult result = doParse(
                 "class aaa::param { "

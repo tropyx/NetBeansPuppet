@@ -208,7 +208,7 @@ class PuppetParser extends Parser {
         String type = null;
         int offset = 0;
         String var = null;
-        String def = null;
+        PElement def = null;
         List<PClassParam> params = new ArrayList<>();
         while (token != null && token.id() != PTokenId.RPAREN) {
             if (type == null && token.id() == PTokenId.IDENTIFIER) {
@@ -221,14 +221,21 @@ class PuppetParser extends Parser {
                 offset = offset != 0 ? offset : ts.offset();
             }
             if (token.id() == PTokenId.EQUALS) {
+                def = fastForward(null, ts, PTokenId.RPAREN, PTokenId.COMMA);
+                token = ts.token();
             }
             if (token.id() == PTokenId.COMMA) {
                 assert var != null && type != null;
                 PClassParam param = new PClassParam(pc, offset, var);
                 param.setTypeType(type);
+                if (def != null) {
+                    def.setParent(param);
+                    param.setDefaultValue(def);
+                }
                 params.add(param);
                 type = null;
                 var = null;
+                def = null;
                 offset = 0;
             }
             //TODO default values
@@ -238,6 +245,10 @@ class PuppetParser extends Parser {
             assert type != null;
             PClassParam param = new PClassParam(pc, offset, var);
             param.setTypeType(type);
+            if (def != null) {
+                def.setParent(param);
+                param.setDefaultValue(def);
+            }
             params.add(param);
         }
         pc.setParams(params.toArray(new PClassParam[0]));
