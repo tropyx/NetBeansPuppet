@@ -25,6 +25,7 @@ import org.netbeans.spi.lexer.LexerRestartInfo;
 import org.netbeans.spi.lexer.TokenFactory;
 
 /**
+ * https://github.com/puppetlabs/puppet-specifications/blob/master/language/lexical_structure.md
  *
  * @author mkleint
  */
