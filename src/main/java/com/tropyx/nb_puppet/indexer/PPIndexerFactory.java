@@ -18,16 +18,28 @@
 package com.tropyx.nb_puppet.indexer;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.text.Document;
+import org.netbeans.api.java.classpath.ClassPath;
+import org.netbeans.api.java.classpath.GlobalPathRegistry;
+import org.netbeans.modules.editor.NbEditorUtilities;
 import org.netbeans.modules.parsing.api.Snapshot;
 import org.netbeans.modules.parsing.spi.indexing.Context;
 import org.netbeans.modules.parsing.spi.indexing.EmbeddingIndexer;
 import org.netbeans.modules.parsing.spi.indexing.EmbeddingIndexerFactory;
 import org.netbeans.modules.parsing.spi.indexing.Indexable;
 import org.netbeans.modules.parsing.spi.indexing.support.IndexingSupport;
+import org.netbeans.modules.parsing.spi.indexing.support.QuerySupport;
+import org.openide.filesystems.FileObject;
 
 public class PPIndexerFactory extends EmbeddingIndexerFactory {
+    public static final String INDEXER_TYPE = "puppet";
+    public static final int INDEXER_VERSION = 1;
 
     private static final Logger LOG = Logger.getLogger(PPIndexerFactory.class.getName());
 
@@ -73,17 +85,34 @@ public class PPIndexerFactory extends EmbeddingIndexerFactory {
 
     @Override
     public String getIndexerName() {
-        return "puppet";
+        return INDEXER_TYPE;
     }
 
     @Override
     public int getIndexVersion() {
-        return 1;
+        return INDEXER_VERSION;
     }
 
     @Override
     public EmbeddingIndexer createIndexer(Indexable indexable, Snapshot snapshot) {
         return new PPIndexer();
     }
+    
+    public static QuerySupport getQuerySupportFor(final Document document, boolean allOpenProjects) throws IOException {
+        FileObject fo = NbEditorUtilities.getFileObject(document);
+        Collection<FileObject> roots;
+        if (allOpenProjects) {
+            roots = GlobalPathRegistry.getDefault().getSourceRoots();
+        } else {
+            ClassPath cp = ClassPath.getClassPath(fo, ClassPath.SOURCE);
+            if (cp != null) {
+                roots = Arrays.asList(cp.getRoots());
+            } else {
+                roots = Collections.emptyList();
+            }
+        }
+        return QuerySupport.forRoots(PPIndexerFactory.INDEXER_TYPE, PPIndexerFactory.INDEXER_VERSION, roots.toArray(new FileObject[0]));
+    }
+
 
 }
