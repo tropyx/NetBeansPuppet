@@ -19,9 +19,13 @@ package com.tropyx.nb_puppet.indexer;
 
 import com.tropyx.nb_puppet.parser.PClass;
 import com.tropyx.nb_puppet.parser.PClassParam;
+import com.tropyx.nb_puppet.parser.PClassRef;
 import com.tropyx.nb_puppet.parser.PElement;
+import com.tropyx.nb_puppet.parser.PVariable;
+import com.tropyx.nb_puppet.parser.PVariableDefinition;
 import com.tropyx.nb_puppet.parser.PuppetParserResult;
 import java.io.IOException;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.netbeans.modules.parsing.spi.Parser;
@@ -32,6 +36,11 @@ import org.netbeans.modules.parsing.spi.indexing.support.IndexDocument;
 import org.netbeans.modules.parsing.spi.indexing.support.IndexingSupport;
 
 public class PPIndexer extends EmbeddingIndexer {
+    public static final String FLD_VARREF = "varref";
+    public static final String FLD_VAR = "var";
+    public static final String FLD_PARAM = "param";
+    public static final String FLD_CLASSREF = "classref";
+    public static final String FLD_CLASS = "class";
     
     private static final Logger LOG = Logger.getLogger(PPIndexer.class.getName());
 
@@ -52,19 +61,30 @@ public class PPIndexer extends EmbeddingIndexer {
         support.removeDocuments(indexable);
 
         IndexDocument document = support.createDocument(indexable);
-        //TODO...
         PuppetParserResult res = (PuppetParserResult) parserResult;
         PElement root = res.getRootNode();
         for (PElement ch : root.getChildren()) {
             if (ch.getType() == PElement.CLASS) {
                 PClass cl = (PClass)ch;
                 String name = cl.getName();
-                document.addPair("class", name, true, true);
+                document.addPair(FLD_CLASS, name, true, true);
                 if (cl.getInherits() != null) {
-                    document.addPair("inherits", cl.getInherits().getName(), true, true);
+                    document.addPair(FLD_CLASSREF, cl.getInherits().getName(), true, false);
+                }
+                List<PClassRef> refs = cl.getChildrenOfType(PClassRef.class, true);
+                for (PClassRef ref : refs) {
+                    document.addPair(FLD_CLASSREF, ref.getName(), true, false);
                 }
                 for (PClassParam param : cl.getParams()) {
-                    document.addPair("param", param.getVariable().getName(), false, true);
+                    document.addPair(FLD_PARAM, param.getVariable().getName(), false, true);
+                }
+                List<PVariableDefinition> varDefs = cl.getChildrenOfType(PVariableDefinition.class, true);
+                for (PVariableDefinition vd : varDefs) {
+                    document.addPair(FLD_VAR, vd.getName(), true, true);
+                }
+                List<PVariable> vars = cl.getChildrenOfType(PVariable.class, true);
+                for (PVariable v : vars) {
+                    document.addPair(FLD_VARREF, v.getName(), true, false);
                 }
             }
         }
