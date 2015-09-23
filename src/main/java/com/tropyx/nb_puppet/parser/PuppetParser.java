@@ -153,9 +153,14 @@ class PuppetParser extends Parser {
                 case RPAREN:
                     parenCount--;
                     break;
-                case VARIABLE:
+                case STRING_LITERAL:
                     String val = token.text().toString();
                     int off = ts.offset();
+                    new PString(parent, off, val);
+                    break;
+                case VARIABLE:
+                    val = token.text().toString();
+                    off = ts.offset();
                     token = nextSkipWhitespaceComment(ts);
                     if (token != null && token.id() == PTokenId.EQUALS) {
                         //variable definition;

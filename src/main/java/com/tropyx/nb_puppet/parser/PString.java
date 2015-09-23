@@ -17,17 +17,26 @@
 
 package com.tropyx.nb_puppet.parser;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class PString extends PElement {
     private String value;
+    final static Pattern VAR = Pattern.compile("\\$\\{([a-zA-Z_:]+?)\\}");
     
     public PString(PElement parent, int offset, String value) {
         super(STRING, parent, offset);
         this.value = value;
-        if (this.value.startsWith("\"")) {
-            this.value = this.value.substring(1);
+        if (this.value.startsWith("\"") && this.value.endsWith("\"")) {
+            this.value = this.value.substring(1, this.value.length());
+            Matcher m = VAR.matcher(this.value);
+            while (m.find()) {
+                String var = m.group(1);
+                new PVariable(this, offset, "$" + var);
+            }
         }
-        if (this.value.endsWith("\"")) {
-            this.value = this.value.substring(0, this.value.length());
+        if (this.value.startsWith("'") && this.value.endsWith("'")) {
+            this.value = this.value.substring(1, this.value.length());
         }
     }
 
