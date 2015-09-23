@@ -24,8 +24,6 @@ public class PClass extends PElement {
     private String name;
     private PClassRef inherits;
     private PClassParam[] params = new PClassParam[0];
-    private final List<PClassRef> includes = new ArrayList<>();
-    private final List<PClassRef> requires = new ArrayList<>();
     
     public PClass(PElement parent, int offset) {
         super(CLASS, parent, offset);
@@ -54,22 +52,6 @@ public class PClass extends PElement {
     public void setParams(PClassParam[] params) {
         assert params != null;
         this.params = params;
-    }
-
-    public void addInclude(PClassRef ref) {
-        includes.add(ref);
-    }
-
-    public List<PClassRef> getIncludes() {
-        return includes;
-    }
-
-    void addRequire(PClassRef pClassRef) {
-        requires.add(pClassRef);
-    }
-    
-    public List<PClassRef> getRequires() {
-        return requires;
     }
 
     @Override

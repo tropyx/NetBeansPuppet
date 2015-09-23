@@ -122,8 +122,9 @@ public class PuppetParserTest extends NbTestCase {
              + " }");
         PClass c = assertAndGetClassElement(result);
         assertEquals("aaa::param", c.getName());
-        assertEquals(1, c.getIncludes().size());
-        assertEquals("bbb::param", c.getIncludes().get(0).getName());
+        final List<PClassRef> refs = c.getChildrenOfType(PClassRef.class, true);
+        assertEquals(1, refs.size());
+        assertEquals("bbb::param", refs.get(0).getName());
     }
 
     @Test
@@ -135,9 +136,10 @@ public class PuppetParserTest extends NbTestCase {
              + " }");
         PClass c = assertAndGetClassElement(result);
         assertEquals("aaa::param", c.getName());
-        assertEquals(2, c.getIncludes().size());
-        assertEquals("bbb::param", c.getIncludes().get(0).getName());
-        assertEquals("ccc::param", c.getIncludes().get(1).getName());
+        final List<PClassRef> refs = c.getChildrenOfType(PClassRef.class, true);
+        assertEquals(2, refs.size());
+        assertEquals("bbb::param", refs.get(0).getName());
+        assertEquals("ccc::param", refs.get(1).getName());
     }
 
     @Test
@@ -150,7 +152,6 @@ public class PuppetParserTest extends NbTestCase {
              + "   include bbb:param");
         PClass c = assertAndGetClassElement(result);
         assertEquals("aaa::param", c.getName());
-        assertEquals(0, c.getIncludes().size());
     }
 
     @Test
@@ -164,7 +165,7 @@ public class PuppetParserTest extends NbTestCase {
              + " }");
         PClass c = assertAndGetClassElement(result);
         assertEquals("aaa::install", c.getName());
-        PResource res = (PResource) c.getChildren().get(0);
+        PResource res = c.getChildrenOfType(PResource.class, true).get(0);
         assertEquals("file", res.getResourceType());
         assertNotNull(res.getTitle());
         assertEquals(PString.STRING, res.getTitle().getType());
@@ -185,7 +186,7 @@ public class PuppetParserTest extends NbTestCase {
              + " }");
         PClass c = assertAndGetClassElement(result);
         assertEquals("aaa::install", c.getName());
-        PResource res = (PResource) c.getChildren().get(0);
+        PResource res = c.getChildrenOfType(PResource.class, true).get(0);
         assertEquals("file", res.getResourceType());
         assertNotNull(res.getTitle());
         assertEquals(PString.VARIABLE, res.getTitle().getType());
@@ -194,6 +195,47 @@ public class PuppetParserTest extends NbTestCase {
         assertEquals("foo", res.getAtributes().get(2).getName());
 //        assertEquals("644", res.getAtributes().get(2).getValue());
     }
+@Test
+    public void testDefaultResourceParse() throws Exception {
+        PuppetParserResult result = doParse(
+               "class aaa::install { "
+             + " File { "
+             + "  notify => Service[$bamboo_agent::service_name], "
+             + " }"
+             + "}");
+        PClass c = assertAndGetClassElement(result);
+        assertEquals("aaa::install", c.getName());
+        PResource res = c.getChildrenOfType(PResource.class, true).get(0);
+        assertEquals("File", res.getResourceType());
+        assertNull(res.getTitle());
+        assertEquals(1, res.getAtributes().size());
+        assertEquals("notify", res.getAtributes().get(0).getName());
+    }
+
+
+    @Test
+    public void testResourceInConditionParse() throws Exception {
+        PuppetParserResult result = doParse(
+               "class aaa::install { "
+             + " if $fff {"
+             + "   file { $aaa::params::fff :"
+             + "     ensure => present, "
+             + "     path => \'aaaa\',"
+             + "     foo => 644"
+             + "   }"
+             + " }"
+             + "}");
+        PClass c = assertAndGetClassElement(result);
+        assertEquals("aaa::install", c.getName());
+        PResource res = c.getChildrenOfType(PResource.class, true).get(0);
+        assertEquals("file", res.getResourceType());
+        assertNotNull(res.getTitle());
+        assertEquals(PString.VARIABLE, res.getTitle().getType());
+        assertEquals("$aaa::params::fff", ((PVariable)res.getTitle()).getName());
+        assertEquals(3, res.getAtributes().size());
+        assertEquals("foo", res.getAtributes().get(2).getName());
+    }
+
 
     @Test
     public void testClassVariableAssignmentParse() throws Exception {
