@@ -5,10 +5,12 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.event.KeyEvent;
+import javax.swing.text.BadLocationException;
 import javax.swing.text.JTextComponent;
 import org.netbeans.spi.editor.completion.CompletionItem;
 import org.netbeans.spi.editor.completion.CompletionTask;
 import org.netbeans.spi.editor.completion.support.CompletionUtilities;
+import org.openide.util.Exceptions;
 
 public class PPCompletionItem implements CompletionItem {
     private final String prefix;
@@ -24,7 +26,11 @@ public class PPCompletionItem implements CompletionItem {
 
     @Override
     public void defaultAction(JTextComponent component) {
-        //TODO
+        try {
+            component.getDocument().insertString(caretOffset, value.substring(prefix.length()), null);
+        } catch (BadLocationException ex) {
+            Exceptions.printStackTrace(ex);
+        }
     }
 
     @Override
