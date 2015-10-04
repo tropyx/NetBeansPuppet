@@ -24,7 +24,7 @@ public class PVariableDefinition extends PElement {
     private final String name;
     
     public PVariableDefinition(PElement parent, int offset, String name) {
-        super(VARIABLE, parent, offset);
+        super(VARIABLE_DEFINITION, parent, offset);
         this.name = name;
     }
 

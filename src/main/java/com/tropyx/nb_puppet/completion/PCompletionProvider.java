@@ -6,6 +6,8 @@ import com.tropyx.nb_puppet.indexer.PPIndexerFactory;
 import com.tropyx.nb_puppet.lexer.PLanguageProvider;
 import com.tropyx.nb_puppet.lexer.PTokenId;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
@@ -16,6 +18,7 @@ import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.modules.parsing.spi.indexing.support.IndexResult;
 import org.netbeans.modules.parsing.spi.indexing.support.QuerySupport;
 import org.netbeans.spi.editor.completion.CompletionProvider;
+import static org.netbeans.spi.editor.completion.CompletionProvider.COMPLETION_QUERY_TYPE;
 import org.netbeans.spi.editor.completion.CompletionResultSet;
 import org.netbeans.spi.editor.completion.CompletionTask;
 import org.netbeans.spi.editor.completion.support.AsyncCompletionQuery;
@@ -32,6 +35,7 @@ public class PCompletionProvider implements CompletionProvider {
             @Override
             protected void query(CompletionResultSet completionResultSet, final Document document, final int caretOffset) {
                 final boolean[] completeClasses = new boolean[1];
+                final boolean[] completeVariables = new boolean[1];
                 final String[] prefix = new String[1];
                 document.render(new Runnable() {
 
@@ -45,7 +49,6 @@ public class PCompletionProvider implements CompletionProvider {
                         Token<PTokenId> token = ts.token();
                         String pref = null;
                         if (token != null) {
-                            System.out.println("token=" + token.text().toString() + "-");
                             if (token.id() == PTokenId.WHITESPACE) {
                                 if (ts.offset() == caretOffset) {
                                     ts.movePrevious();
@@ -60,6 +63,14 @@ public class PCompletionProvider implements CompletionProvider {
                                 } catch (BadLocationException ex) {
                                     Exceptions.printStackTrace(ex);
                                 }
+                            }
+                            if (token.id() == PTokenId.VARIABLE) {
+                                try {
+                                    pref = document.getText(ts.offset(), caretOffset - ts.offset());
+                                } catch (BadLocationException ex) {
+                                    Exceptions.printStackTrace(ex);
+                                }
+                                completeVariables[0] = true;
                             }
                             if (pref != null) {
                                 prefix[0] = pref;
@@ -91,6 +102,25 @@ public class PCompletionProvider implements CompletionProvider {
                     } catch (IOException ex) {
                         Exceptions.printStackTrace(ex);
                     }
+                }
+                if (completeVariables[0]) {
+                    boolean thisProjectOnly = queryType == COMPLETION_QUERY_TYPE;
+                    try {
+                        QuerySupport qs = PPIndexerFactory.getQuerySupportFor(document, !thisProjectOnly);
+                        for (IndexResult res : qs.query(PPIndexer.FLD_VAR, "" + prefix[0], QuerySupport.Kind.PREFIX, PPIndexer.FLD_VAR, PPIndexer.FLD_CLASS)) {
+                            String clazz = res.getValue(PPIndexer.FLD_CLASS);
+                            for (String val : new HashSet<>(Arrays.asList(res.getValues(PPIndexer.FLD_VAR)))) {
+                                completionResultSet.addItem(new PPCompletionItem(prefix[0], val, caretOffset, clazz));
+                            }
+                        }
+                        if (thisProjectOnly) {
+                            completionResultSet.setHasAdditionalItems(true);
+                            completionResultSet.setHasAdditionalItemsText("Results from open projects");
+                        }
+                    } catch (IOException ex) {
+                        Exceptions.printStackTrace(ex);
+                    }
+
                 }
                 completionResultSet.finish();
             }
