@@ -36,6 +36,8 @@ public class PElement {
     public static final int REFERENCE = 11;
     public static final int BLOB = 12;
     public static final int VARIABLE_DEFINITION = 13;
+    public static final int DEFINE = 14;
+    public static final int NODE = 15;
 
     private final int type;    
     private final List<PElement> children = new ArrayList<>();

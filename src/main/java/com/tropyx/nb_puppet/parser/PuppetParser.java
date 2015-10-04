@@ -79,9 +79,9 @@ class PuppetParser extends Parser {
                 parseClass(root, ts);
             } 
             else if (token.id() == PTokenId.NODE) {
-                //http://docs.puppetlabs.com/puppet/4.2/reference/lang_node_definitions.html
+                parseNode(root, ts);
             } else if (token.id() == PTokenId.DEFINE) {
-                //http://docs.puppetlabs.com/puppet/4.2/reference/lang_defined_types.html
+                parseDefine(root, ts);
             }
             token = nextSkipWhitespaceComment(ts);
         }
@@ -212,6 +212,57 @@ class PuppetParser extends Parser {
         return blob;
     }
 
+    //https://docs.puppetlabs.com/puppet/latest/reference/lang_defined_types.html
+    private void parseDefine(PElement root, TokenSequence<PTokenId> ts) {
+        PDefine pc = new PDefine(root, ts.offset());
+        Token<PTokenId> token;
+        if (null == nextSkipWhitespaceComment(ts)) {
+            return;
+        }
+        String name = collectText(ts, PTokenId.WHITESPACE, PTokenId.LBRACE, PTokenId.LPAREN);
+        if (name != null) {
+            pc.setName(name);
+            token = skipWhitespaceComment(ts);
+            if (token != null && token.id() == PTokenId.LPAREN) {
+                //params
+                parseParams(pc, ts);
+                token = nextSkipWhitespaceComment(ts);
+            }
+            if (token != null && token.id() == PTokenId.LBRACE) {
+                //we are done for define
+                //internals or skip to RBRACE
+                ts.moveNext();
+                fastForward(pc, ts, PTokenId.RBRACE);
+            }
+        }
+    }
+
+    //http://docs.puppetlabs.com/puppet/4.2/reference/lang_node_definitions.html
+    private void parseNode(PElement root, TokenSequence<PTokenId> ts) {
+        PNode pc = new PNode(root, ts.offset());
+        if (null == nextSkipWhitespaceComment(ts)) {
+            return;
+        }
+        List<String> names = new ArrayList<>();
+        Token<PTokenId> token = ts.token();
+        while (token != null && PTokenId.LBRACE != token.id()) {
+            if (PTokenId.COMMA != token.id()) {
+                String name = token.text().toString();
+                if (name != null) {
+                    names.add(name);
+                }
+            }
+            token = nextSkipWhitespaceComment(ts);
+        }
+        pc.setNames(names.toArray(new String[0]));
+        if (token != null && token.id() == PTokenId.LBRACE) {
+            //we are done for node
+            //internals or skip to RBRACE
+            ts.moveNext();
+            fastForward(pc, ts, PTokenId.RBRACE);
+        }
+    }
+
     //http://docs.puppetlabs.com/puppet/4.2/reference/lang_classes.html
     private void parseClass(PElement root, TokenSequence<PTokenId> ts) {
         PClass pc = new PClass(root, ts.offset());
@@ -225,7 +276,7 @@ class PuppetParser extends Parser {
             token = skipWhitespaceComment(ts);
             if (token != null && token.id() == PTokenId.LPAREN) {
                 //params
-                parseClassParams(pc, ts);
+                parseParams(pc, ts);
                 token = nextSkipWhitespaceComment(ts);
             }
             if (token != null && token.id() == PTokenId.INHERITS) {
@@ -249,7 +300,7 @@ class PuppetParser extends Parser {
         }
     }
 
-    private void parseClassParams(PClass pc, TokenSequence<PTokenId> ts) {
+    private void parseParams(PParamContainer pc, TokenSequence<PTokenId> ts) {
         Token<PTokenId> token = nextSkipWhitespaceComment(ts);
         String type = null;
         int offset = 0;
@@ -272,7 +323,7 @@ class PuppetParser extends Parser {
             }
             if (token.id() == PTokenId.COMMA) {
                 assert var != null && type != null;
-                PClassParam param = new PClassParam(pc, offset, var);
+                PClassParam param = new PClassParam((PElement)pc, offset, var);
                 param.setTypeType(type);
                 if (def != null) {
                     def.setParent(param);
@@ -289,7 +340,7 @@ class PuppetParser extends Parser {
         }
         if (var != null) {
             assert type != null;
-            PClassParam param = new PClassParam(pc, offset, var);
+            PClassParam param = new PClassParam((PElement)pc, offset, var);
             param.setTypeType(type);
             if (def != null) {
                 def.setParent(param);

@@ -17,45 +17,27 @@
 
 package com.tropyx.nb_puppet.parser;
 
-public class PClass extends PElement implements PParamContainer {
-    private String name;
-    private PClassRef inherits;
-    private PClassParam[] params = new PClassParam[0];
+import java.util.Arrays;
+
+public class PNode extends PElement {
+    private String[] names;
     
-    public PClass(PElement parent, int offset) {
-        super(CLASS, parent, offset);
+    public PNode(PElement parent, int offset) {
+        super(NODE, parent, offset);
     }
 
-    public String getName() {
-        return name;
+    public String[] getNames() {
+        return names;
     }
 
-    void setName(String name) {
-        this.name = name;
+    void setNames(String[] names) {
+        this.names = names;
     }
 
-    public PClassRef getInherits() {
-        return inherits;
-    }
-
-    void setInherits(PClassRef inherits) {
-        this.inherits = inherits;
-    }
-
-    @Override
-    public PClassParam[] getParams() {
-        return params;
-    }
-
-    @Override
-    public void setParams(PClassParam[] params) {
-        assert params != null;
-        this.params = params;
-    }
 
     @Override
     public String toString() {
-        return super.toString() + "[" + name + "]";
+        return super.toString() + "[" + Arrays.toString(names) + "]";
     }
 
 

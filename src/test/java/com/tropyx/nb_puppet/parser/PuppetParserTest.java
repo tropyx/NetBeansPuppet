@@ -273,6 +273,37 @@ public class PuppetParserTest extends NbTestCase {
 
     }
 
+    @Test
+    public void testSimpleNodeParse() throws Exception {
+        PuppetParserResult result = doParse(
+                "node 'aaa' { "
+             + " }");
+        PNode nd = assertAndGetNodeElement(result);
+        assertEquals(1, nd.getNames().length);
+        assertEquals("'aaa'", nd.getNames()[0]);
+    }
+
+    @Test
+    public void testMultiNodeParse() throws Exception {
+        PuppetParserResult result = doParse(
+                "node 'aaa', 'bbb', 'ccc' { "
+             + " }");
+        PNode nd = assertAndGetNodeElement(result);
+        assertEquals(3, nd.getNames().length);
+        assertEquals("'aaa'", nd.getNames()[0]);
+        assertEquals("'bbb'", nd.getNames()[1]);
+        assertEquals("'ccc'", nd.getNames()[2]);
+    }
+
+    @Test
+    public void testRegexpNodeParse() throws Exception {
+        PuppetParserResult result = doParse(
+                "node /aaa/ { "
+             + " }");
+        PNode nd = assertAndGetNodeElement(result);
+        assertEquals(1, nd.getNames().length);
+        assertEquals("/aaa/", nd.getNames()[0]);
+    }
 
     private PClass assertAndGetClassElement(PuppetParserResult result) {
         PElement nd = result.getRootNode();
@@ -283,6 +314,18 @@ public class PuppetParserTest extends NbTestCase {
         PElement ch = children.get(0);
         assertEquals(PElement.CLASS, ch.getType());
         PClass c = (PClass)ch;
+        return c;
+    }
+
+    private PNode assertAndGetNodeElement(PuppetParserResult result) {
+        PElement nd = result.getRootNode();
+        assertNotNull(nd);
+        List<PElement> children = nd.getChildren();
+        assertNotNull(children);
+        assertEquals(1, children.size());
+        PElement ch = children.get(0);
+        assertEquals(PElement.NODE, ch.getType());
+        PNode c = (PNode)ch;
         return c;
     }
 

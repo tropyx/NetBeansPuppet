@@ -17,13 +17,12 @@
 
 package com.tropyx.nb_puppet.parser;
 
-public class PClass extends PElement implements PParamContainer {
+public class PDefine extends PElement implements PParamContainer {
     private String name;
-    private PClassRef inherits;
     private PClassParam[] params = new PClassParam[0];
     
-    public PClass(PElement parent, int offset) {
-        super(CLASS, parent, offset);
+    public PDefine(PElement parent, int offset) {
+        super(DEFINE, parent, offset);
     }
 
     public String getName() {
@@ -32,14 +31,6 @@ public class PClass extends PElement implements PParamContainer {
 
     void setName(String name) {
         this.name = name;
-    }
-
-    public PClassRef getInherits() {
-        return inherits;
-    }
-
-    void setInherits(PClassRef inherits) {
-        this.inherits = inherits;
     }
 
     @Override
