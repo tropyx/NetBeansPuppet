@@ -80,11 +80,19 @@ public class PPIndexer extends EmbeddingIndexer {
                 }
                 List<PVariableDefinition> varDefs = cl.getChildrenOfType(PVariableDefinition.class, true);
                 for (PVariableDefinition vd : varDefs) {
-                    document.addPair(FLD_VAR, vd.getName(), true, true);
+                    String vname = vd.getName();
+                    if (vname.startsWith("$")) {
+                        vname = vname.substring(1);
+                    }
+                    document.addPair(FLD_VAR, vname, true, true);
                 }
                 List<PVariable> vars = cl.getChildrenOfType(PVariable.class, true);
                 for (PVariable v : vars) {
-                    document.addPair(FLD_VARREF, v.getName(), true, false);
+                    String vname = v.getName();
+                    if (vname.startsWith("$")) {
+                        vname = vname.substring(1);
+                    }
+                    document.addPair(FLD_VARREF, vname, true, false);
                 }
             }
         }
