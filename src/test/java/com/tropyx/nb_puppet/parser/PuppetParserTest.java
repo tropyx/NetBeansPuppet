@@ -81,6 +81,17 @@ public class PuppetParserTest extends NbTestCase {
     }
 
     @Test
+    public void testClassParamsRandomThis() throws Exception {
+        PuppetParserResult result = doParse("class java::defaultversion($version = $java::params::recommended_version){ $bbb = $ccc }");
+        PClass c = assertAndGetClassElement(result);
+        assertEquals("java::defaultversion", c.getName());
+        assertNotNull(c.getParams());
+        assertEquals(1, c.getParams().length);
+        PClassParam p = c.getParams()[0];
+        assertEquals("$version", p.getVariable());
+    }
+
+    @Test
     public void testClassWithMultiParamsParse() throws Exception {
         PuppetParserResult result = doParse("class aaa ( $bb = '',Regexp $cc = /aaa/, $dd=$aa::aa,) { }");
         PClass c = assertAndGetClassElement(result);
@@ -195,7 +206,28 @@ public class PuppetParserTest extends NbTestCase {
         assertEquals("foo", res.getAtributes().get(2).getName());
 //        assertEquals("644", res.getAtributes().get(2).getValue());
     }
-@Test
+    
+    @Test
+    public void testResourceWithUnlessParse() throws Exception {
+        PuppetParserResult result = doParse(
+                "class aaa::install { "
+             +  " file { \"fff\":"
+              + " unless => \"aaa\", "
+             +  " path => \'aaaa\',"
+             + " }"
+             + " }");
+        PClass c = assertAndGetClassElement(result);
+        assertEquals("aaa::install", c.getName());
+        PResource res = c.getChildrenOfType(PResource.class, true).get(0);
+        assertEquals("file", res.getResourceType());
+        assertNotNull(res.getTitle());
+        assertEquals(PString.STRING, res.getTitle().getType());
+        assertEquals(2, res.getAtributes().size());
+        assertEquals("unless", res.getAtributes().get(0).getName());
+        assertEquals("path", res.getAtributes().get(1).getName());
+    }
+
+    @Test
     public void testDefaultResourceParse() throws Exception {
         PuppetParserResult result = doParse(
                "class aaa::install { "

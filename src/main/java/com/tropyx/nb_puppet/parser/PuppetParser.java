@@ -320,9 +320,12 @@ class PuppetParser extends Parser {
             if (token.id() == PTokenId.EQUALS) {
                 def = fastForward(null, ts, PTokenId.RPAREN, PTokenId.COMMA);
                 token = ts.token();
+                if (token.id() == PTokenId.RPAREN) {
+                    break;
+                }
             }
             if (token.id() == PTokenId.COMMA) {
-                assert var != null && type != null;
+                assert var != null && type != null : "var:" + var + " type:" + type + " for pc:" + pc.toString();
                 PClassParam param = new PClassParam((PElement)pc, offset, var);
                 param.setTypeType(type);
                 if (def != null) {
@@ -387,7 +390,7 @@ class PuppetParser extends Parser {
         PElement val = null;
         int off = 0;
         while (token != null && token.id() != PTokenId.RBRACE) {
-            if (attr == null && token.id() == PTokenId.IDENTIFIER) {
+            if (attr == null && (token.id() == PTokenId.IDENTIFIER || token.id() == PTokenId.UNLESS)) {
                 off = ts.offset();
                 attr = token.text().toString();
             }
@@ -398,7 +401,7 @@ class PuppetParser extends Parser {
                 continue;
             }
             if (token.id() == PTokenId.COMMA) {
-                assert attr != null && val != null;
+                assert attr != null && val != null : "attr:" + attr + " val:" + val.toStringRecursive() + " in resource:" + resource.toString();
                 PResourceAttribute param = new PResourceAttribute(resource, off, attr);
                 val.setParent(param);
                 param.setValue(val);

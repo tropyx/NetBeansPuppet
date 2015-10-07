@@ -96,7 +96,6 @@ public class PCompletionProvider implements CompletionProvider {
                                 if (token.id() == PTokenId.INCLUDE || token.id() == PTokenId.REQUIRE || token.id() == PTokenId.INHERITS) {
                                     completeClasses[0] = true;
                                 }
-                                System.out.println("prefix=" + pref);
                             }
                         }
                     }
