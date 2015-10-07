@@ -76,28 +76,24 @@ public class PPIndexer extends EmbeddingIndexer {
                     document.addPair(FLD_CLASSREF, ref.getName(), true, false);
                 }
                 for (PClassParam param : cl.getParams()) {
-                    document.addPair(FLD_PARAM, param.getVariable().getName(), false, true);
+                    document.addPair(FLD_PARAM, stripDollar(param.getVariable()), false, true);
                 }
                 List<PVariableDefinition> varDefs = cl.getChildrenOfType(PVariableDefinition.class, true);
                 for (PVariableDefinition vd : varDefs) {
-                    String vname = vd.getName();
-                    if (vname.startsWith("$")) {
-                        vname = vname.substring(1);
-                    }
-                    document.addPair(FLD_VAR, vname, true, true);
+                    document.addPair(FLD_VAR, stripDollar(vd.getName()), true, true);
                 }
                 List<PVariable> vars = cl.getChildrenOfType(PVariable.class, true);
                 for (PVariable v : vars) {
-                    String vname = v.getName();
-                    if (vname.startsWith("$")) {
-                        vname = vname.substring(1);
-                    }
-                    document.addPair(FLD_VARREF, vname, true, false);
+                    document.addPair(FLD_VARREF, stripDollar(v.getName()), true, false);
                 }
             }
         }
 
         support.addDocument(document);
+    }
+
+    private String stripDollar(String s) {
+        return s.startsWith("$") ? s.substring(1) : s;
     }
 
 }

@@ -76,7 +76,7 @@ public class PuppetParserTest extends NbTestCase {
         assertNotNull(c.getParams());
         assertEquals(1, c.getParams().length);
         PClassParam p = c.getParams()[0];
-        assertEquals("$bb", p.getVariable().getName());
+        assertEquals("$bb", p.getVariable());
         assertEquals("Any", p.getTypeType());
     }
 
@@ -88,13 +88,13 @@ public class PuppetParserTest extends NbTestCase {
         assertNotNull(c.getParams());
         assertEquals(3, c.getParams().length);
         PClassParam p = c.getParams()[0];
-        assertEquals("$bb", p.getVariable().getName());
+        assertEquals("$bb", p.getVariable());
         assertEquals("Any", p.getTypeType());
         p = c.getParams()[1];
-        assertEquals("$cc", p.getVariable().getName());
+        assertEquals("$cc", p.getVariable());
         assertEquals("Regexp", p.getTypeType());
         p = c.getParams()[2];
-        assertEquals("$dd", p.getVariable().getName());
+        assertEquals("$dd", p.getVariable());
         assertEquals("Any", p.getTypeType());
     }
 
@@ -106,10 +106,10 @@ public class PuppetParserTest extends NbTestCase {
         assertNotNull(c.getParams());
         assertEquals(2, c.getParams().length);
         PClassParam p = c.getParams()[0];
-        assertEquals("$bb", p.getVariable().getName());
+        assertEquals("$bb", p.getVariable());
         assertEquals("Any", p.getTypeType());
         p = c.getParams()[1];
-        assertEquals("$dd", p.getVariable().getName());
+        assertEquals("$dd", p.getVariable());
         assertEquals("Any", p.getTypeType());
     }
 

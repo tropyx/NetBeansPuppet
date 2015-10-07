@@ -19,7 +19,7 @@ package com.tropyx.nb_puppet.parser;
 
 public class PClassParam extends PElement {
     private String type;
-    private PVariableDefinition variable;
+    private String variable;
     private PElement defaultValue;
     
     public PClassParam(PElement parent, int offset) {
@@ -28,7 +28,7 @@ public class PClassParam extends PElement {
 
     PClassParam(PElement parent, int offset, String var) {
         this(parent, offset);
-        setVariableDefinition(new PVariableDefinition(this, offset, var)); //TODO proper offset
+        this.variable = var;
     }
 
     public String getTypeType() {
@@ -39,12 +39,8 @@ public class PClassParam extends PElement {
         this.type = type;
     }
 
-    public PVariableDefinition getVariable() {
+    public String getVariable() {
         return variable;
-    }
-
-    private void setVariableDefinition(PVariableDefinition variable) {
-        this.variable = variable;
     }
 
     public PElement getDefaultValue() {
@@ -57,7 +53,7 @@ public class PClassParam extends PElement {
 
         @Override
     public String toString() {
-        return super.toString() + "[" + getTypeType() + " : " + variable.toString() + "]";
+        return super.toString() + "[" + getTypeType() + " : " + variable + "]";
     }
 
 }

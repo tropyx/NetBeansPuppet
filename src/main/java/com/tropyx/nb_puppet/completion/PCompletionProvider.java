@@ -6,9 +6,11 @@ import com.tropyx.nb_puppet.indexer.PPIndexerFactory;
 import com.tropyx.nb_puppet.lexer.PLanguageProvider;
 import com.tropyx.nb_puppet.lexer.PTokenId;
 import com.tropyx.nb_puppet.parser.PClass;
+import com.tropyx.nb_puppet.parser.PClassParam;
 import com.tropyx.nb_puppet.parser.PElement;
 import com.tropyx.nb_puppet.parser.PuppetParserResult;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -125,6 +127,7 @@ public class PCompletionProvider implements CompletionProvider {
                                 completionResultSet.finish();
                                 return;
                             }
+                            String pref = prefix[0].substring(1);
                             //if completing from same class or class we inherit, use simple name, otherwise
                             //use the full name
                             String currentName = "";
@@ -134,17 +137,22 @@ public class PCompletionProvider implements CompletionProvider {
                                 PClass ppclazz = clazzes.get(0);
                                 currentName = ppclazz.getName();
                                 inherits = ppclazz.getInherits() != null ? ppclazz.getInherits().getName() : "";
+                                for (PClassParam param : ppclazz.getParams()) {
+                                    if (param.getVariable().startsWith("$" + pref)) {
+                                        completionResultSet.addItem(new PPVariableCompletionItem(prefix[0], param.getVariable().substring(1), caretOffset, currentName, currentName, inherits));
+                                    }
+                                }
                             }
                             try {
                                 QuerySupport qs = PPIndexerFactory.getQuerySupportFor(document, !thisProjectOnly);
                                 QuerySupport.Query.Factory qf = qs.getQueryFactory();
-                                String pref = prefix[0].substring(1);
                                 //TODO how to query just aaa::params::a|
                                 // we would need to split on :: and do exact match on class and prefix on var name
                                 QuerySupport.Query query =
                                     qf.or(
                                         qf.field(PPIndexer.FLD_VAR, "" + pref, QuerySupport.Kind.PREFIX),
-                                        qf.field(PPIndexer.FLD_CLASS, "" + pref, QuerySupport.Kind.PREFIX));
+                                        qf.field(PPIndexer.FLD_CLASS, "" + pref, QuerySupport.Kind.PREFIX)
+                                    );
                                 for (IndexResult res : query.execute(PPIndexer.FLD_VAR, PPIndexer.FLD_CLASS)) {
                                     String clazz = res.getValue(PPIndexer.FLD_CLASS);
                                     for (String val : new HashSet<>(Arrays.asList(res.getValues(PPIndexer.FLD_VAR)))) {
