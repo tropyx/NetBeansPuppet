@@ -40,12 +40,13 @@ public enum PTokenId implements TokenId
     DEFINE("define", "keyword"),
     ELSE("else", "keyword"),
     ELSIF("elsif", "keyword"),
-    //false
+    FALSE("false", "keyword"), //not sure if truly keyword, makes life easier on parsing
     IF("if", "keyword"),
     IMPORT("import", "keyword"),
     INHERITS("inherits", "keyword"),
     NODE("node", "keyword"),
-    //true
+    NIL("nil", "keyword"), //not sure if truly keyword, makes life easier on parsing
+    TRUE("true", "keyword"),//not sure if truly keyword, makes life easier on parsing
     UNDEF("undef", "keyword"),
     UNLESS("unless", "keyword"),
     

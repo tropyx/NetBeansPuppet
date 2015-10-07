@@ -337,6 +337,19 @@ public class PuppetParserTest extends NbTestCase {
         assertEquals("/aaa/", nd.getNames()[0]);
     }
 
+    //doesn't fail with nil, false, or true (now keywords) but would fail with any random identifier
+    //before the { et the end of the condition
+    @Test
+    public void testConditionNotAStartOfResource() throws Exception {
+        PuppetParserResult result = doParse(
+               "class aaa { \n"
+             + " if $public_html_symlink == true and $public_html_target_dir == nil {\n"
+             + "    fail('fail')\n"
+             + "  }"
+             + " }");
+        PClass nd = assertAndGetClassElement(result);
+    }
+
     private PClass assertAndGetClassElement(PuppetParserResult result) {
         PElement nd = result.getRootNode();
         assertNotNull(nd);

@@ -371,7 +371,7 @@ class PuppetParser extends Parser {
                 } else if (token.id() == PTokenId.IDENTIFIER) {
                     title = new PString(null, ts.offset(), token.text().toString()); //TODO not real string or unquoted string
                 } else {
-                    throw new IllegalStateException("token:" + token.text().toString() + " of type:" + token.id());
+                    throw new IllegalStateException("token:" + token.text().toString() + " of type:" + token.id() + " in " + ts.toString());
                 }
                 token = nextSkipWhitespaceComment(ts);
                 if (token != null && token.id() == PTokenId.COLON) {
