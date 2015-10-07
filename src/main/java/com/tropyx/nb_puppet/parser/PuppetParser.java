@@ -401,7 +401,7 @@ class PuppetParser extends Parser {
                 continue;
             }
             if (token.id() == PTokenId.COMMA) {
-                assert attr != null && val != null : "attr:" + attr + " val:" + val.toStringRecursive() + " in resource:" + resource.toString();
+                assert attr != null && val != null : "attr:" + attr + " val:" + val + " in resource:" + resource.toString();
                 PResourceAttribute param = new PResourceAttribute(resource, off, attr);
                 val.setParent(param);
                 param.setValue(val);

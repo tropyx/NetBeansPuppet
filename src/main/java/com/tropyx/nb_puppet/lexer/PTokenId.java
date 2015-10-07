@@ -49,6 +49,10 @@ public enum PTokenId implements TokenId
     TRUE("true", "keyword"),//not sure if truly keyword, makes life easier on parsing
     UNDEF("undef", "keyword"),
     UNLESS("unless", "keyword"),
+
+    //not sure if truly keyword, makes life easier on parsing
+    PRESENT("present", "keyword"),
+    ABSENT("absent", "keyword"),
     
     AND("and", "operator"),
     OR("or", "operator"),
