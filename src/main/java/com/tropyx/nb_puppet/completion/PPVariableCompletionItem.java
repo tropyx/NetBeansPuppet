@@ -62,7 +62,7 @@ public class PPVariableCompletionItem implements CompletionItem {
 
     @Override
     public void render(Graphics g, Font defaultFont, Color defaultColor, Color backgroundColor, int width, int height, boolean selected) {
-        CompletionUtilities.renderHtml(ImageUtilities.loadImageIcon(ICON, true), varName, className, g, defaultFont, defaultColor, width, height, selected);
+        CompletionUtilities.renderHtml(ImageUtilities.loadImageIcon(ICON, true), varName, "<font color='!controlShadow'>" + className + "</font>", g, defaultFont, defaultColor, width, height, selected);
     }
 
     @Override
