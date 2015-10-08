@@ -191,10 +191,15 @@ class PuppetParser extends Parser {
                 case CLASS:
                     if (bracketCount == 0 && parenCount == 0) {
                         val = token.text().toString();
+                        boolean isClass = token.id() == PTokenId.CLASS;
                         off = ts.offset();
                         token = nextSkipWhitespaceComment(ts);
                         if (token != null && token.id() == PTokenId.LBRACE) {
                             parseResource(parent, val, ts, off);
+                        } else if (isClass && token != null && token.id() == PTokenId.IDENTIFIER) {
+                            String name = token.text().toString();
+                            nextSkipWhitespaceComment(ts);
+                            parseClassInternal(new PClass(parent, off), name, ts);
                         } else if (token != null && token.id() == PTokenId.LBRACKET && Character.isUpperCase(val.charAt(0))) {
     //                    parseReference(pc, val);
                             continue; //for now, to properly eat LBRACKET
@@ -266,38 +271,42 @@ class PuppetParser extends Parser {
 
     //http://docs.puppetlabs.com/puppet/4.2/reference/lang_classes.html
     private void parseClass(PElement root, TokenSequence<PTokenId> ts) {
-        PClass pc = new PClass(root, ts.offset());
-        Token<PTokenId> token;
+        int offset = ts.offset();
         if (null == nextSkipWhitespaceComment(ts)) {
             return;
         }
         String name = collectText(ts, PTokenId.WHITESPACE, PTokenId.LBRACE, PTokenId.LPAREN);
         if (name != null) {
-            pc.setName(name);
-            token = skipWhitespaceComment(ts);
-            if (token != null && token.id() == PTokenId.LPAREN) {
-                //params
-                parseParams(pc, ts);
+            PClass pc = new PClass(root, offset);
+            parseClassInternal(pc, name, ts);
+        }
+    }
+    private void parseClassInternal(PClass pc, String name, TokenSequence<PTokenId> ts) {
+        Token<PTokenId> token;
+        pc.setName(name);
+        token = skipWhitespaceComment(ts);
+        if (token != null && token.id() == PTokenId.LPAREN) {
+            //params
+            parseParams(pc, ts);
+            token = nextSkipWhitespaceComment(ts);
+        }
+        if (token != null && token.id() == PTokenId.INHERITS) {
+            //inherits
+            nextSkipWhitespaceComment(ts);
+            int off = ts.offset();
+            String inherit = collectText(ts, PTokenId.WHITESPACE, PTokenId.LBRACE);
+            if (inherit != null) {
+                pc.setInherits(new PClassRef(pc, off, inherit));
                 token = nextSkipWhitespaceComment(ts);
+            } else {
+                token = null;
             }
-            if (token != null && token.id() == PTokenId.INHERITS) {
-                //inherits
-                nextSkipWhitespaceComment(ts);
-                int off = ts.offset();
-                String inherit = collectText(ts, PTokenId.WHITESPACE, PTokenId.LBRACE);
-                if (inherit != null) {
-                    pc.setInherits(new PClassRef(pc, off, inherit));
-                    token = nextSkipWhitespaceComment(ts);
-                } else {
-                    token = null;
-                }
-            }
-            if (token != null && token.id() == PTokenId.LBRACE) {
-                //we are done for class
-                //internals or skip to RBRACE
-                ts.moveNext();
-                fastForward(pc, ts, PTokenId.RBRACE);
-            }
+        }
+        if (token != null && token.id() == PTokenId.LBRACE) {
+            //we are done for class
+            //internals or skip to RBRACE
+            ts.moveNext();
+            fastForward(pc, ts, PTokenId.RBRACE);
         }
     }
 

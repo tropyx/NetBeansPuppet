@@ -326,6 +326,20 @@ public class PuppetParserTest extends NbTestCase {
     }
 
     @Test
+    public void testClassInClass() throws Exception {
+        PuppetParserResult result = doParse(
+                "class serial { "
+             + "   class console {}"
+             + " }");
+        PClass c = assertAndGetClassElement(result);
+        assertEquals("serial", c.getName());
+        List<PClass> cc = c.getChildrenOfType(PClass.class, true);
+        assertEquals(1, cc.size());
+        assertEquals("console", cc.get(0).getName());
+
+    }
+
+    @Test
     public void testSimpleNodeParse() throws Exception {
         PuppetParserResult result = doParse(
                 "node 'aaa' { "
