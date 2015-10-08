@@ -226,6 +226,26 @@ public class PuppetParserTest extends NbTestCase {
         assertEquals("unless", res.getAtributes().get(0).getName());
         assertEquals("path", res.getAtributes().get(1).getName());
     }
+    
+    @Test
+    public void testResourceWithResourceReferences() throws Exception {
+        PuppetParserResult result = doParse(
+                "class aaa::install { "
+             +  " file { \"fff\":"
+              + " before => Yumrepo['epel','epel-source','epel-debuginfo','epel-testing','epel-testing-source','epel-testing-debuginfo'], "
+             +  " path => \'aaaa\',"
+             + " }"
+             + " }");
+        PClass c = assertAndGetClassElement(result);
+        PResource res = c.getChildrenOfType(PResource.class, true).get(0);
+        assertEquals("file", res.getResourceType());
+        assertNotNull(res.getTitle());
+        assertEquals(PString.STRING, res.getTitle().getType());
+        assertEquals(2, res.getAtributes().size());
+        assertEquals("before", res.getAtributes().get(0).getName());
+        assertEquals("path", res.getAtributes().get(1).getName());
+        
+    }
 
     @Test
     public void testDefaultResourceParse() throws Exception {

@@ -197,6 +197,7 @@ class PuppetParser extends Parser {
                             parseResource(parent, val, ts, off);
                         } else if (token != null && token.id() == PTokenId.LBRACKET && Character.isUpperCase(val.charAt(0))) {
     //                    parseReference(pc, val);
+                            continue; //for now, to properly eat LBRACKET
                         } else {
                             continue;
                         }
