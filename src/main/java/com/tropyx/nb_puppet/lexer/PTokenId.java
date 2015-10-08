@@ -34,82 +34,82 @@ public enum PTokenId implements TokenId
     CHAR_LITERAL(null, "character"),
     
     
-    CASE("case", "keyword"),
-    CLASS("class", "keyword"),
-    DEFAULT("default", "keyword"),
-    DEFINE("define", "keyword"),
-    ELSE("else", "keyword"),
-    ELSIF("elsif", "keyword"),
-    FALSE("false", "keyword"), //not sure if truly keyword, makes life easier on parsing
-    IF("if", "keyword"),
-    IMPORT("import", "keyword"),
-    INHERITS("inherits", "keyword"),
-    NODE("node", "keyword"),
-    NIL("nil", "keyword"), //not sure if truly keyword, makes life easier on parsing
-    TRUE("true", "keyword"),//not sure if truly keyword, makes life easier on parsing
-    UNDEF("undef", "keyword"),
-    UNLESS("unless", "keyword"),
+    CASE("case", Category.KEYWORD),
+    CLASS("class", Category.KEYWORD),
+    DEFAULT("default", Category.KEYWORD),
+    DEFINE("define", Category.KEYWORD),
+    ELSE("else", Category.KEYWORD),
+    ELSIF("elsif", Category.KEYWORD),
+    FALSE("false", Category.KEYWORD), //not sure if truly keyword, makes life easier on parsing
+    IF("if", Category.KEYWORD),
+    IMPORT("import", Category.KEYWORD),
+    INHERITS("inherits", Category.KEYWORD),
+    NODE("node", Category.KEYWORD),
+    NIL("nil", Category.KEYWORD), //not sure if truly keyword, makes life easier on parsing
+    TRUE("true", Category.KEYWORD),//not sure if truly keyword, makes life easier on parsing
+    UNDEF("undef", Category.KEYWORD),
+    UNLESS("unless", Category.KEYWORD),
 
     //not sure if truly keyword, makes life easier on parsing
-    PRESENT("present", "keyword"),
-    ABSENT("absent", "keyword"),
+    PRESENT("present", Category.KEYWORD),
+    ABSENT("absent", Category.KEYWORD),
     
-    AND("and", "operator"),
-    OR("or", "operator"),
-    IN("in", "operator"),
-    QUESTIONMARK("?", "operator"), //really operator?
+    AND("and", Category.OPERATOR),
+    OR("or", Category.OPERATOR),
+    IN("in", Category.OPERATOR),
+    QUESTIONMARK("?", Category.OPERATOR), //really operator?
     
 
     
-    OPERATOR(null, "operator"),
-//    INCLUDE("include", "keyword"),
-//    REQUIRE("require", "keyword"),
+    OPERATOR(null, Category.OPERATOR),
+//    INCLUDE("include", Category.KEYWORD),
+//    REQUIRE("require", Category.KEYWORD),
     
-    ALERT("alert", "method-declaration"), //*
-    COLLECT("collect", "method-declaration"),//*
-    CONTAIN("contain", "method-declaration"),//*
-    CREATE_RESOURCES("create_resources", "method-declaration"),//*
-    CRIT("crit", "method-declaration"),//*
-    DEBUG("debug", "method-declaration"), //*
-    DEFINED("defined", "method-declaration"),
-    EACH("each", "method-declaration"), //*
-    EMERG("emerg", "method-declaration"), //*
-    EPP("epp", "method-declaration"), //*
-    ERR("err", "method-declaration"), //*
-    EXTLOOKUP("extlookup", "method-declaration"),//*
-    FAIL("fail", "method-declaration"), //*
-    FILE("file", "method-declaration"),//*
-    FILTER("filter", "method-declaration"),//*
-    FQDN_RAND("fqdn_rand", "method-declaration"), //*
-    GENERATE("generate", "method-declaration"),
-    HIERA("hiera", "method-declaration"),//*
-    HIERA_ARRAY("hiera_array", "method-declaration"),//*
-    HIERA_HASH("hiera_hash", "method-declaration"),//*
-    HIERA_INCLUDE("hiera_include", "method-declaration"),//*
-    INCLUDE("include", "method-declaration"), //*
-    INFO("info", "method-declaration"),
-    INLINE_EPP("inline_epp", "method-declaration"),
-    INLINE_TEMPLATE("inline_template", "method-declaration"),
-    LOOKUP("lookup", "method-declaration"), //*
-    MAP("map", "method-declaration"), //*
-    MD5("md5", "method-declaration"), //*
-    NOTICE("notice", "method-declaration"), //*
-    REALIZE("realize", "method-declaration"),//*
-    REDUCE("reduce", "method-declaration"),//*
-    REQSUBST("regsubst", "method-declaration"),
-    REQUIRE("require", "method-declaration"), //*
-    SEARCH("search", "method-declaration"),//*
-    SELECT("select", "method-declaration"),//*
-    SHA1("sha1", "method-declaration"),//*
-    SHELLQUOTE("shellquote", "method-declaration"),//*
-    SLICE("slice", "method-declaration"),//*
-    SPLIT("split", "method-declaration"),//*
-    SPRINTF("sprintf", "method-declaration"),//*
-    TAG("tag", "method-declaration"), //*
-    TAGGED("tagged", "method-declaration"),
-    TEMPLATE("template", "method-declaration"), //*
-    VERSIONCMP("versioncmp", "method-declaration"),//*
-    WARNING("warning", "method-declaration"), //*
+    ALERT("alert", Category.FUNCTION), //*
+    COLLECT("collect", Category.FUNCTION),//*
+    CONTAIN("contain", Category.FUNCTION),//*
+    CREATE_RESOURCES("create_resources", Category.FUNCTION),//*
+    CRIT("crit", Category.FUNCTION),//*
+    DEBUG("debug", Category.FUNCTION), //*
+    DEFINED("defined", Category.FUNCTION),
+    EACH("each", Category.FUNCTION), //*
+    EMERG("emerg", Category.FUNCTION), //*
+    EPP("epp", Category.FUNCTION), //*
+    ERR("err", Category.FUNCTION), //*
+    EXTLOOKUP("extlookup", Category.FUNCTION),//*
+    FAIL("fail", Category.FUNCTION), //*
+    FILE("file", Category.FUNCTION),//*
+    FILTER("filter", Category.FUNCTION),//*
+    FQDN_RAND("fqdn_rand", Category.FUNCTION), //*
+    GENERATE("generate", Category.FUNCTION),
+    HIERA("hiera", Category.FUNCTION),//*
+    HIERA_ARRAY("hiera_array", Category.FUNCTION),//*
+    HIERA_HASH("hiera_hash", Category.FUNCTION),//*
+    HIERA_INCLUDE("hiera_include", Category.FUNCTION),//*
+    INCLUDE("include", Category.FUNCTION), //*
+    INFO("info", Category.FUNCTION),
+    INLINE_EPP("inline_epp", Category.FUNCTION),
+    INLINE_TEMPLATE("inline_template", Category.FUNCTION),
+    LOOKUP("lookup", Category.FUNCTION), //*
+    MAP("map", Category.FUNCTION), //*
+    MD5("md5", Category.FUNCTION), //*
+    NOTICE("notice", Category.FUNCTION), //*
+    REALIZE("realize", Category.FUNCTION),//*
+    REDUCE("reduce", Category.FUNCTION),//*
+    REQSUBST("regsubst", Category.FUNCTION),
+    REQUIRE("require", Category.FUNCTION), //*
+    SEARCH("search", Category.FUNCTION),//*
+    SELECT("select", Category.FUNCTION),//*
+    SHA1("sha1", Category.FUNCTION),//*
+    SHELLQUOTE("shellquote", Category.FUNCTION),//*
+    SLICE("slice", Category.FUNCTION),//*
+    SPLIT("split", Category.FUNCTION),//*
+    SPRINTF("sprintf", Category.FUNCTION),//*
+    TAG("tag", Category.FUNCTION), //*
+    TAGGED("tagged", Category.FUNCTION),
+    TEMPLATE("template", Category.FUNCTION), //*
+    VERSIONCMP("versioncmp", Category.FUNCTION),//*
+    WARNING("warning", Category.FUNCTION), //*
     
     COMMENT(null, "comment"),
     LINE_COMMENT(null, "comment"),
@@ -119,37 +119,37 @@ public enum PTokenId implements TokenId
     VARIABLE(null, "variable-declaration"),
     
     /** ( **/
-    LPAREN("(", "separator"),
+    LPAREN("(", Category.SEPARATOR),
     /** ) **/
-    RPAREN(")", "separator"),
+    RPAREN(")", Category.SEPARATOR),
     /** { **/
-    LBRACE("{", "separator"),
+    LBRACE("{", Category.SEPARATOR),
     /** } **/
-    RBRACE("}", "separator"),
+    RBRACE("}", Category.SEPARATOR),
     /** [ **/
-    LBRACKET("[", "separator"),
+    LBRACKET("[", Category.SEPARATOR),
     /** ] **/
-    RBRACKET("]", "separator"),
+    RBRACKET("]", Category.SEPARATOR),
     /** , **/
-    COMMA(",", "separator"), 
+    COMMA(",", Category.SEPARATOR),
     /** : **/
-    COLON(":", "separator"),
+    COLON(":", Category.SEPARATOR),
     /** = **/
-    EQUALS("=", "operator"),
+    EQUALS("=", Category.OPERATOR),
     /** => */
-    PARAM_ASSIGN("=>", "operator"),
+    PARAM_ASSIGN("=>", Category.OPERATOR),
     /** -> */
-    ORDER_ARROW("->", "operator"),
+    ORDER_ARROW("->", Category.OPERATOR),
     /** ~> */
-    NOTIF_ARROW("~>", "operator"),
+    NOTIF_ARROW("~>", Category.OPERATOR),
     /** <| */
-    LCOLLECTOR("<|", "operator"),
+    LCOLLECTOR("<|", Category.OPERATOR),
     /** |> */
-    RCOLLECTOR("|>", "operator"),
+    RCOLLECTOR("|>", Category.OPERATOR),
     /** <<| */
-    LEXPORTCOLLECTOR("<<|", "operator"),
+    LEXPORTCOLLECTOR("<<|", Category.OPERATOR),
     /** |>> */
-    REXPORTCOLLECTOR("|>>", "operator");
+    REXPORTCOLLECTOR("|>>", Category.OPERATOR);
     
     
     private final String name;
@@ -172,5 +172,12 @@ public enum PTokenId implements TokenId
     String fixedText()
     {
         return name;
+    }
+
+    public interface Category {
+        public static final String KEYWORD = "keyword";
+        public static final String SEPARATOR = "separator";
+        public static final String OPERATOR = "operator";
+        public static final String FUNCTION = "method-declaration";
     }
 }

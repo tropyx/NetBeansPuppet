@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
@@ -49,6 +50,7 @@ public class PCompletionProvider implements CompletionProvider {
             protected void query(final CompletionResultSet completionResultSet, final Document document, final int caretOffset) {
                 final boolean[] completeClasses = new boolean[1];
                 final boolean[] completeVariables = new boolean[1];
+                final boolean[] completeFuntions = new boolean[1];
                 final String[] prefix = new String[1];
                 document.render(new Runnable() {
 
@@ -68,11 +70,13 @@ public class PCompletionProvider implements CompletionProvider {
                                     token = ts.token();
                                 } else {
                                     pref = "";
+                                    completeFuntions[0] = true;
                                 }
                             }
                             if (token.id() == PTokenId.IDENTIFIER) {
                                 try {
                                     pref = document.getText(ts.offset(), caretOffset - ts.offset());
+                                    completeFuntions[0] = true;
                                 } catch (BadLocationException ex) {
                                     Exceptions.printStackTrace(ex);
                                 }
@@ -100,6 +104,9 @@ public class PCompletionProvider implements CompletionProvider {
                         }
                     }
                 });
+                if (completeFuntions[0]) {
+                    completeFuntions(prefix[0], completionResultSet, caretOffset);
+                }
                 if (completeClasses[0]) {
                     boolean thisProjectOnly = queryType == COMPLETION_QUERY_TYPE;
                     try {
@@ -174,7 +181,19 @@ public class PCompletionProvider implements CompletionProvider {
                 }
                 completionResultSet.finish();
             }
+
         }, component);
+    }
+
+    private void completeFuntions(String prefix, CompletionResultSet completionResultSet, int offset) {
+        for (PTokenId token : PTokenId.values()) {
+            if (PTokenId.Category.FUNCTION.equals(token.primaryCategory())) {
+                String name = token.name().toLowerCase(Locale.ENGLISH);
+                if (name.startsWith(prefix)) {
+                    completionResultSet.addItem(new PPFunctionCompletionItem(prefix, name, offset));
+                }
+            }
+        }
     }
 
     @Override
