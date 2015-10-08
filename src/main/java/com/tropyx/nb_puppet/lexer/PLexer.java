@@ -949,22 +949,32 @@ public class PLexer implements Lexer<PTokenId>
 
     private Token<PTokenId> finishIdentifier(int c)
     {
+        boolean singleTrailingColon = false;
         while (true)
         {
-            if (c == EOF || !isIdentifierChar(c = translateSurrogates(c)))
+            if (c == EOF || !Character.isJavaIdentifierPart(c = translateSurrogates(c)))
             {
-                // For surrogate 2 chars must be backed up
-                backup((c >= Character.MIN_SUPPLEMENTARY_CODE_POINT) ? 2 : 1);
-                return tokenFactory.createToken(PTokenId.IDENTIFIER);
+                if (c == ':' && !singleTrailingColon) {
+                    singleTrailingColon = true;
+                    c = nextChar();
+                    continue;
+                } else if (c == ':' && singleTrailingColon) {
+                    singleTrailingColon = false;
+                    c = nextChar();
+                    continue;
+                } else if (singleTrailingColon) {
+                    backup((c >= Character.MIN_SUPPLEMENTARY_CODE_POINT) ? 2 : 1);
+                    backup(1); //1 for the single : char
+                    return tokenFactory.createToken(PTokenId.IDENTIFIER);
+                } else {
+                    // For surrogate 2 chars must be backed up
+                    backup((c >= Character.MIN_SUPPLEMENTARY_CODE_POINT) ? 2 : 1);
+                    return tokenFactory.createToken(PTokenId.IDENTIFIER);
+                }
             }
             c = nextChar();
         }
     }
-    
-    private boolean isIdentifierChar(int c) {
-        return Character.isJavaIdentifierPart(c) || c == ':';
-    }
-    
     
     private boolean isVariableChar(int c) {
         return Character.isJavaIdentifierPart(c) || c == ':';
