@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <editor_palette_item version="1.0">
 
-    <body><![CDATA[ $virtual]]></body>
+    <body><![CDATA[ $::virtual]]></body>
 
     <icon16 urlvalue="com/tropyx/nb_puppet/resources/puppet_icon.gif" />
     <icon32 urlvalue="com/tropyx/nb_puppet/resources/PuppetMaster32.png" />

@@ -18,7 +18,7 @@ import org.openide.windows.TopComponent;
 
 @MultiViewElement.Registration(
     displayName = "#LBL_PuppetManifestType_VISUAL",
-iconBase = "com/tropyx/nb_puppet/resources/pp-file_icon.gif",
+iconBase = "com/tropyx/nb_puppet/resources/puppet16.png",
 mimeType = "text/x-puppet-manifest",
 persistenceType = TopComponent.PERSISTENCE_NEVER,
 preferredID = "PuppetManifestTypeVisual",
