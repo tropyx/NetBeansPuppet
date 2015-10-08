@@ -33,7 +33,6 @@ import org.netbeans.api.annotations.common.StaticResource;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectInformation;
 import org.netbeans.api.queries.VisibilityQuery;
-import org.netbeans.spi.project.LookupMerger;
 import org.netbeans.spi.project.ProjectState;
 import org.netbeans.spi.project.support.GenericSources;
 import org.netbeans.spi.project.support.LookupProviderSupport;
@@ -47,7 +46,6 @@ import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
-import org.openide.nodes.FilterNode;
 import org.openide.nodes.Node;
 import org.openide.nodes.NodeNotFoundException;
 import org.openide.nodes.NodeOp;
@@ -98,7 +96,7 @@ public class PuppetProject implements Project {
                 GenericSources.genericOnly(this),
                 new AuxPropsImpl(this)
             // new ReportsSubprojectProvider(this)
-            }), "Projects/" + PUPPET_PROJECT_TYPE);
+            }), "Projects/" + PUPPET_PROJECT_TYPE + "/Lookup");
         }
         return lkp;
     }
