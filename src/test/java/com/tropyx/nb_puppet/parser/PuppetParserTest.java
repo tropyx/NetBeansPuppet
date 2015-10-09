@@ -206,6 +206,30 @@ public class PuppetParserTest extends NbTestCase {
         assertEquals("foo", res.getAtributes().get(2).getName());
 //        assertEquals("644", res.getAtributes().get(2).getValue());
     }
+
+ @Test
+    public void testArrayResourceTitleParse() throws Exception {
+        PuppetParserResult result = doParse(
+                "class aaa::install { "
+             +  " file { [$aaa::params::fff, 'aaa']:"
+              + " ensure => present, "
+             +  " path => \'aaaa\',"
+              + " foo => 644"
+             + " }"
+             + " }");
+        PClass c = assertAndGetClassElement(result);
+        assertEquals("aaa::install", c.getName());
+        PResource res = c.getChildrenOfType(PResource.class, true).get(0);
+        assertEquals("file", res.getResourceType());
+        assertNotNull(res.getTitle());
+        assertEquals(PString.BLOB, res.getTitle().getType());
+        assertEquals(3, res.getAtributes().size());
+        assertEquals("foo", res.getAtributes().get(2).getName());
+        List<PVariable> vars = res.getTitle().getChildrenOfType(PVariable.class, true);
+        assertEquals(1, vars.size());
+        List<PString> strings = res.getTitle().getChildrenOfType(PString.class, true);
+        assertEquals(1, strings.size());
+    }
     
     @Test
     public void testResourceWithUnlessParse() throws Exception {
@@ -382,6 +406,49 @@ public class PuppetParserTest extends NbTestCase {
              + "  }"
              + " }");
         PClass nd = assertAndGetClassElement(result);
+    }
+
+    @Test
+    public void testCase() throws Exception {
+        PuppetParserResult result = doParse(
+               "class aaa { \n"
+             + "  case $exp {"
+             + "   'aaa': { $aaa='xx' }"
+             + "   'bbb': { $bbb='xx' }"
+             + "    default:{fail('ddd')}"
+             + "  }"
+             + " }");
+        PClass nd = assertAndGetClassElement(result);
+        List<PCase> cs = nd.getChildrenOfType(PCase.class, true);
+        assertEquals(1, cs.size());
+        PCase cs1 = cs.get(0);
+        assertEquals(3, cs1.getCases().size());
+    }
+
+
+    @Test
+    public void testNestedCase() throws Exception {
+        PuppetParserResult result = doParse(
+               "class aaa { \n"
+             + "  case $exp {"
+             + "   'aaa': {  "
+                       + "case ($exp2 == true) { "
+                       + "   true : {$ccc='xx'}"
+                       + "   false: { $ddd='xx'}"
+                       + "}"
+                + " }"
+             + "   'bbb': { $bbb='xx' }"
+             + "    default:{fail('ddd')}"
+             + "  }"
+             + " }");
+        PClass nd = assertAndGetClassElement(result);
+        List<PCase> cs = nd.getChildrenOfType(PCase.class, true);
+        assertEquals(2, cs.size());
+        PCase cs1 = cs.get(0);
+        assertEquals(3, cs1.getCases().size());
+        PCase cs2 = cs.get(1);
+        assertEquals(2, cs2.getCases().size());
+
     }
 
     private PClass assertAndGetClassElement(PuppetParserResult result) {

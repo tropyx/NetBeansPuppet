@@ -22,6 +22,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.swing.event.ChangeListener;
+import org.netbeans.api.annotations.common.NonNull;
+import org.netbeans.api.annotations.common.NullAllowed;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.modules.parsing.api.Snapshot;
@@ -121,9 +123,12 @@ class PuppetParser extends Parser {
         return name.toString();
     }
 
-    
-    private PBlob fastForward(PElement parent, TokenSequence<PTokenId> ts, PTokenId... stopTokens) {
+    private PBlob fastForward(@NullAllowed PElement parent, TokenSequence<PTokenId> ts, PTokenId... stopTokens) {
         PBlob blob = new PBlob(parent, ts.offset());
+        return fastForwardImpl(blob, ts, stopTokens);
+    }
+
+    private PBlob fastForwardImpl(@NonNull PBlob blob, TokenSequence<PTokenId> ts, PTokenId... stopTokens) {
         Token<PTokenId> token = ts.token();
         List<PTokenId> stops = Arrays.asList(stopTokens);
         int braceCount = 0;
@@ -156,7 +161,7 @@ class PuppetParser extends Parser {
                 case STRING_LITERAL:
                     String val = token.text().toString();
                     int off = ts.offset();
-                    new PString(parent, off, val);
+                    new PString(blob, off, val);
                     break;
                 case VARIABLE:
                     val = token.text().toString();
@@ -164,17 +169,17 @@ class PuppetParser extends Parser {
                     token = nextSkipWhitespaceComment(ts);
                     if (token != null && token.id() == PTokenId.EQUALS) {
                         //variable definition;
-                        new PVariableDefinition(parent, off, val);
+                        new PVariableDefinition(blob, off, val);
                     } else if (token != null) {
                         //variable usage
-                        new PVariable(parent, off, val);
+                        new PVariable(blob, off, val);
                         continue;
                     }
                     break;
                 case INCLUDE:
                     token = nextSkipWhitespaceComment(ts);
                     if (token != null && token.id() == PTokenId.IDENTIFIER) {
-                        new PClassRef(parent, ts.offset(), token.text().toString());
+                        new PClassRef(blob, ts.offset(), token.text().toString());
                     } else {
                         continue;
                     }
@@ -182,7 +187,7 @@ class PuppetParser extends Parser {
                 case REQUIRE:
                     token = nextSkipWhitespaceComment(ts);
                     if (token != null && token.id() == PTokenId.IDENTIFIER) {
-                        new PClassRef(parent, ts.offset(), token.text().toString());
+                        new PClassRef(blob, ts.offset(), token.text().toString());
                     } else {
                         continue;
                     }
@@ -195,11 +200,11 @@ class PuppetParser extends Parser {
                         off = ts.offset();
                         token = nextSkipWhitespaceComment(ts);
                         if (token != null && token.id() == PTokenId.LBRACE) {
-                            parseResource(parent, val, ts, off);
+                            parseResource(blob, val, ts, off);
                         } else if (isClass && token != null && token.id() == PTokenId.IDENTIFIER) {
                             String name = token.text().toString();
                             nextSkipWhitespaceComment(ts);
-                            parseClassInternal(new PClass(parent, off), name, ts);
+                            parseClassInternal(new PClass(blob, off), name, ts);
                         } else if (token != null && token.id() == PTokenId.LBRACKET && Character.isUpperCase(val.charAt(0))) {
     //                    parseReference(pc, val);
                             continue; //for now, to properly eat LBRACKET
@@ -207,6 +212,9 @@ class PuppetParser extends Parser {
                             continue;
                         }
                     }
+                    break;
+                case CASE:
+                    parseCase(blob, ts);
                     break;
                 default:
             }
@@ -377,7 +385,10 @@ class PuppetParser extends Parser {
                 } else if (token.id() == PTokenId.VARIABLE) {
                     title = new PVariable(null, ts.offset(), token.text().toString());
                 } else if (token.id() == PTokenId.LBRACKET) {
-                    title = fastForward(null, ts, PTokenId.RBRACKET);
+                    PBlob blob = new PBlob(null, ts.offset());
+                    //current token in LBRACKET which we need to skip here, to actually bump into the right RBRACKET
+                    ts.moveNext();
+                    title = fastForwardImpl(blob, ts, PTokenId.RBRACKET);
                 } else if (token.id() == PTokenId.IDENTIFIER) {
                     title = new PString(null, ts.offset(), token.text().toString()); //TODO not real string or unquoted string
                 } else {
@@ -427,6 +438,31 @@ class PuppetParser extends Parser {
             PResourceAttribute param = new PResourceAttribute(resource, off, attr);
             param.setValue(val);
             resource.addAttribute(param);
+        }
+    }
+
+    private void parseCase(PElement parent, TokenSequence<PTokenId> ts) {
+        PCase pcase = new PCase(parent, ts.offset());
+        nextSkipWhitespaceComment(ts);
+        PBlob caseExpr = fastForward(pcase, ts, PTokenId.LBRACE);
+        pcase.setControl(caseExpr);
+        Token<PTokenId> token = ts.token();
+        nextSkipWhitespaceComment(ts);
+        while (token.id() != PTokenId.RBRACE) {
+            PBlob cas = fastForward(pcase, ts, PTokenId.COLON);
+            nextSkipWhitespaceComment(ts);
+            token = ts.token();
+            PBlob caseBody;
+            if (token.id() == PTokenId.LBRACE) {
+                nextSkipWhitespaceComment(ts);
+                caseBody = fastForward(pcase, ts, PTokenId.RBRACE);
+                pcase.addCase(cas, caseBody);
+            } else {
+                //huh? what to do here?
+//                caseBody = fastForward(pcase, ts, PTokenId.RBRACE);
+            }
+            nextSkipWhitespaceComment(ts);
+            token = ts.token();
         }
     }
 
