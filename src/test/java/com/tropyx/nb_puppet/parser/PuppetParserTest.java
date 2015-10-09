@@ -406,6 +406,68 @@ public class PuppetParserTest extends NbTestCase {
              + "  }"
              + " }");
         PClass nd = assertAndGetClassElement(result);
+        List<PCondition> conds = nd.getChildrenOfType(PCondition.class, true);
+        assertEquals(1, conds.size());
+        PCondition c = conds.get(0);
+        assertEquals(2, c.getCondition().getChildrenOfType(PVariable.class, true).size());
+        assertEquals(1, c.getConsequence().getChildrenOfType(PString.class, true).size());
+    }
+
+
+    @Test
+    public void testConditionElse() throws Exception {
+        PuppetParserResult result = doParse(
+               "class aaa { \n"
+             + " if $public_html_symlink {\n"
+             + "    fail('fail')\n"
+             + "  } else { $bbb = 'ccc' }"
+             + " }");
+        PClass nd = assertAndGetClassElement(result);
+        List<PCondition> conds = nd.getChildrenOfType(PCondition.class, true);
+        assertEquals(1, conds.size());
+        PCondition c = conds.get(0);
+        assertEquals(1, c.getCondition().getChildrenOfType(PVariable.class, true).size());
+        assertEquals(1, c.getConsequence().getChildrenOfType(PString.class, true).size());
+        assertEquals(1, c.getOtherwise().getChildrenOfType(PString.class, true).size());
+        assertEquals(1, c.getOtherwise().getChildrenOfType(PVariableDefinition.class, true).size());
+    }
+    @Test
+    public void testConditionElseIf() throws Exception {
+        PuppetParserResult result = doParse(
+               "class aaa { \n"
+             + " if $public_html_symlink {\n"
+             + "    fail('fail')\n"
+             + "  } elsif function($aa) { $bbb = 'ccc'"
+             + "  } else { $ccc = 'ddd'}"
+             + " }");
+        PClass nd = assertAndGetClassElement(result);
+        List<PCondition> conds = nd.getChildrenOfType(PCondition.class, true);
+        assertEquals(2, conds.size()); //2 because of nested
+        PCondition c = conds.get(0);
+        assertEquals(1, c.getCondition().getChildrenOfType(PVariable.class, true).size());
+        assertEquals(1, c.getConsequence().getChildrenOfType(PString.class, true).size());
+        final List<PCondition> nested = c.getChildrenOfType(PCondition.class, true);
+        assertEquals(1, nested.size());
+        PCondition cc = nested.get(0);
+        assertEquals(1, cc.getCondition().getChildrenOfType(PVariable.class, true).size());
+        assertEquals(1, cc.getConsequence().getChildrenOfType(PString.class, true).size());
+        assertEquals(1, cc.getConsequence().getChildrenOfType(PVariableDefinition.class, true).size());
+        assertEquals(1, cc.getOtherwise().getChildrenOfType(PVariableDefinition.class, true).size());
+    }
+
+    @Test
+    public void testCondition() throws Exception {
+        PuppetParserResult result = doParse(
+               "class aaa { \n"
+             + " if contains($a, { 'd', 'e'}) {\n"
+             + "    fail('fail')\n"
+             + " }");
+        PClass nd = assertAndGetClassElement(result);
+        List<PCondition> conds = nd.getChildrenOfType(PCondition.class, true);
+        assertEquals(1, conds.size());
+        PCondition c = conds.get(0);
+        assertEquals(1, c.getCondition().getChildrenOfType(PVariable.class, true).size());
+        assertEquals(1, c.getConsequence().getChildrenOfType(PString.class, true).size());
     }
 
     @Test
@@ -449,6 +511,29 @@ public class PuppetParserTest extends NbTestCase {
         PCase cs2 = cs.get(1);
         assertEquals(2, cs2.getCases().size());
 
+    }
+    @Test
+    public void testCaseWithNestedIf() throws Exception {
+        PuppetParserResult result = doParse(
+               "class aaa { \n"
+             + "  case $exp {"
+             + "   'aaa': {  "
+                       + "if ($exp2 == true) { "
+                       + "   fail ('xxx')"
+                       + "}"
+                + " }"
+             + "    default:{"
+                       + "fail('ddd')"
+                 + "}"
+             + "  }"
+             + " }");
+        PClass nd = assertAndGetClassElement(result);
+        List<PCase> cs = nd.getChildrenOfType(PCase.class, true);
+        assertEquals(1, cs.size());
+        PCase cs1 = cs.get(0);
+        assertEquals(2, cs1.getCases().size());
+        List<PCondition> conds = cs1.getChildrenOfType(PCondition.class, true);
+        assertEquals(1, conds.size());
     }
 
     private PClass assertAndGetClassElement(PuppetParserResult result) {

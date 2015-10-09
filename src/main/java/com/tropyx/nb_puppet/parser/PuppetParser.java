@@ -107,6 +107,22 @@ class PuppetParser extends Parser {
         }
         return skipWhitespaceComment(ts);
     }
+    private Token<PTokenId> backoffWhitespaceComment(TokenSequence<PTokenId> ts) {
+        while (ts.token() != null && (ts.token().id() == PTokenId.WHITESPACE || ts.token().id() == PTokenId.COMMENT))
+        {
+            if (!ts.movePrevious()) {
+                return null;
+            }
+        }
+        return ts.token();
+    }
+
+    private Token<PTokenId> prevBackoffWhitespaceComment(TokenSequence<PTokenId> ts) {
+        if (!ts.movePrevious()) {
+            return null;
+        }
+        return backoffWhitespaceComment(ts);
+    }
 
     private String collectText(TokenSequence<PTokenId> ts, PTokenId... stopTokens) {
         StringBuilder name = new StringBuilder();
@@ -215,6 +231,12 @@ class PuppetParser extends Parser {
                     break;
                 case CASE:
                     parseCase(blob, ts);
+                    break;
+                case IF:
+                    parseIf(blob, ts, true);
+                    break;
+                case UNLESS:
+                    parseIf(blob, ts, false);
                     break;
                 default:
             }
@@ -464,6 +486,41 @@ class PuppetParser extends Parser {
             nextSkipWhitespaceComment(ts);
             token = ts.token();
         }
+    }
+    private void parseIf(PElement parent, TokenSequence<PTokenId> ts, boolean includeElseIf) {
+        PCondition cond = new PCondition(parent, ts.offset());
+        nextSkipWhitespaceComment(ts);
+        cond.setCondition(fastForward(cond, ts, PTokenId.LBRACE));
+        nextSkipWhitespaceComment(ts);
+        cond.setConsequence(fastForward(cond, ts, PTokenId.RBRACE));
+        nextSkipWhitespaceComment(ts);
+        Token<PTokenId> token = ts.token();
+        while (token.id() == PTokenId.ELSE || (includeElseIf && token.id() == PTokenId.ELSIF)) {
+            if (token.id() == PTokenId.ELSE) {
+                nextSkipWhitespaceComment(ts);
+                if (ts.token().id() == PTokenId.LBRACE) {
+                    nextSkipWhitespaceComment(ts);
+                } else {
+                    //ignore?
+                    return;
+                }
+                cond.setOtherwise(fastForward(cond, ts, PTokenId.RBRACE));
+                return;
+            } else {
+                nextSkipWhitespaceComment(ts);
+                PCondition par = cond;
+                cond = new PCondition(par, ts.offset());
+                par.setOtherwise(cond);
+                PBlob caseExpr = fastForward(cond, ts, PTokenId.LBRACE);
+                cond.setCondition(caseExpr);
+                nextSkipWhitespaceComment(ts);
+                cond.setConsequence(fastForward(cond, ts, PTokenId.RBRACE));
+                nextSkipWhitespaceComment(ts);
+                token = ts.token();
+            }
+        }
+        //we've peeked ahead to see if there was any elsif or else, there wasn't now we need to backoff to make calling fastForward happy
+        prevBackoffWhitespaceComment(ts);
     }
 
 }
