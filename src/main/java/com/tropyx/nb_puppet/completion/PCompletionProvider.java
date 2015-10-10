@@ -65,6 +65,7 @@ public class PCompletionProvider implements CompletionProvider {
             protected void query(final CompletionResultSet completionResultSet, final Document document, final int caretOffset) {
                 final boolean[] completeClasses = new boolean[1];
                 final boolean[] completeVariables = new boolean[1];
+                final boolean[] completeVariablesInString = new boolean[1];
                 final boolean[] completeFunctions = new boolean[1];
                 final boolean[] completeResources = new boolean[1];
                 final String[] prefix = new String[1];
@@ -106,6 +107,17 @@ public class PCompletionProvider implements CompletionProvider {
                                     Exceptions.printStackTrace(ex);
                                 }
                                 completeVariables[0] = true;
+                            }
+                            if (token.id() == PTokenId.STRING_LITERAL) {
+                                int currentInText = caretOffset - ts.offset();
+                                String text = token.text().toString().substring(0, currentInText);
+                                System.out.println("text=" + text);
+                                int start = text.lastIndexOf("${");
+                                if (start != -1 && start < currentInText && text.indexOf("}", start) == -1) {
+                                    pref = text.substring(start, text.length()).replace("${", "$");
+                                    completeVariables[0] = true;
+                                    completeVariablesInString[0] = true;
+                                }
                             }
                             if (pref != null) {
                                 prefix[0] = pref;
@@ -162,7 +174,7 @@ public class PCompletionProvider implements CompletionProvider {
                                 inherits = ppclazz.getInherits() != null ? ppclazz.getInherits().getName() : "";
                                 for (PClassParam param : ppclazz.getParams()) {
                                     if (param.getVariable().startsWith("$" + pref)) {
-                                        completionResultSet.addItem(new PPVariableCompletionItem(prefix[0], param.getVariable().substring(1), caretOffset, currentName, currentName, inherits));
+                                        completionResultSet.addItem(new PPVariableCompletionItem(prefix[0], param.getVariable().substring(1), caretOffset, currentName, currentName, inherits, completeVariablesInString[0]));
                                     }
                                 }
                             }
@@ -176,11 +188,14 @@ public class PCompletionProvider implements CompletionProvider {
                                         qf.field(PPIndexer.FLD_VAR, "" + pref, QuerySupport.Kind.PREFIX),
                                         qf.field(PPIndexer.FLD_CLASS, "" + pref, QuerySupport.Kind.PREFIX)
                                     );
-                                for (IndexResult res : query.execute(PPIndexer.FLD_VAR, PPIndexer.FLD_CLASS)) {
+                                for (IndexResult res : query.execute(PPIndexer.FLD_VAR, PPIndexer.FLD_CLASS, PPIndexer.FLD_DEFINE)) {
                                     String clazz = res.getValue(PPIndexer.FLD_CLASS);
+                                    if (clazz == null) {
+                                        clazz = res.getValue(PPIndexer.FLD_DEFINE);
+                                    }
                                     for (String val : new HashSet<>(Arrays.asList(res.getValues(PPIndexer.FLD_VAR)))) {
                                         if (val.startsWith(pref) || clazz.startsWith(pref)) {
-                                            completionResultSet.addItem(new PPVariableCompletionItem(prefix[0], val, caretOffset, clazz, currentName, inherits));
+                                            completionResultSet.addItem(new PPVariableCompletionItem(prefix[0], val, caretOffset, clazz, currentName, inherits, completeVariablesInString[0]));
                                         }
                                     }
                                 }

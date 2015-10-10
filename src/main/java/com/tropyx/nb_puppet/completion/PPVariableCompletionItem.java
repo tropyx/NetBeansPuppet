@@ -21,26 +21,29 @@ public class PPVariableCompletionItem implements CompletionItem {
     private final String className;
     private final String currentClassName;
     private final String inherits;
+    private final boolean inString;
     
     @StaticResource
     private static final String ICON = "com/tropyx/nb_puppet/resources/puppet_icon.gif";
 
-    public PPVariableCompletionItem(String prefix, String varName, int caretOffset, String className, String currentClassName, String inherits) {
+    public PPVariableCompletionItem(String prefix, String varName, int caretOffset, 
+            String className, String currentClassName, String inherits, boolean inString) {
         this.prefix = prefix;
         this.varName = varName;
         this.caretOffset = caretOffset;
         this.className = className;
         this.currentClassName = currentClassName;
         this.inherits = inherits;
+        this.inString = inString;
     }
 
     @Override
     public void defaultAction(JTextComponent component) {
         String text;
         if (currentClassName.equals(className) || inherits.equals(className)) {
-            text = "$" + varName + " ";
+            text = (inString ? "{" : "$" ) + varName + (inString ? "}" : " ");
         } else {
-            text = "$" + className + "::" + varName + " ";
+            text = (inString ? "{" : "$" ) + className + "::" + varName + (inString ? "}" : " ");
         }
 
         try {
