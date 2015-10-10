@@ -56,6 +56,7 @@ public class PElement {
         return children;
     }
 
+    @SuppressWarnings("unchecked")
     public <T extends PElement> List<T> getChildrenOfType(Class<T> clazz, boolean recursive) {
         List<T> toRet = new ArrayList<>();
         for (PElement ch : children) {

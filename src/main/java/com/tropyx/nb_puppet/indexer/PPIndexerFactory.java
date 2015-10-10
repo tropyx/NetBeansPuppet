@@ -47,14 +47,12 @@ public class PPIndexerFactory extends EmbeddingIndexerFactory {
 
     @Override
     public void scanFinished(Context context) {
-//        System.out.println("scan finished" + context.getRootURI());
-        super.scanFinished(context); //To change body of generated methods, choose Tools | Templates.
+        super.scanFinished(context);
     }
 
     @Override
     public boolean scanStarted(Context context) {
-//        System.out.println("scan started" + context.getRootURI());
-        return super.scanStarted(context); //To change body of generated methods, choose Tools | Templates.
+        return super.scanStarted(context);
     }
     
 

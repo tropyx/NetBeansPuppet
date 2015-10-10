@@ -59,6 +59,7 @@ public abstract class AbstractFix implements Fix {
             @Override
             public void run() {
                 TokenHierarchy th = TokenHierarchy.get(document);
+                @SuppressWarnings("unchecked")
                 TokenSequence<PTokenId> ts = th.tokenSequence();
                 ts.move(startindex);
                 ts.moveNext();
