@@ -204,6 +204,9 @@ public final class StatusProvider implements UpToDateStatusProviderFactory {
         if ("only_variable_string".equals(type)) {
             return Collections.<Fix>singletonList(new OnlyVariableStringFix(document, startindex, endindex));
         }
+        if ("single_quote_string_with_variables".equals(type)) {
+            return Collections.<Fix>singletonList(new SingleQuotedStringsFix(document, startindex, endindex));
+        }
 //        if ("variables_not_enclosed".equals(type)) {
 //            return Collections.<Fix>singletonList(new VariablesNotEnclosedFix(document, startindex, endindex));
 //        }

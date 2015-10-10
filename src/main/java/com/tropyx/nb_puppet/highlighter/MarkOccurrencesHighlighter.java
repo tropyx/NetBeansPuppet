@@ -53,7 +53,7 @@ public class MarkOccurrencesHighlighter implements CaretListener {
     public MarkOccurrencesHighlighter(Document doc) {
         rp = new RequestProcessor(MarkOccurrencesHighlighter.class);
         bag = new OffsetsBag(doc);
-        weakDoc = new WeakReference<Document>((Document) doc);
+        weakDoc = new WeakReference<>(doc);
         DataObject dobj = NbEditorUtilities.getDataObject(weakDoc.get());
         if (dobj != null) {
             EditorCookie pane = dobj.getLookup().lookup(EditorCookie.class);
