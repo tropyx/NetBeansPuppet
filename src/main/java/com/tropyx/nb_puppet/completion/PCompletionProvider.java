@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2015 mkleint
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 package com.tropyx.nb_puppet.completion;
 
@@ -10,7 +26,6 @@ import com.tropyx.nb_puppet.parser.PClassParam;
 import com.tropyx.nb_puppet.parser.PElement;
 import com.tropyx.nb_puppet.parser.PuppetParserResult;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -50,7 +65,8 @@ public class PCompletionProvider implements CompletionProvider {
             protected void query(final CompletionResultSet completionResultSet, final Document document, final int caretOffset) {
                 final boolean[] completeClasses = new boolean[1];
                 final boolean[] completeVariables = new boolean[1];
-                final boolean[] completeFuntions = new boolean[1];
+                final boolean[] completeFunctions = new boolean[1];
+                final boolean[] completeResources = new boolean[1];
                 final String[] prefix = new String[1];
                 document.render(new Runnable() {
 
@@ -70,13 +86,15 @@ public class PCompletionProvider implements CompletionProvider {
                                     token = ts.token();
                                 } else {
                                     pref = "";
-                                    completeFuntions[0] = true;
+                                    completeFunctions[0] = true;
+                                    completeResources[0] = true;
                                 }
                             }
                             if (token.id() == PTokenId.IDENTIFIER) {
                                 try {
                                     pref = document.getText(ts.offset(), caretOffset - ts.offset());
-                                    completeFuntions[0] = true;
+                                    completeFunctions[0] = true;
+                                    completeResources[0] = true;
                                 } catch (BadLocationException ex) {
                                     Exceptions.printStackTrace(ex);
                                 }
@@ -104,19 +122,18 @@ public class PCompletionProvider implements CompletionProvider {
                         }
                     }
                 });
-                if (completeFuntions[0]) {
-                    completeFuntions(prefix[0], completionResultSet, caretOffset);
+                if (completeFunctions[0]) {
+                    completeFunctions(prefix[0], completionResultSet, caretOffset);
+                }
+                if (completeResources[0]) {
+                    completeResources(prefix[0], completionResultSet, caretOffset, document, queryType);
                 }
                 if (completeClasses[0]) {
-                    boolean thisProjectOnly = queryType == COMPLETION_QUERY_TYPE;
+                    boolean thisProjectOnly = checkAndMarkQueryType(queryType, completionResultSet);
                     try {
                         QuerySupport qs = PPIndexerFactory.getQuerySupportFor(document, !thisProjectOnly);
                         for (IndexResult res : qs.query(PPIndexer.FLD_CLASS, "" + prefix[0], QuerySupport.Kind.PREFIX, PPIndexer.FLD_CLASS)) {
                             completionResultSet.addItem(new PPCompletionItem(prefix[0], res.getValue(PPIndexer.FLD_CLASS), caretOffset));
-                        }
-                        if (thisProjectOnly) {
-                            completionResultSet.setHasAdditionalItems(true);
-                            completionResultSet.setHasAdditionalItemsText("Results from open projects");
                         }
                     } catch (IOException ex) {
                         Exceptions.printStackTrace(ex);
@@ -125,7 +142,7 @@ public class PCompletionProvider implements CompletionProvider {
                     return;
                 }
                 if (completeVariables[0]) {
-                    final boolean thisProjectOnly = queryType == COMPLETION_QUERY_TYPE;
+                    final boolean thisProjectOnly = checkAndMarkQueryType(queryType, completionResultSet);
                     runWithParserResult(document, new ParseResultRunnable() {
                         @Override
                         public void run(PElement rootNode) {
@@ -167,10 +184,6 @@ public class PCompletionProvider implements CompletionProvider {
                                         }
                                     }
                                 }
-                                if (thisProjectOnly) {
-                                    completionResultSet.setHasAdditionalItems(true);
-                                    completionResultSet.setHasAdditionalItemsText("Results from open projects");
-                                }
                             } catch (IOException ex) {
                                 Exceptions.printStackTrace(ex);
                             }
@@ -185,7 +198,7 @@ public class PCompletionProvider implements CompletionProvider {
         }, component);
     }
 
-    private void completeFuntions(String prefix, CompletionResultSet completionResultSet, int offset) {
+    private void completeFunctions(String prefix, CompletionResultSet completionResultSet, int offset) {
         for (PTokenId token : PTokenId.values()) {
             if (PTokenId.Category.FUNCTION.equals(token.primaryCategory())) {
                 String name = token.name().toLowerCase(Locale.ENGLISH);
@@ -194,6 +207,29 @@ public class PCompletionProvider implements CompletionProvider {
                 }
             }
         }
+    }
+
+    private void completeResources(String prefix, CompletionResultSet completionResultSet, int caretOffset, Document document, int queryType) {
+        try {
+            boolean thisProjectOnly = checkAndMarkQueryType(queryType, completionResultSet);
+            QuerySupport qs = PPIndexerFactory.getQuerySupportFor(document, !thisProjectOnly);
+            for (IndexResult res : qs.query(PPIndexer.FLD_DEFINE, prefix, QuerySupport.Kind.PREFIX, PPIndexer.FLD_DEFINE, PPIndexer.FLD_REQ_PARAM)) {
+                String def = res.getValue(PPIndexer.FLD_DEFINE);
+                completionResultSet.addItem(new PPResourceCompletionItem(prefix, def, caretOffset, res.getValues(PPIndexer.FLD_REQ_PARAM)));
+            }
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+    }
+
+
+    private boolean checkAndMarkQueryType(int queryType, CompletionResultSet completionResultSet) {
+        final boolean thisProjectOnly = queryType == COMPLETION_QUERY_TYPE;
+        if (thisProjectOnly) {
+            completionResultSet.setHasAdditionalItems(true);
+            completionResultSet.setHasAdditionalItemsText("Results from open projects");
+        }
+        return thisProjectOnly;
     }
 
     @Override

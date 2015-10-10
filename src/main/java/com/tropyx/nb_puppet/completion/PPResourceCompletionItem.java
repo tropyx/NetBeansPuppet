@@ -1,43 +1,84 @@
-
+/*
+ * Copyright (C) 2015 mkleint
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.tropyx.nb_puppet.completion;
 
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.event.KeyEvent;
+import javax.swing.text.BadLocationException;
 import javax.swing.text.JTextComponent;
 import org.netbeans.api.annotations.common.StaticResource;
+import org.netbeans.api.editor.completion.Completion;
+import org.netbeans.editor.Utilities;
 import org.netbeans.lib.editor.codetemplates.api.CodeTemplateManager;
 import org.netbeans.spi.editor.completion.CompletionItem;
 import org.netbeans.spi.editor.completion.CompletionTask;
 import org.netbeans.spi.editor.completion.support.CompletionUtilities;
+import org.openide.util.Exceptions;
 import org.openide.util.ImageUtilities;
 
-public class PPFunctionCompletionItem implements CompletionItem {
+public class PPResourceCompletionItem implements CompletionItem {
     private final String prefix;
     private final String value;
     private final int caretOffset;
     private final String rightText;
     
     @StaticResource
-    private static final String ICON = "com/tropyx/nb_puppet/resources/function.png";
+    private static final String ICON = "com/tropyx/nb_puppet/resources/resources.gif";
+    private String[] reqParams;
 
-    public PPFunctionCompletionItem(String prefix, String value, int caretOffset, String rightText) {
+    private PPResourceCompletionItem(String prefix, String value, int caretOffset, String rightText) {
         this.prefix = prefix;
         this.value = value;
         this.caretOffset = caretOffset;
         this.rightText = rightText;
     }
-    public PPFunctionCompletionItem(String prefix, String value, int caretOffset) {
+
+    public PPResourceCompletionItem(String prefix, String value, int caretOffset, String[] reqParams) {
         this(prefix, value, caretOffset, "");
+        this.reqParams = reqParams;
     }
     
 
     @Override
     public void defaultAction(JTextComponent component) {
-        String text = value.substring(prefix.length()) + "(${cursor})";
+        String indent = "  ";
+        try {
+            int start = Utilities.getRowStart(component, caretOffset);
+            StringBuilder sb = new StringBuilder();
+            int count = caretOffset - prefix.length() - start;
+            for (int i = 0; i < count; i++) {
+                sb.append(" ");
+            }
+            indent = sb.toString();
+        } catch (BadLocationException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+        StringBuilder sb = new StringBuilder();
+        sb.append(value.substring(prefix.length())).append(" { '${title}':\n");
+        for (String param : reqParams) {
+            sb.append(indent).append("  ").append(param).append(" => ${").append(param).append("},\n");
+        }
+        sb.append(indent).append("  ${cursor}\n").append(indent).append("}");
+        String text = sb.toString();
         CodeTemplateManager ctm = CodeTemplateManager.get(component.getDocument());
         ctm.createTemporary(text).insert(component);
+        Completion.get().hideAll();
     }
 
     @Override
@@ -71,7 +112,7 @@ public class PPFunctionCompletionItem implements CompletionItem {
 
     @Override
     public int getSortPriority() {
-        return 20;
+        return 10;
     }
 
     @Override
