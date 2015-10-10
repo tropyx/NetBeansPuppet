@@ -20,7 +20,10 @@ package com.tropyx.nb_puppet.indexer;
 import com.tropyx.nb_puppet.parser.PClass;
 import com.tropyx.nb_puppet.parser.PClassParam;
 import com.tropyx.nb_puppet.parser.PClassRef;
+import com.tropyx.nb_puppet.parser.PDefine;
 import com.tropyx.nb_puppet.parser.PElement;
+import com.tropyx.nb_puppet.parser.PParamContainer;
+import com.tropyx.nb_puppet.parser.PResource;
 import com.tropyx.nb_puppet.parser.PVariable;
 import com.tropyx.nb_puppet.parser.PVariableDefinition;
 import com.tropyx.nb_puppet.parser.PuppetParserResult;
@@ -39,8 +42,11 @@ public class PPIndexer extends EmbeddingIndexer {
     public static final String FLD_VARREF = "varref";
     public static final String FLD_VAR = "var";
     public static final String FLD_PARAM = "param";
+    public static final String FLD_REQ_PARAM = "reqparam"; //define, class parameter without default value
     public static final String FLD_CLASSREF = "classref";
     public static final String FLD_CLASS = "class";
+    public static final String FLD_DEFINE = "define";
+    public static final String FLD_RESOURCE = "resource";
     
     private static final Logger LOG = Logger.getLogger(PPIndexer.class.getName());
 
@@ -71,24 +77,38 @@ public class PPIndexer extends EmbeddingIndexer {
                 if (cl.getInherits() != null) {
                     document.addPair(FLD_CLASSREF, cl.getInherits().getName(), true, false);
                 }
-                List<PClassRef> refs = cl.getChildrenOfType(PClassRef.class, true);
-                for (PClassRef ref : refs) {
-                    document.addPair(FLD_CLASSREF, ref.getName(), true, false);
-                }
+            }
+            if (ch.getType() == PElement.DEFINE) {
+                PDefine def = (PDefine)ch;
+                String name = def.getName();
+                document.addPair(FLD_DEFINE, name, true, true);
+            }
+            if (ch instanceof PParamContainer) {
+                PParamContainer cl = (PParamContainer)ch;
                 for (PClassParam param : cl.getParams()) {
                     document.addPair(FLD_PARAM, stripDollar(param.getVariable()), false, true);
-                }
-                List<PVariableDefinition> varDefs = cl.getChildrenOfType(PVariableDefinition.class, true);
-                for (PVariableDefinition vd : varDefs) {
-                    document.addPair(FLD_VAR, stripDollar(vd.getName()), true, true);
-                }
-                List<PVariable> vars = cl.getChildrenOfType(PVariable.class, true);
-                for (PVariable v : vars) {
-                    document.addPair(FLD_VARREF, stripDollar(v.getName()), true, false);
+                    if (param.getDefaultValue() == null) {
+                        document.addPair(FLD_REQ_PARAM, stripDollar(param.getVariable()), false, true);
+                    }
                 }
             }
+            List<PClassRef> refs = ch.getChildrenOfType(PClassRef.class, true);
+            for (PClassRef ref : refs) {
+                document.addPair(FLD_CLASSREF, ref.getName(), true, false);
+            }
+            List<PVariableDefinition> varDefs = ch.getChildrenOfType(PVariableDefinition.class, true);
+            for (PVariableDefinition vd : varDefs) {
+                document.addPair(FLD_VAR, stripDollar(vd.getName()), true, true);
+            }
+            List<PVariable> vars = ch.getChildrenOfType(PVariable.class, true);
+            for (PVariable v : vars) {
+                document.addPair(FLD_VARREF, stripDollar(v.getName()), true, false);
+            }
+            List<PResource> resources = ch.getChildrenOfType(PResource.class, true);
+            for (PResource r : resources) {
+                document.addPair(FLD_RESOURCE, r.getResourceType(), true, false);
+            }
         }
-
         support.addDocument(document);
     }
 
