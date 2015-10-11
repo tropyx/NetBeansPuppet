@@ -8,6 +8,7 @@ import java.awt.event.KeyEvent;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.JTextComponent;
 import org.netbeans.api.annotations.common.StaticResource;
+import org.netbeans.api.editor.completion.Completion;
 import org.netbeans.spi.editor.completion.CompletionItem;
 import org.netbeans.spi.editor.completion.CompletionTask;
 import org.netbeans.spi.editor.completion.support.CompletionUtilities;
@@ -41,6 +42,7 @@ public class PPCompletionItem implements CompletionItem {
         } catch (BadLocationException ex) {
             Exceptions.printStackTrace(ex);
         }
+        Completion.get().hideAll();
     }
 
     @Override
