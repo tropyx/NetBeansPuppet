@@ -202,6 +202,11 @@ public class PCompletionProvider implements CompletionProvider {
                             } catch (IOException ex) {
                                 Exceptions.printStackTrace(ex);
                             }
+                            for (String glob : GlobalVarsFromPalette.get()) {
+                                if (glob.startsWith(pref)) {
+                                    completionResultSet.addItem(new PPVariableCompletionItem(prefix[0], glob, caretOffset, "", currentName, inherits, completeVariablesInString[0]));
+                                }
+                            }
                             completionResultSet.finish();
                         }
                     });

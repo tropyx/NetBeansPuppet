@@ -133,66 +133,47 @@
             <file name="Class.xml" url="palette/assorted/Class.xml">
                 <attr name="position" intvalue="150"/>
             </file>
-
-
-
         </folder>
-
         <folder name="Puppet Variables">
-
             <file name="architecture.xml" url="palette/variables/architecture.xml">
                 <attr name="position" intvalue="150"/>
             </file>
-
-
             <file name="arp.xml" url="palette/variables/arp.xml">
                 <attr name="position" intvalue="150"/>
             </file>
-
             <file name="augeasversion.xml" url="palette/variables/augeasversion.xml">
                 <attr name="position" intvalue="150"/>
             </file>
-
             <file name="boardmanufacturer.xml" url="palette/variables/boardmanufacturer.xml">
                 <attr name="position" intvalue="150"/>
             </file>
-
             <file name="boardproductname.xml" url="palette/variables/boardproductname.xml">
                 <attr name="position" intvalue="150"/>
             </file>
-
             <file name="boardserialnumber.xml" url="palette/variables/boardserialnumber.xml">
                 <attr name="position" intvalue="150"/>
             </file>
-
             <file name="cfkey.xml" url="palette/variables/cfkey.xml">
                 <attr name="position" intvalue="150"/>
             </file>
-
             <file name="domain.xml" url="palette/variables/domain.xml">
                 <attr name="position" intvalue="150"/>
             </file>
-
             <file name="ec2_userdata.xml" url="palette/variables/ec2_userdata.xml">
                 <attr name="position" intvalue="150"/>
             </file>
-
             <file name="facterversion.xml" url="palette/variables/facterversion.xml">
                 <attr name="position" intvalue="150"/>
             </file>
-
             <file name="fqdn.xml" url="palette/variables/fqdn.xml">
                 <attr name="position" intvalue="150"/>
             </file>
-
             <file name="hardwareisa.xml" url="palette/variables/hardwareisa.xml">
                 <attr name="position" intvalue="150"/>
             </file>
-
             <file name="hardwaremodel.xml" url="palette/variables/hardwaremodel.xml">
                 <attr name="position" intvalue="150"/>
             </file>
-
             <file name="hostname.xml" url="palette/variables/hostname.xml">
                 <attr name="position" intvalue="150"/>
             </file>
@@ -444,11 +425,6 @@
             <file name="xendomains.xml" url="palette/variables/xendomains.xml">
                 <attr name="position" intvalue="150"/>
             </file>
-
-
-
-
         </folder>
-
     </folder>
 </filesystem>
