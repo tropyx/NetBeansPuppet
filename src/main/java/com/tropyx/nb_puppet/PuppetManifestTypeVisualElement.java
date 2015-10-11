@@ -16,14 +16,14 @@ import org.openide.util.Lookup;
 import org.openide.util.NbBundle.Messages;
 import org.openide.windows.TopComponent;
 
-@MultiViewElement.Registration(
-    displayName = "#LBL_PuppetManifestType_VISUAL",
-iconBase = "com/tropyx/nb_puppet/resources/puppet16.png",
-mimeType = "text/x-puppet-manifest",
-persistenceType = TopComponent.PERSISTENCE_NEVER,
-preferredID = "PuppetManifestTypeVisual",
-position = 2000)
-@Messages("LBL_PuppetManifestType_VISUAL=Visual")
+//@MultiViewElement.Registration(
+//    displayName = "#LBL_PuppetManifestType_VISUAL",
+//iconBase = "com/tropyx/nb_puppet/resources/puppet16.png",
+//mimeType = "text/x-puppet-manifest",
+//persistenceType = TopComponent.PERSISTENCE_NEVER,
+//preferredID = "PuppetManifestTypeVisual",
+//position = 2000)
+//@Messages("LBL_PuppetManifestType_VISUAL=Visual")
 public final class PuppetManifestTypeVisualElement extends JPanel implements MultiViewElement {
 
     private PuppetManifestTypeDataObject obj;
