@@ -17,6 +17,7 @@
 
 package com.tropyx.nb_puppet.highlighter;
 
+import com.tropyx.nb_puppet.lexer.PTokenId;
 import java.awt.Color;
 import java.lang.ref.WeakReference;
 import java.util.regex.Matcher;
@@ -29,6 +30,9 @@ import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.StyleConstants;
 import org.netbeans.api.editor.settings.AttributesUtilities;
+import org.netbeans.api.lexer.Token;
+import org.netbeans.api.lexer.TokenHierarchy;
+import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.modules.editor.NbEditorUtilities;
 import org.netbeans.spi.editor.highlighting.support.OffsetsBag;
 import org.openide.cookies.EditorCookie;
@@ -76,16 +80,41 @@ public class MarkOccurrencesHighlighter implements CaretListener {
             lastRefreshTask = rp.create(new Runnable() {
                 @Override
                 public void run() {
-                    String selection = comp.getSelectedText();
-                    if (selection != null) {
-                        Pattern p = Pattern.compile(Pattern.quote(selection));
-                        Matcher m = p.matcher(comp.getText());
-                        while (m.find() == true) {
-                            int startOffset = m.start();
-                            int endOffset = m.end();
-                            bag.addHighlight(startOffset, endOffset, defaultColors);
+                    final Document doc = comp.getDocument();
+                    final int offset = comp.getCaretPosition();
+                    doc.render(new Runnable() {
+                        @Override
+                        public void run() {
+                            TokenHierarchy th = TokenHierarchy.get(doc);
+                            TokenSequence<PTokenId> ts = th.tokenSequence();
+                            ts.move(offset);
+                            ts.moveNext();
+                            Token<PTokenId> token = ts.token();
+                            if (token == null) {
+                                return;
+                            }
+                            if (token.id() == PTokenId.VARIABLE) {
+                                String variable = token.text().toString();
+                                ts.moveStart();
+                                while (ts.moveNext()) {
+                                    token = ts.token();
+                                    if (token.id() == PTokenId.VARIABLE) {
+                                        if (token.text().toString().equals(variable)) {
+                                            bag.addHighlight(ts.offset(), ts.offset() + token.length(), defaultColors);
+                                        }
+                                    }
+                                    if (token.id() == PTokenId.STRING_LITERAL) {
+                                        String txt = token.text().toString();
+                                        int i = txt.indexOf(variable.replace("$", "${") + "}");
+                                        while (i > 0) {
+                                            bag.addHighlight(ts.offset() + i, ts.offset()  + i + variable.length() + 2, defaultColors);
+                                            i = txt.indexOf(variable.replace("$", "${") + "}", i + 1);
+                                        }
+                                    }
+                                }
+                            }
                         }
-                    }
+                    });
                 }
             });
         }
