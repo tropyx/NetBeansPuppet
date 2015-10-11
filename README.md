@@ -1,27 +1,30 @@
 Puppet Configuration Editor
 ==============
 
-This is a module for editing Puppet configurations.  It identifies a puppet config tree by the presence of a manifests/site.pp file.
+This is a module for editing Puppet configurations.  It identifies a puppet config tree by the presence of a manifests/site.pp or manifests/init.pp file.
 <br>
 This lets you use IDE tools like inbuilt git/subversion/mercurial support etc. to edit your puppet files.
 
 <dl>
-    <dt>Features include:</dt>
+   <dt>Features include:</dt>
 
-   <dd>Puppet file coloring</dd>
-   <dd>Hyperlinking to variable, class definitions</dd>
-   <dd>Puppet lint errors/warnings in the editor, configuration read from Rakefile</dd>
-   <dd>Create new Puppet module from template, recognize existing projects by manifests/site.pp or manifests/init.pp presence.</dd>
+   <dd><a href="https://github.com/tropyx/NetBeansPuppet/wiki/Editing-Puppet-files">Editor</a> - Puppet file coloring, Editor tabs with module name included</dd>
+   <dd><a href="https://github.com/tropyx/NetBeansPuppet/wiki/Editing-Puppet-files">Hyperlinking</a> to variable, class definitions</dd>
+   <dd><a href="https://github.com/tropyx/NetBeansPuppet/wiki/Puppet-Lint-errors-and-fixes">Puppet lint errors/warnings</a> in the editor, configuration read from Rakefile</dd>
+   <dd><a href="https://github.com/tropyx/NetBeansPuppet/wiki/Puppet-Projects">Projects</a> - Create new Puppet module from template, recognize existing projects by manifests/site.pp or manifests/init.pp presence.</dd>
    <dd>Improved project support (Find, Select in projects work, version control actions on project popup)</dd>    
-   <dd>Editor tabs with module name included</dd>
    <dd>.erb files have mimetype (coloring etc) based on previous extension (.sh.erb/yaml.erb/..)</dd>
    <dd>Works with NetBeans 8.0+</dd>
-   <dd><a href="https://www.codeship.io/projects/41169"><img src="https://www.codeship.io/projects/fc108f80-35b9-0132-1d49-7a12fe8c1dfc/status">Codeship Status for NetBeansPuppet</a>
 </dl>
+
+ <a href="https://www.codeship.io/projects/41169"><img src="https://www.codeship.io/projects/fc108f80-35b9-0132-1d49-7a12fe8c1dfc/status">Codeship Status for NetBeansPuppet</a>
+
 
 <dl>
   <dt>To Install:</dt>
-  <dd>Download the latest release <a href="https://github.com/tropyx/NetBeansPuppet/releases/tag/v1.3.0">nbpuppet-1.3.0</a> to your local machine
+  <dd>The latest version of the plugin should be available on NetBeans update centers for 8.0 and 8.1. It's listed on the <a href="http://plugins.netbeans.org/plugin/60170/?show=true">NetBeans Plugin portal</a> as well</dd>
+
+  <dd>Alternatively Download the latest release <a href="https://github.com/tropyx/NetBeansPuppet/releases/tag/v1.3.0">nbpuppet-1.3.0</a> to your local machine
   add it to your NetBeans IDE with:</dd>
 </dl>
 <pre>
