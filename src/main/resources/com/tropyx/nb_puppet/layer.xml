@@ -13,6 +13,11 @@
                     <attr name="instanceOf" stringvalue="org.netbeans.modules.parsing.spi.indexing.EmbeddingIndexerFactory"/>
                     <attr name="instanceClass" stringvalue="com.tropyx.nb_puppet.indexer.PPIndexerFactory"/>
                 </file>
+                <folder name="Preferences">
+                    <folder name="Defaults">
+                        <file name="preferences.xml" url="resources/editor-preferences.xml"/>
+                    </folder>
+                </folder>
                 <folder name="FontsColors">
                     <folder name="NetBeans">
                         <folder name="Defaults">

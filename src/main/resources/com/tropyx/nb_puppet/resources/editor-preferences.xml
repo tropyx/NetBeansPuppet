@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE editor-preferences PUBLIC "-//NetBeans//DTD Editor Preferences 1.0//EN" "http://www.netbeans.org/dtds/EditorPreferences-1_0.dtd">
+<editor-preferences>
+    <entry javaType="java.lang.String" name="on-save-reformat" xml:space="preserve">
+        <value><![CDATA[never]]></value>
+    </entry>
+    <entry javaType="java.lang.String" name="on-save-remove-trailing-whitespace" xml:space="preserve">
+        <value><![CDATA[modified-lines]]></value>
+    </entry>
+    <entry javaType="java.lang.Boolean" name="on-save-use-global-settings" xml:space="preserve">
+        <value><![CDATA[false]]></value>
+    </entry>
+</editor-preferences>
+
