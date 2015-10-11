@@ -56,6 +56,21 @@ public class PElement {
         return children;
     }
 
+    public PElement getChildAtOffset(int offset) {
+        PElement last = null;
+        for (PElement child : getChildren()) {
+            if (child.getOffset() <= offset) {
+                last = child;
+            } else {
+                break;
+            }
+        }
+        if (last != null) {
+            return last.getChildAtOffset(offset);
+        }
+        return this;
+    }
+
     @SuppressWarnings("unchecked")
     public <T extends PElement> List<T> getChildrenOfType(Class<T> clazz, boolean recursive) {
         List<T> toRet = new ArrayList<>();
@@ -100,6 +115,17 @@ public class PElement {
                 s = s.replace("\n", "\n  ");
                 sb.append("\n  ").append(s);
             }
+        }
+        return sb.toString();
+    }
+
+    public String toStringToRoot() {
+        StringBuilder sb = new StringBuilder();
+        sb.insert(0, toString());
+        PElement par = this.parent;
+        while (par != null) {
+            sb.insert(0,par.toString() + " -> ");
+            par = par.parent;
         }
         return sb.toString();
     }
