@@ -536,6 +536,30 @@ public class PuppetParserTest extends NbTestCase {
         assertEquals(1, conds.size());
     }
 
+    @Test
+    public void testFunction() throws Exception {
+        PuppetParserResult result = doParse(
+               "class aaa { \n"
+             + "  fail('aaa')"
+             + "  template(['bbb', 'ccc'])"
+             + "  fail(template('ddd'))"
+             + "  xxx([yyy('s',{s->s}), zzz($d)])"
+             + " }");
+        PClass nd = assertAndGetClassElement(result);
+        List<PFunction> cs = nd.getChildrenOfType(PFunction.class, true);
+        assertEquals(7, cs.size());
+        PFunction cs1 = cs.get(0);
+        assertEquals("fail", cs1.getName());
+        PFunction cs2 = cs.get(1);
+        assertEquals("template", cs2.getName());
+        PFunction cs3 = cs.get(2);
+        assertEquals("fail", cs3.getName());
+        assertEquals("template", cs.get(3).getName());
+        assertEquals("xxx", cs.get(4).getName());
+        assertEquals("yyy", cs.get(5).getName());
+        assertEquals("zzz", cs.get(6).getName());
+    }
+
     private PClass assertAndGetClassElement(PuppetParserResult result) {
         PElement nd = result.getRootNode();
         assertNotNull(nd);

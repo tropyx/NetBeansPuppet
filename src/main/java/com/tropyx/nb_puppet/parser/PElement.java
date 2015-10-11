@@ -40,6 +40,7 @@ public class PElement {
     public static final int NODE = 15;
     public static final int CASE = 16;
     public static final int CONDITION = 17;
+    public static final int FUNCTION = 18;
 
     private final int type;    
     private final List<PElement> children = new ArrayList<>();

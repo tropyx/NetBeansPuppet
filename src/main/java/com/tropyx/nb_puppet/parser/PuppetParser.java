@@ -86,6 +86,7 @@ class PuppetParser extends Parser {
                 parseDefine(root, ts);
             }
             token = nextSkipWhitespaceComment(ts);
+            //TODO what about site.pp (without define/class/node)?
         }
 
         return new PuppetParserResult(snapshot, root);
@@ -210,8 +211,21 @@ class PuppetParser extends Parser {
                     break;
                 case IDENTIFIER:
                 case CLASS:
+                    val = token.text().toString();
+                    if (token.id() == PTokenId.IDENTIFIER) {
+                        //check unknown functions
+                        off = ts.offset();
+                        String func = token.text().toString();
+                        token = nextSkipWhitespaceComment(ts);
+                        if (token.id() == PTokenId.LPAREN) {
+                            ts.moveNext();
+                            parseFunction(new PFunction(blob, off, func), ts);
+                            break;
+                        } else {
+                            token = prevBackoffWhitespaceComment(ts);
+                        }
+                    }
                     if (bracketCount == 0 && parenCount == 0) {
-                        val = token.text().toString();
                         boolean isClass = token.id() == PTokenId.CLASS;
                         off = ts.offset();
                         token = nextSkipWhitespaceComment(ts);
@@ -239,6 +253,17 @@ class PuppetParser extends Parser {
                     parseIf(blob, ts, false);
                     break;
                 default:
+                    if (PTokenId.Category.FUNCTION.equals(token.id().primaryCategory())) {
+                        off = ts.offset();
+                        String func = token.text().toString();
+                        token = nextSkipWhitespaceComment(ts);
+                        if (token.id() == PTokenId.LPAREN) {
+                            ts.moveNext();
+                            parseFunction(new PFunction(blob, off, func), ts);
+                        } else {
+                            prevBackoffWhitespaceComment(ts); //backoff for non () functions, how to figure where they stop?
+                        }
+                    }
             }
 
             token = nextSkipWhitespaceComment(ts);
@@ -521,6 +546,10 @@ class PuppetParser extends Parser {
         }
         //we've peeked ahead to see if there was any elsif or else, there wasn't now we need to backoff to make calling fastForward happy
         prevBackoffWhitespaceComment(ts);
+    }
+
+    private void parseFunction(PFunction pFunction, TokenSequence<PTokenId> ts) {
+        fastForward(pFunction, ts, PTokenId.RPAREN);
     }
 
 }
