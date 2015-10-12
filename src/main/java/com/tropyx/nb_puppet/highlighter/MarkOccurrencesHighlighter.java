@@ -20,8 +20,6 @@ package com.tropyx.nb_puppet.highlighter;
 import com.tropyx.nb_puppet.lexer.PTokenId;
 import java.awt.Color;
 import java.lang.ref.WeakReference;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import javax.swing.JEditorPane;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
@@ -95,21 +93,35 @@ public class MarkOccurrencesHighlighter implements CaretListener {
                             }
                             if (token.id() == PTokenId.VARIABLE) {
                                 String variable = token.text().toString();
-                                ts.moveStart();
-                                while (ts.moveNext()) {
-                                    token = ts.token();
-                                    if (token.id() == PTokenId.VARIABLE) {
-                                        if (token.text().toString().equals(variable)) {
-                                            bag.addHighlight(ts.offset(), ts.offset() + token.length(), defaultColors);
-                                        }
+                                addHighlights(ts, variable);
+                            } else if (token.id() == PTokenId.STRING_LITERAL) {
+                                String text = token.text().toString();
+                                int reloffset = offset - ts.offset();
+                                int start = text.substring(0, reloffset).lastIndexOf("${");
+                                if (start != -1 && start <= reloffset && text.indexOf("}", start) > reloffset) {
+                                    String var = text.substring(start, text.indexOf("}", start)).replace("${", "$");
+                                    addHighlights(ts, var);
+                                }
+                                
+                            }
+                        }
+
+                        public void addHighlights(TokenSequence<PTokenId> ts, String variable) {
+                            Token<PTokenId> token;
+                            ts.moveStart();
+                            while (ts.moveNext()) {
+                                token = ts.token();
+                                if (token.id() == PTokenId.VARIABLE) {
+                                    if (token.text().toString().equals(variable)) {
+                                        bag.addHighlight(ts.offset(), ts.offset() + token.length(), defaultColors);
                                     }
-                                    if (token.id() == PTokenId.STRING_LITERAL) {
-                                        String txt = token.text().toString();
-                                        int i = txt.indexOf(variable.replace("$", "${") + "}");
-                                        while (i > 0) {
-                                            bag.addHighlight(ts.offset() + i, ts.offset()  + i + variable.length() + 2, defaultColors);
-                                            i = txt.indexOf(variable.replace("$", "${") + "}", i + 1);
-                                        }
+                                }
+                                if (token.id() == PTokenId.STRING_LITERAL) {
+                                    String txt = token.text().toString();
+                                    int i = txt.indexOf(variable.replace("$", "${") + "}");
+                                    while (i > 0) {
+                                        bag.addHighlight(ts.offset() + i, ts.offset()  + i + variable.length() + 2, defaultColors);
+                                        i = txt.indexOf(variable.replace("$", "${") + "}", i + 1);
                                     }
                                 }
                             }
