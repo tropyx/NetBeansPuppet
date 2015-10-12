@@ -286,6 +286,27 @@ public class PuppetParserTest extends NbTestCase {
         assertNull(res.getTitle());
         assertEquals(1, res.getAtributes().size());
         assertEquals("notify", res.getAtributes().get(0).getName());
+        List<PTypeReference> types = res.getAtributes().get(0).getChildrenOfType(PTypeReference.class, true);
+        assertEquals(1, types.size());
+        assertEquals("Service", types.get(0).getResourceType());
+        assertEquals(1, types.get(0).getChildrenOfType(PVariable.class, true).size());
+
+    }
+    @Test
+    public void testNotifyComplexParse() throws Exception {
+        PuppetParserResult result = doParse(
+               "class aaa::install { "
+             + " File { "
+             + "  notify => Service[$bamboo_agent::service_name, 'aaa', 'ccc'], "
+             + " }"
+             + "}");
+        PClass c = assertAndGetClassElement(result);
+        PResource res = c.getChildrenOfType(PResource.class, true).get(0);
+        List<PTypeReference> types = res.getAtributes().get(0).getChildrenOfType(PTypeReference.class, true);
+        assertEquals(1, types.size());
+        assertEquals("Service", types.get(0).getResourceType());
+        assertEquals(1, types.get(0).getChildrenOfType(PVariable.class, true).size());
+        assertEquals(2, types.get(0).getChildrenOfType(PString.class, true).size());
     }
 
 

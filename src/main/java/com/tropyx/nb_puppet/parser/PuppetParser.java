@@ -215,11 +215,16 @@ class PuppetParser extends Parser {
                     if (token.id() == PTokenId.IDENTIFIER) {
                         //check unknown functions
                         off = ts.offset();
-                        String func = token.text().toString();
+                        String name = token.text().toString();
                         token = nextSkipWhitespaceComment(ts);
                         if (token.id() == PTokenId.LPAREN) {
                             ts.moveNext();
-                            parseFunction(new PFunction(blob, off, func), ts);
+                            parseFunction(new PFunction(blob, off, name), ts);
+                            break;
+                        } else if (token.id() == PTokenId.LBRACKET && Character.isUpperCase(name.charAt(0))) {
+                            //TODO how is array access handled? eg. aa[1]? or will we always get just $aa[1]?
+                            ts.moveNext();
+                            parseTypeRef(new PTypeReference(blob, off, name), ts);
                             break;
                         } else {
                             token = prevBackoffWhitespaceComment(ts);
@@ -550,6 +555,10 @@ class PuppetParser extends Parser {
 
     private void parseFunction(PFunction pFunction, TokenSequence<PTokenId> ts) {
         fastForward(pFunction, ts, PTokenId.RPAREN);
+    }
+
+    private void parseTypeRef(PTypeReference pTypeReference, TokenSequence<PTokenId> ts) {
+        fastForward(pTypeReference, ts, PTokenId.RBRACKET);
     }
 
 }

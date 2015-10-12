@@ -17,20 +17,34 @@
 
 package com.tropyx.nb_puppet.parser;
 
-public class PReference extends PElement {
+import java.util.Locale;
+
+public class PTypeReference extends PElement {
 
     private final String resourceType;
 
     private PElement title;
 
 
-    public PReference(PElement parent, int offset, String resourceType) {
+    public PTypeReference(PElement parent, int offset, String resourceType) {
         super(REFERENCE, parent, offset);
         this.resourceType = resourceType;
     }
 
+    /**
+     * as defined in file
+     * @return
+     */
     public String getResourceType() {
         return resourceType;
+    }
+
+    /**
+     * as the actual type (all lowercase)
+     * @return
+     */
+    public String getResource() {
+        return resourceType.toLowerCase(Locale.ENGLISH);
     }
 
     public PElement getTitle() {
@@ -40,4 +54,11 @@ public class PReference extends PElement {
     public void setTitle(PElement title) {
         this.title = title;
     }
+
+    @Override
+    public String toString() {
+        return super.toString() + "[" + getResourceType() + "]";
+    }
+
+
 }

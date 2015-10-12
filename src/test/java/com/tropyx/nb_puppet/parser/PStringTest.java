@@ -20,6 +20,8 @@ public class PStringTest {
         assertEquals(2, ch.size());
         assertEquals("$bbb::ccc", ch.get(0).getName());
         assertEquals("$ddd::eee", ch.get(1).getName());
+        assertEquals(3, ch.get(0).getOffset());
+        assertEquals(15, ch.get(1).getOffset());
     }
 
 
