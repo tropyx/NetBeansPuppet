@@ -32,7 +32,7 @@ public class PString extends PElement {
             Matcher m = VAR.matcher(this.value);
             while (m.find()) {
                 String var = m.group(1);
-                new PVariable(this, offset, "$" + var);
+                new PVariable(this, offset + m.start(), "$" + var);
             }
         }
         if (this.value.startsWith("'") && this.value.endsWith("'")) {
