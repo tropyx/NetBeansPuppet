@@ -252,6 +252,11 @@
       <artifactId>org-netbeans-modules-refactoring-api</artifactId>
       <version>${netbeans.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.netbeans.api</groupId>
+      <artifactId>org-openide-modules</artifactId>
+      <version>RELEASE80</version>
+    </dependency>
   </dependencies>
 
   <build>
@@ -266,6 +271,15 @@
             <netbeansUserdir>${basedir}/userdir</netbeansUserdir>
             <licenseName>General Public License 3.0</licenseName>
             <licenseFile>${basedir}/license.txt</licenseFile>
+            <nbmResources>
+                <nbmResource>
+                    <directory>src/main/puppet42</directory>
+                    <targetPath>modules/puppet42</targetPath>
+                    <includes>
+                        <include>*.pp</include>
+                    </includes>
+                </nbmResource>
+            </nbmResources>
         </configuration>
       </plugin>
 

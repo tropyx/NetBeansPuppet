@@ -18,6 +18,7 @@
 package com.tropyx.nb_puppet.indexer;
 
 import com.tropyx.nb_puppet.PuppetProject;
+import java.io.File;
 import java.util.concurrent.atomic.AtomicReference;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.project.Project;
@@ -25,6 +26,8 @@ import org.netbeans.spi.java.classpath.ClassPathProvider;
 import org.netbeans.spi.java.classpath.support.ClassPathSupport;
 import org.netbeans.spi.project.ProjectServiceProvider;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
+import org.openide.modules.InstalledFileLocator;
 
 @ProjectServiceProvider(service = ClassPathProvider.class, projectType = PuppetProject.PUPPET_PROJECT_TYPE)
 public class CpProvider implements ClassPathProvider {
@@ -43,13 +46,18 @@ public class CpProvider implements ClassPathProvider {
             if (cp == null) {
                 FileObject fo = project.getProjectDirectory().getFileObject("manifests");
                 if (fo != null) {
-                    CP.compareAndSet(null, ClassPathSupport.createClassPath(fo));
+                    CP.compareAndSet(null, ClassPathSupport.createClassPath(fo, getBootstrapPuppet()));
                     cp = CP.get();
                 }
             }
             return cp;
         }
         return ClassPath.EMPTY;
+    }
+
+    FileObject getBootstrapPuppet()  {
+        File f = InstalledFileLocator.getDefault().locate("modules/puppet42", "com.tropyx.nb_puppet", false);
+        return FileUtil.toFileObject(f);
     }
 
 }
