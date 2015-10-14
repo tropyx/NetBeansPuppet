@@ -42,6 +42,11 @@
                     <attr name="instanceOf" stringvalue="javax.swing.text.EditorKit,com.tropyx.nb_puppet.PPEditorKit"/>
                     <attr name="beaninfo" boolvalue="false"/>
                 </file>
+                <folder name="Popup">
+                    <file name="WhereUsed.instance">
+                         <attr name="instanceCreate" methodvalue="org.netbeans.modules.refactoring.api.ui.RefactoringActionsFactory.whereUsedAction"/>
+                    </file>
+                </folder>
             </folder>
         </folder>
     </folder>

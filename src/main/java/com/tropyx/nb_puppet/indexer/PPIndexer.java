@@ -43,6 +43,7 @@ public class PPIndexer extends EmbeddingIndexer {
     public static final String FLD_VAR = "var";
     public static final String FLD_PARAM = "param";
     public static final String FLD_REQ_PARAM = "reqparam"; //define, class parameter without default value
+    public static final String FLD_INHERIT = "inherit";
     public static final String FLD_CLASSREF = "classref";
     public static final String FLD_CLASS = "class";
     public static final String FLD_DEFINE = "define";
@@ -76,6 +77,7 @@ public class PPIndexer extends EmbeddingIndexer {
                 document.addPair(FLD_CLASS, name, true, true);
                 if (cl.getInherits() != null) {
                     document.addPair(FLD_CLASSREF, cl.getInherits().getName(), true, false);
+                    document.addPair(FLD_INHERIT, cl.getInherits().getName(), true, true);
                 }
             }
             if (ch.getType() == PElement.DEFINE) {
@@ -99,6 +101,7 @@ public class PPIndexer extends EmbeddingIndexer {
             List<PVariableDefinition> varDefs = ch.getChildrenOfType(PVariableDefinition.class, true);
             for (PVariableDefinition vd : varDefs) {
                 document.addPair(FLD_VAR, stripDollar(vd.getName()), true, true);
+                document.addPair(FLD_VARREF, stripDollar(vd.getName()), true, false);
             }
             List<PVariable> vars = ch.getChildrenOfType(PVariable.class, true);
             for (PVariable v : vars) {
