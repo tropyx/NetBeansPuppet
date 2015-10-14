@@ -28,12 +28,13 @@ public class PString extends PElement {
         super(STRING, parent, offset);
         this.value = value;
         if (this.value.startsWith("\"") && this.value.endsWith("\"")) {
-            this.value = this.value.substring(1, this.value.length() - 1);
             Matcher m = VAR.matcher(this.value);
             while (m.find()) {
                 String var = m.group(1);
-                new PVariable(this, offset + m.start(), "$" + var);
+                //+1 for the ${ character
+                new PVariable(this, offset + m.start() + 1, "$" + var);
             }
+            this.value = this.value.substring(1, this.value.length() - 1);
         }
         if (this.value.startsWith("'") && this.value.endsWith("'")) {
             this.value = this.value.substring(1, this.value.length() - 1);
