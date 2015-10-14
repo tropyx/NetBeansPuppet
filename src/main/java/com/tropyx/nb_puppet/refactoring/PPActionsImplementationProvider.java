@@ -102,7 +102,7 @@ public class PPActionsImplementationProvider extends ActionsImplementationProvid
         @Override
         public String getName() {
             //TODO not all will be variables
-            return PPWhereUsedQueryPlugin.getVariableName(lookup.lookup(PPElementContext.class));
+            return "" + PPWhereUsedQueryPlugin.getVariableName(lookup.lookup(PPElementContext.class));
         }
 
         @Override

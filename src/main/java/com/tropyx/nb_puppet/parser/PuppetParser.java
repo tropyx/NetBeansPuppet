@@ -374,7 +374,7 @@ class PuppetParser extends Parser {
         Token<PTokenId> token = nextSkipWhitespaceComment(ts);
         String type = null;
         int offset = 0;
-        String var = null;
+        PVariableDefinition var = null;
         PElement def = null;
         List<PClassParam> params = new ArrayList<>();
         while (token != null && token.id() != PTokenId.RPAREN) {
@@ -383,7 +383,7 @@ class PuppetParser extends Parser {
                 offset = ts.offset();
             }
             if (var == null && token.id() == PTokenId.VARIABLE) {
-                var = token.text().toString();
+                var = new PVariableDefinition(null, ts.offset(), token.text().toString());
                 type = type != null ? type : "Any";
                 offset = offset != 0 ? offset : ts.offset();
             }
