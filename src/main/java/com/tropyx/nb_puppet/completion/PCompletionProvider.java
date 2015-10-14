@@ -31,6 +31,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
@@ -69,6 +71,20 @@ public class PCompletionProvider implements CompletionProvider {
                 final boolean[] completeFunctions = new boolean[1];
                 final boolean[] completeResources = new boolean[1];
                 final String[] prefix = new String[1];
+                
+//                runWithParserResult(document, new ParseResultRunnable() {
+//                    @Override
+//                    public void run(PElement rootNode) {
+//                        if (rootNode == null) {
+//                            return;
+//                        }
+//                        System.out.println("tn1:" + Thread.currentThread().getName());
+//                        System.out.println("path:" + rootNode.getChildAtOffset(caretOffset).toStringToRoot());
+//                    }
+//                });
+//                System.out.println("here");
+//                System.out.println("tn2:" + Thread.currentThread().getName());
+
                 document.render(new Runnable() {
 
                     @Override
@@ -111,7 +127,6 @@ public class PCompletionProvider implements CompletionProvider {
                             if (token.id() == PTokenId.STRING_LITERAL) {
                                 int currentInText = caretOffset - ts.offset();
                                 String text = token.text().toString().substring(0, currentInText);
-                                System.out.println("text=" + text);
                                 int start = text.lastIndexOf("${");
                                 if (start != -1 && start < currentInText && text.indexOf("}", start) == -1) {
                                     pref = text.substring(start, text.length()).replace("${", "$");
@@ -144,8 +159,8 @@ public class PCompletionProvider implements CompletionProvider {
                     boolean thisProjectOnly = checkAndMarkQueryType(queryType, completionResultSet);
                     try {
                         QuerySupport qs = PPIndexerFactory.getQuerySupportFor(document, !thisProjectOnly);
-                        for (IndexResult res : qs.query(PPIndexer.FLD_CLASS, "" + prefix[0], QuerySupport.Kind.PREFIX, PPIndexer.FLD_CLASS)) {
-                            completionResultSet.addItem(new PPCompletionItem(prefix[0], res.getValue(PPIndexer.FLD_CLASS), caretOffset));
+                        for (IndexResult res : qs.query(PPIndexer.FLD_CLASS, "" + prefix[0], QuerySupport.Kind.PREFIX, PPIndexer.FLD_ROOT)) {
+                            completionResultSet.addItem(new PPCompletionItem(prefix[0], res.getValue(PPIndexer.FLD_ROOT), caretOffset));
                         }
                     } catch (IOException ex) {
                         Exceptions.printStackTrace(ex);
@@ -186,13 +201,10 @@ public class PCompletionProvider implements CompletionProvider {
                                 QuerySupport.Query query =
                                     qf.or(
                                         qf.field(PPIndexer.FLD_VAR, "" + pref, QuerySupport.Kind.PREFIX),
-                                        qf.field(PPIndexer.FLD_CLASS, "" + pref, QuerySupport.Kind.PREFIX)
+                                        qf.field(PPIndexer.FLD_ROOT, "" + pref, QuerySupport.Kind.PREFIX)
                                     );
-                                for (IndexResult res : query.execute(PPIndexer.FLD_VAR, PPIndexer.FLD_CLASS, PPIndexer.FLD_DEFINE)) {
-                                    String clazz = res.getValue(PPIndexer.FLD_CLASS);
-                                    if (clazz == null) {
-                                        clazz = res.getValue(PPIndexer.FLD_DEFINE);
-                                    }
+                                for (IndexResult res : query.execute(PPIndexer.FLD_VAR, PPIndexer.FLD_ROOT)) {
+                                    String clazz = res.getValue(PPIndexer.FLD_ROOT);
                                     for (String val : new HashSet<>(Arrays.asList(res.getValues(PPIndexer.FLD_VAR)))) {
                                         if (val.startsWith(pref) || clazz.startsWith(pref)) {
                                             completionResultSet.addItem(new PPVariableCompletionItem(prefix[0], val, caretOffset, clazz, currentName, inherits, completeVariablesInString[0]));
@@ -233,8 +245,8 @@ public class PCompletionProvider implements CompletionProvider {
         try {
             boolean thisProjectOnly = checkAndMarkQueryType(queryType, completionResultSet);
             QuerySupport qs = PPIndexerFactory.getQuerySupportFor(document, !thisProjectOnly);
-            for (IndexResult res : qs.query(PPIndexer.FLD_DEFINE, prefix, QuerySupport.Kind.PREFIX, PPIndexer.FLD_DEFINE, PPIndexer.FLD_REQ_PARAM)) {
-                String def = res.getValue(PPIndexer.FLD_DEFINE);
+            for (IndexResult res : qs.query(PPIndexer.FLD_DEFINE, prefix, QuerySupport.Kind.PREFIX, PPIndexer.FLD_ROOT, PPIndexer.FLD_REQ_PARAM)) {
+                String def = res.getValue(PPIndexer.FLD_ROOT);
                 completionResultSet.addItem(new PPResourceCompletionItem(prefix, def, caretOffset, res.getValues(PPIndexer.FLD_REQ_PARAM)));
             }
         } catch (IOException ex) {

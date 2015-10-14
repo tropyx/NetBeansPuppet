@@ -45,7 +45,17 @@ public class PPIndexer extends EmbeddingIndexer {
     public static final String FLD_REQ_PARAM = "reqparam"; //define, class parameter without default value
     public static final String FLD_INHERIT = "inherit";
     public static final String FLD_CLASSREF = "classref";
+    /**
+     * root class or define name, stored searcheable
+     */
+    public static final String FLD_ROOT = "root";
+    /**
+     * class name if file is class, searchable only -> stored is FLD_ROOT
+     */
     public static final String FLD_CLASS = "class";
+    /**
+     * define name if file is define, searchable only -> stored is FLD_ROOT
+     */
     public static final String FLD_DEFINE = "define";
     public static final String FLD_RESOURCE = "resource";
     
@@ -74,7 +84,8 @@ public class PPIndexer extends EmbeddingIndexer {
             if (ch.getType() == PElement.CLASS) {
                 PClass cl = (PClass)ch;
                 String name = cl.getName();
-                document.addPair(FLD_CLASS, name, true, true);
+                document.addPair(FLD_ROOT, name, true, true);
+                document.addPair(FLD_CLASS, name, true, false);
                 if (cl.getInherits() != null) {
                     document.addPair(FLD_CLASSREF, cl.getInherits().getName(), true, false);
                     document.addPair(FLD_INHERIT, cl.getInherits().getName(), true, true);
@@ -83,7 +94,8 @@ public class PPIndexer extends EmbeddingIndexer {
             if (ch.getType() == PElement.DEFINE) {
                 PDefine def = (PDefine)ch;
                 String name = def.getName();
-                document.addPair(FLD_DEFINE, name, true, true);
+                document.addPair(FLD_ROOT, name, true, true);
+                document.addPair(FLD_DEFINE, name, true, false);
             }
             if (ch instanceof PParamContainer) {
                 PParamContainer cl = (PParamContainer)ch;

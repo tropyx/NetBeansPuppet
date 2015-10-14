@@ -79,7 +79,7 @@ class PPWhereUsedQueryPlugin implements RefactoringPlugin {
             List<String> names = new ArrayList<>();
             Query q = collectVariableCandidateNames(qs, clazzDefineName, var, names);
             System.out.println("q:" + q.toString());
-            for (IndexResult res : q.execute(PPIndexer.FLD_CLASS, PPIndexer.FLD_DEFINE)) {
+            for (IndexResult res : q.execute(PPIndexer.FLD_ROOT)) {
                 FileObject file = res.getFile();
                 findLocations(elements, file, names);
             }
@@ -130,14 +130,14 @@ class PPWhereUsedQueryPlugin implements RefactoringPlugin {
             names.add(var);
             q.add(qf.and(
                         qf.field(PPIndexer.FLD_VARREF, var, QuerySupport.Kind.EXACT),
-                        qf.field(PPIndexer.FLD_CLASS, clazzDefineName, QuerySupport.Kind.EXACT)
+                        qf.field(PPIndexer.FLD_ROOT, clazzDefineName, QuerySupport.Kind.EXACT)
                     ));
             names.add("::" + var);
             q.add(qf.field(PPIndexer.FLD_VARREF, "::" + var, QuerySupport.Kind.EXACT)); //what if is global?
             names.add(clazzDefineName + "::" + var);
             q.add(qf.field(PPIndexer.FLD_VARREF, clazzDefineName + "::" + var, QuerySupport.Kind.EXACT));
-            for (IndexResult r : qs.query(PPIndexer.FLD_INHERIT, clazzDefineName, QuerySupport.Kind.EXACT, PPIndexer.FLD_CLASS)) {
-                String c = r.getValue(PPIndexer.FLD_CLASS);
+            for (IndexResult r : qs.query(PPIndexer.FLD_INHERIT, clazzDefineName, QuerySupport.Kind.EXACT, PPIndexer.FLD_ROOT)) {
+                String c = r.getValue(PPIndexer.FLD_ROOT);
                 if (c != null) {
                     names.add(c + "::" + var);
                     q.add(qf.field(PPIndexer.FLD_VARREF, c + "::" + var, QuerySupport.Kind.EXACT));
@@ -153,16 +153,16 @@ class PPWhereUsedQueryPlugin implements RefactoringPlugin {
             names.add(var0);
             q.add(qf.and(
                 qf.field(PPIndexer.FLD_VARREF, var0, QuerySupport.Kind.EXACT),
-                qf.field(PPIndexer.FLD_CLASS, clz, QuerySupport.Kind.EXACT)
+                qf.field(PPIndexer.FLD_ROOT, clz, QuerySupport.Kind.EXACT)
             ));
-            for (IndexResult r : qs.query(PPIndexer.FLD_CLASS, clz, QuerySupport.Kind.EXACT, PPIndexer.FLD_INHERIT)) {
+            for (IndexResult r : qs.query(PPIndexer.FLD_ROOT, clz, QuerySupport.Kind.EXACT, PPIndexer.FLD_INHERIT)) {
                 String i = r.getValue(PPIndexer.FLD_INHERIT);
                 if (i != null) {
                     names.add(i + "::" + var0);
                     q.add(qf.field(PPIndexer.FLD_VARREF, i + "::" + var0, QuerySupport.Kind.EXACT));
                     q.add(qf.and(
                         qf.field(PPIndexer.FLD_VARREF, var0, QuerySupport.Kind.EXACT),
-                        qf.field(PPIndexer.FLD_CLASS, i, QuerySupport.Kind.EXACT)
+                        qf.field(PPIndexer.FLD_ROOT, i, QuerySupport.Kind.EXACT)
                     ));
                 }
             }
