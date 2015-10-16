@@ -45,7 +45,7 @@ class PuppetParser extends Parser {
     public void parse(Snapshot snapshot, Task task, SourceModificationEvent event) throws ParseException {
 //        System.out.println("text" + snapshot.getText().toString());
         result = doParse(snapshot, task);
-        System.out.println("AST:" + result.getRootNode().toStringRecursive());
+//        System.out.println("AST:" + result.getRootNode().toStringRecursive());
     }
 
     @Override
