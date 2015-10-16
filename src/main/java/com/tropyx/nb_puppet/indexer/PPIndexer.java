@@ -22,13 +22,17 @@ import com.tropyx.nb_puppet.parser.PClassParam;
 import com.tropyx.nb_puppet.parser.PClassRef;
 import com.tropyx.nb_puppet.parser.PDefine;
 import com.tropyx.nb_puppet.parser.PElement;
+import com.tropyx.nb_puppet.parser.PFunction;
 import com.tropyx.nb_puppet.parser.PParamContainer;
 import com.tropyx.nb_puppet.parser.PResource;
 import com.tropyx.nb_puppet.parser.PVariable;
 import com.tropyx.nb_puppet.parser.PVariableDefinition;
 import com.tropyx.nb_puppet.parser.PuppetParserResult;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.netbeans.modules.parsing.spi.Parser;
@@ -45,6 +49,7 @@ public class PPIndexer extends EmbeddingIndexer {
     public static final String FLD_REQ_PARAM = "reqparam"; //define, class parameter without default value
     public static final String FLD_INHERIT = "inherit";
     public static final String FLD_CLASSREF = "classref";
+    public static final String FLD_FUNCTION = "function";
     /**
      * root class or define name, stored searcheable
      */
@@ -120,8 +125,21 @@ public class PPIndexer extends EmbeddingIndexer {
                 document.addPair(FLD_VARREF, stripDollar(v.getName()), true, false);
             }
             List<PResource> resources = ch.getChildrenOfType(PResource.class, true);
+            Set<String> resNames = new HashSet<>();
+
             for (PResource r : resources) {
-                document.addPair(FLD_RESOURCE, r.getResourceType(), true, false);
+                resNames.add(r.getResourceType());
+            }
+            for (String r : resNames) {
+                document.addPair(FLD_RESOURCE, r, true, false);
+            }
+            Set<String> fNames = new HashSet<>();
+            List<PFunction> funcs = ch.getChildrenOfType(PFunction.class, true);
+            for (PFunction r : funcs) {
+                fNames.add(r.getName());
+            }
+            for (String f : fNames) {
+                document.addPair(FLD_FUNCTION, f, true, false);
             }
         }
         support.addDocument(document);

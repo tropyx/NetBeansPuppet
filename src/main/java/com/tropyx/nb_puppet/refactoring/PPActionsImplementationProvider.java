@@ -17,7 +17,6 @@ import javax.swing.text.StyledDocument;
 import org.netbeans.modules.editor.NbEditorUtilities;
 import org.netbeans.modules.parsing.api.ParserManager;
 import org.netbeans.modules.parsing.api.ResultIterator;
-import org.netbeans.modules.parsing.api.Snapshot;
 import org.netbeans.modules.parsing.api.Source;
 import org.netbeans.modules.parsing.api.UserTask;
 import org.netbeans.modules.parsing.spi.ParseException;
@@ -34,7 +33,6 @@ import org.openide.filesystems.FileObject;
 import org.openide.text.CloneableEditorSupport;
 import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
-import org.openide.util.NbBundle;
 import org.openide.util.RequestProcessor;
 import org.openide.util.lookup.Lookups;
 import org.openide.util.lookup.ServiceProvider;
@@ -102,7 +100,7 @@ public class PPActionsImplementationProvider extends ActionsImplementationProvid
         @Override
         public String getName() {
             //TODO not all will be variables
-            return "" + PPWhereUsedQueryPlugin.getVariableName(lookup.lookup(PPElementContext.class));
+            return "" + PPWhereUsedQueryPlugin.getDisplayName(lookup.lookup(PPElementContext.class));
         }
 
         @Override

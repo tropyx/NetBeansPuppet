@@ -5,6 +5,7 @@ import com.tropyx.nb_puppet.indexer.PPIndexer;
 import com.tropyx.nb_puppet.indexer.PPIndexerFactory;
 import com.tropyx.nb_puppet.parser.PClass;
 import com.tropyx.nb_puppet.parser.PElement;
+import com.tropyx.nb_puppet.parser.PFunction;
 import com.tropyx.nb_puppet.parser.PVariable;
 import com.tropyx.nb_puppet.parser.PVariableDefinition;
 import com.tropyx.nb_puppet.parser.PuppetParserResult;
@@ -50,12 +51,32 @@ class PPWhereUsedQueryPlugin implements RefactoringPlugin {
         return null;
     }
 
-    public static String getVariableName(PPElementContext context) {
+    public static String getDisplayName(PPElementContext context) {
+        String toRet = getVariableName(context);
+        if (toRet != null) {
+            return toRet;
+        }
+        toRet = getFunctionName(context);
+        if (toRet != null) {
+            return toRet + "()";
+        }
+        return null;
+    }
+
+    private static String getVariableName(PPElementContext context) {
         final PElement caretNode = context.getCaretNode();
         if (caretNode.getType() == PElement.VARIABLE) {
             return  ((PVariable)caretNode).getName();
         } else if (caretNode.getType() == PElement.VARIABLE_DEFINITION) {
             return  ((PVariableDefinition)caretNode).getName();
+        }
+        return null;
+    }
+
+    private static String getFunctionName(PPElementContext context) {
+        final PElement caretNode = context.getCaretNode();
+        if (caretNode.getType() == PElement.FUNCTION) {
+            return ((PFunction)caretNode).getName();
         }
         return null;
     }
@@ -68,26 +89,37 @@ class PPWhereUsedQueryPlugin implements RefactoringPlugin {
 
         PPElementContext context = refactoring.getRefactoringSource().lookup(PPElementContext.class);
         String var = getVariableName(context);
-        if (var == null) {
-            return new Problem(true, "Where Used only works on variables.");
-        }
-
-        String clazzDefineName = getCurrentName(context);
-        var = var.substring(1);
-        try {
-            QuerySupport qs = PPIndexerFactory.getQuerySupportFor(context.getDocument(), true);
-            List<String> names = new ArrayList<>();
-            Query q = collectVariableCandidateNames(qs, clazzDefineName, var, names);
-            System.out.println("q:" + q.toString());
-            for (IndexResult res : q.execute(PPIndexer.FLD_ROOT)) {
-                FileObject file = res.getFile();
-                findLocations(elements, file, names);
+        if (var != null) {
+            String clazzDefineName = getCurrentName(context);
+            var = var.substring(1);
+            try {
+                QuerySupport qs = PPIndexerFactory.getQuerySupportFor(context.getDocument(), true);
+                List<String> names = new ArrayList<>();
+                Query q = collectVariableCandidateNames(qs, clazzDefineName, var, names);
+                System.out.println("q:" + q.toString());
+                for (IndexResult res : q.execute(PPIndexer.FLD_ROOT)) {
+                    FileObject file = res.getFile();
+                    findVariableLocations(elements, file, names);
+                }
+            } catch (IOException ex) {
+                Exceptions.printStackTrace(ex);
             }
-        } catch (IOException ex) {
-            Exceptions.printStackTrace(ex);
+            return null;
         }
-
-        return null;
+        String func = getFunctionName(context);
+        if (func != null) {
+            try {
+                QuerySupport qs = PPIndexerFactory.getQuerySupportFor(context.getDocument(), true);
+                for (IndexResult res : qs.query(PPIndexer.FLD_FUNCTION, func, QuerySupport.Kind.EXACT, PPIndexer.FLD_ROOT)) {
+                    FileObject file = res.getFile();
+                    findFunctionLocations(elements, file, func);
+                }
+            } catch (IOException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+            return null;
+        }
+        return new Problem(true, "Where Used only works on variables and functions");
     }
 
 
@@ -170,7 +202,7 @@ class PPWhereUsedQueryPlugin implements RefactoringPlugin {
         }
     }
 
-    private void findLocations(final RefactoringElementsBag elements, final FileObject file, final List<String> names) {
+    private void findVariableLocations(final RefactoringElementsBag elements, final FileObject file, final List<String> names) {
         try {
             Source source = Source.create(file);
             ParserManager.parse(Collections.singleton(source), new UserTask() {
@@ -182,38 +214,19 @@ class PPWhereUsedQueryPlugin implements RefactoringPlugin {
                         if (result.getRootNode() != null) {
                             for (PVariable var : result.getRootNode().getChildrenOfType(PVariable.class, true)) {
                                 if (names.contains(var.getName().substring(1))) {
-                                    String line = createHightlightTextLine(var.getOffset(), var.getName().length());
-                                    elements.add(refactoring, new PPWhereUsedElement(line.trim(), file, boundsForElement(var, var.getName())));
+                                    String line = createHightlightTextLine(file, var.getOffset(), var.getName().length());
+                                    elements.add(refactoring, new PPWhereUsedElement(line.trim(), file, boundsForElement(file, var, var.getName())));
                                 }
                             }
                             for (PVariableDefinition var : result.getRootNode().getChildrenOfType(PVariableDefinition.class, true)) {
                                 if (names.contains(var.getName().substring(1))) {
-                                    String line = createHightlightTextLine(var.getOffset(), var.getName().length());
-                                    elements.add(refactoring, new PPWhereUsedElement(line.trim(), file, boundsForElement(var, var.getName())));
+                                    String line = createHightlightTextLine(file, var.getOffset(), var.getName().length());
+                                    elements.add(refactoring, new PPWhereUsedElement(line.trim(), file, boundsForElement(file, var, var.getName())));
                                 }
                             }
                         }
                     }
                 }
-
-                public String createHightlightTextLine(int offset, int length) throws IOException, BadLocationException {
-                    CloneableEditorSupport es = getEditorSupport(file);
-                    int rowStart = Utilities.getRowStart((BaseDocument)es.openDocument(), offset);
-                    int rowEnd = Utilities.getRowEnd((BaseDocument)es.getDocument(), offset);
-                    String line = es.getDocument().getText(rowStart, offset - rowStart) +
-                            "<b>" + es.getDocument().getText(offset,  length) +
-                            "</b>" + es.getDocument().getText(offset + length, rowEnd - (offset + length));
-                    return line;
-                }
-
-                public PositionBounds boundsForElement(PElement var, String text) {
-                    CloneableEditorSupport es = getEditorSupport(file);
-                    PositionRef start = es.createPositionRef(var.getOffset(), Position.Bias.Forward);
-                    PositionRef end = es.createPositionRef(var.getOffset() + text.length(), Position.Bias.Backward);
-                    final PositionBounds positionBounds = new PositionBounds(start, end);
-                    return positionBounds;
-                }
-
             });
         } catch (ParseException e) {
         }
@@ -227,5 +240,47 @@ class PPWhereUsedQueryPlugin implements RefactoringPlugin {
             Exceptions.printStackTrace(ex);
         }
         return null;
+    }
+
+    private void findFunctionLocations(final RefactoringElementsBag elements, final FileObject file, final String func) {
+      try {
+            Source source = Source.create(file);
+            ParserManager.parse(Collections.singleton(source), new UserTask() {
+                @Override
+                public void run(ResultIterator resultIterator) throws Exception {
+                    Parser.Result pr = resultIterator.getParserResult();
+                    if (pr instanceof PuppetParserResult) {
+                        PuppetParserResult result = (PuppetParserResult) pr;
+                        if (result.getRootNode() != null) {
+                            for (PFunction function : result.getRootNode().getChildrenOfType(PFunction.class, true)) {
+                                if (func.equals(function.getName())) {
+                                    String line = createHightlightTextLine(file, function.getOffset(), func.length());
+                                    elements.add(refactoring, new PPWhereUsedElement(line.trim(), file, boundsForElement(file, function, func)));
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        } catch (ParseException e) {
+        }
+    }
+
+    public String createHightlightTextLine(FileObject file, int offset, int length) throws IOException, BadLocationException {
+        CloneableEditorSupport es = getEditorSupport(file);
+        int rowStart = Utilities.getRowStart((BaseDocument)es.openDocument(), offset);
+        int rowEnd = Utilities.getRowEnd((BaseDocument)es.getDocument(), offset);
+        String line = es.getDocument().getText(rowStart, offset - rowStart) +
+                "<b>" + es.getDocument().getText(offset,  length) +
+                "</b>" + es.getDocument().getText(offset + length, rowEnd - (offset + length));
+        return line;
+    }
+
+    public PositionBounds boundsForElement(FileObject file, PElement var, String text) {
+        CloneableEditorSupport es = getEditorSupport(file);
+        PositionRef start = es.createPositionRef(var.getOffset(), Position.Bias.Forward);
+        PositionRef end = es.createPositionRef(var.getOffset() + text.length(), Position.Bias.Backward);
+        final PositionBounds positionBounds = new PositionBounds(start, end);
+        return positionBounds;
     }
 }
