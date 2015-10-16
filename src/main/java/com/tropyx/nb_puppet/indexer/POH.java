@@ -46,7 +46,7 @@ public class POH extends ProjectOpenedHook {
     @Override
     protected void projectClosed() {
         if (cp != null) {
-            GlobalPathRegistry.getDefault().register(ClassPath.SOURCE, new ClassPath[] {cp});
+            GlobalPathRegistry.getDefault().unregister(ClassPath.SOURCE, new ClassPath[] {cp});
             cp = null;
         }
     }
