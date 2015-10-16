@@ -68,9 +68,11 @@ public class PPActionsImplementationProvider extends ActionsImplementationProvid
         EditorCookie ec = lookup.lookup(EditorCookie.class);
         if (ec != null) {
             StyledDocument doc = ec.getDocument();
-            FileObject fo = NbEditorUtilities.getFileObject(doc);
-            if (fo != null && PLanguageProvider.MIME_TYPE.equals(fo.getMIMEType())) {
-                return true;
+            if (doc != null) {
+                FileObject fo = NbEditorUtilities.getFileObject(doc);
+                if (fo != null && PLanguageProvider.MIME_TYPE.equals(fo.getMIMEType())) {
+                    return true;
+                }
             }
         }
         return false;
