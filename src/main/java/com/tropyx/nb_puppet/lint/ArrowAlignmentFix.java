@@ -1,6 +1,7 @@
 
 package com.tropyx.nb_puppet.lint;
 
+import com.tropyx.nb_puppet.lexer.PLangHierarchy;
 import com.tropyx.nb_puppet.lexer.PTokenId;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -8,11 +9,9 @@ import java.util.List;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import org.netbeans.api.lexer.Token;
-import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.editor.Utilities;
-import org.netbeans.modules.editor.NbEditorUtilities;
 import org.netbeans.spi.editor.hints.ChangeInfo;
 import org.openide.util.Exceptions;
 
@@ -28,8 +27,7 @@ class ArrowAlignmentFix extends AbstractFix {
         document.render(new Runnable() {
             @Override
             public void run() {
-                TokenHierarchy th = TokenHierarchy.get(document);
-                TokenSequence<PTokenId> ts = th.tokenSequence();
+                TokenSequence<PTokenId> ts = PLangHierarchy.getTokenSequence(document);
                 ts.move(startindex);
                 ts.moveNext();
                 Token<PTokenId> token = ts.token();

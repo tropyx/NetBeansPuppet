@@ -19,6 +19,7 @@ package com.tropyx.nb_puppet.completion;
 
 import com.tropyx.nb_puppet.indexer.PPIndexer;
 import com.tropyx.nb_puppet.indexer.PPIndexerFactory;
+import com.tropyx.nb_puppet.lexer.PLangHierarchy;
 import com.tropyx.nb_puppet.lexer.PLanguageProvider;
 import com.tropyx.nb_puppet.lexer.PTokenId;
 import com.tropyx.nb_puppet.parser.PClass;
@@ -31,14 +32,11 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.Future;
-import java.util.concurrent.FutureTask;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 import org.netbeans.api.editor.mimelookup.MimeRegistration;
 import org.netbeans.api.lexer.Token;
-import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.modules.parsing.api.ParserManager;
 import org.netbeans.modules.parsing.api.ResultIterator;
@@ -89,9 +87,7 @@ public class PCompletionProvider implements CompletionProvider {
 
                     @Override
                     public void run() {
-                        TokenHierarchy th = TokenHierarchy.get(document);
-                        @SuppressWarnings("unchecked")
-                        TokenSequence<PTokenId> ts = th.tokenSequence();
+                        TokenSequence<PTokenId> ts = PLangHierarchy.getTokenSequence(document);
                         ts.move(caretOffset);
                         ts.moveNext();
                         Token<PTokenId> token = ts.token();

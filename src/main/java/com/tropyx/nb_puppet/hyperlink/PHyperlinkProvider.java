@@ -2,6 +2,7 @@
 package com.tropyx.nb_puppet.hyperlink;
 
 import com.tropyx.nb_puppet.PuppetProject;
+import com.tropyx.nb_puppet.lexer.PLangHierarchy;
 import com.tropyx.nb_puppet.lexer.PLanguageProvider;
 import com.tropyx.nb_puppet.lexer.PTokenId;
 import java.io.IOException;
@@ -114,26 +115,25 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
 
             @Override
             public void run() {
-                TokenHierarchy th = TokenHierarchy.get(doc);
-                TokenSequence<PTokenId> xml = th.tokenSequence();
-                xml.move(offset);
-                xml.moveNext();
-                Token<PTokenId> token = xml.token();
+                TokenSequence<PTokenId> ts = PLangHierarchy.getTokenSequence(doc);
+                ts.move(offset);
+                ts.moveNext();
+                Token<PTokenId> token = ts.token();
                 // when it's not a value -> do nothing.
                 if (token == null) {
 
                     return;
                 }
                 if (token.id() == PTokenId.IDENTIFIER) {
-                    fTokenOff[0] = xml.offset();
+                    fTokenOff[0] = ts.offset();
                     fValue[0] = token.text().toString();
                     boolean allowOneIdentifier = false;
                     boolean doOneMore;
                     boolean dolink = true;
                     do {
                         doOneMore = false;
-                        xml.movePrevious();
-                        token = xml.token();
+                        ts.movePrevious();
+                        token = ts.token();
                         if (token.id() == PTokenId.WHITESPACE) {
                             doOneMore = true;
                         }
@@ -164,24 +164,24 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
                         fAssociatedID[0] = PTokenId.IDENTIFIER;
                     }
                 } else if (token.id() == PTokenId.STRING_LITERAL) {
-                    fTokenOff[0] = xml.offset();
+                    fTokenOff[0] = ts.offset();
                     fValue[0] = token.text().toString();
                     if (fValue[0].startsWith("\"")) {
                         StringSpan span = findProperty(fValue[0], fTokenOff[0], offset);
                         if (span != null) {
                             fSpan[0] = span; 
-                            fAssociatedID[0] = xml.token().id();
+                            fAssociatedID[0] = ts.token().id();
                         }
                     }
-                    if (matchChains(createStringChains(), xml, true)) {
-                        fAssociatedID[0] = xml.token().id();
-                        if (token.id() == PTokenId.IDENTIFIER && !xml.token().text().toString().equals("Class")) {
+                    if (matchChains(createStringChains(), ts, true)) {
+                        fAssociatedID[0] = ts.token().id();
+                        if (token.id() == PTokenId.IDENTIFIER && !ts.token().text().toString().equals("Class")) {
                             fAssociatedID[0] = null;
                         }
                     }
 
                 } else if (token.id() == PTokenId.VARIABLE) {
-                    fTokenOff[0] = xml.offset();
+                    fTokenOff[0] = ts.offset();
                     fValue[0] = token.text().toString();
                     if (fValue[0].contains("::") 
                             && !fValue[0].startsWith("$::")) {
@@ -315,24 +315,23 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
                 
                 @Override
                 public void run() {
-                    TokenHierarchy th = TokenHierarchy.get(targetdoc);
-                    TokenSequence<PTokenId> xml = th.tokenSequence();
-                    xml.move(0);
-                    while (xml.moveNext()) {
-                        Token<PTokenId> token = xml.token();
+                    TokenSequence<PTokenId> ts = PLangHierarchy.getTokenSequence(targetdoc);
+                    ts.move(0);
+                    while (ts.moveNext()) {
+                        Token<PTokenId> token = ts.token();
                         // when it's not a value -> do nothing.
                         if (token == null) {
                             return;
                         }
                         if (fInherit[0] == null && token.id() == PTokenId.CLASS) {
-                            Token<PTokenId> tk = matchChainsRes(of(PTokenId.CLASS, of(PTokenId.IDENTIFIER, of(PTokenId.INHERITS, of(PTokenId.IDENTIFIER)))), xml, false);
+                            Token<PTokenId> tk = matchChainsRes(of(PTokenId.CLASS, of(PTokenId.IDENTIFIER, of(PTokenId.INHERITS, of(PTokenId.IDENTIFIER)))), ts, false);
                             if (tk != null) {
                                 fInherit[0] = tk.text().toString();
                             }
                         }
                         if (token.id() == PTokenId.VARIABLE) {
                             if (fVariableName.equals(token.text().toString())) {
-                                foffset[0] = token.offset(th);
+                                foffset[0] = ts.offset();
                             }
                         }
                     }
@@ -460,21 +459,20 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
                 
                 @Override
                 public void run() {
-                    TokenHierarchy th = TokenHierarchy.get(targetdoc);
-                    TokenSequence<PTokenId> xml = th.tokenSequence();
-                    xml.moveStart();
-                    while (xml.moveNext()) {
-                        Token<PTokenId> token = xml.token();
+                    TokenSequence<PTokenId> ts = PLangHierarchy.getTokenSequence(targetdoc);
+                    ts.moveStart();
+                    while (ts.moveNext()) {
+                        Token<PTokenId> token = ts.token();
                         // when it's not a value -> do nothing.
                         if (token == null) {
                             return;
                         }
                         if (token.id() == PTokenId.VARIABLE) {
-                            int startOffset = token.offset(th);
+                            int startOffset = ts.offset();
                             if (fVariableName.equals(token.text().toString())) {
-                                if (matchChains(getVariableValueChain(), xml, false)) {
+                                if (matchChains(getVariableValueChain(), ts, false)) {
                                     try {
-                                        int len = xml.offset() - startOffset + xml.token().length();
+                                        int len = ts.offset() - startOffset + ts.token().length();
                                         fValue[0] = targetdoc.getText(startOffset, len);
                                     } catch (BadLocationException ex) {
                                         Exceptions.printStackTrace(ex);

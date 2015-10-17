@@ -17,6 +17,7 @@
 
 package com.tropyx.nb_puppet.highlighter;
 
+import com.tropyx.nb_puppet.lexer.PLangHierarchy;
 import com.tropyx.nb_puppet.lexer.PTokenId;
 import java.awt.Color;
 import java.lang.ref.WeakReference;
@@ -83,8 +84,7 @@ public class MarkOccurrencesHighlighter implements CaretListener {
                     doc.render(new Runnable() {
                         @Override
                         public void run() {
-                            TokenHierarchy th = TokenHierarchy.get(doc);
-                            TokenSequence<PTokenId> ts = th.tokenSequence();
+                            TokenSequence<PTokenId> ts = PLangHierarchy.getTokenSequence(doc);
                             ts.move(offset);
                             ts.moveNext();
                             Token<PTokenId> token = ts.token();

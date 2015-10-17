@@ -31,6 +31,7 @@ import org.netbeans.spi.lexer.LanguageProvider;
 public class PLanguageProvider extends LanguageProvider {
     public static final String MIME_TYPE = "text/x-puppet-manifest";
     
+    @Override
     public Language<PTokenId> findLanguage (String mimeType) {
         if (MIME_TYPE.equals (mimeType))
             return new PLangHierarchy ().language ();
