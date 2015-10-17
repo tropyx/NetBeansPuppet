@@ -6,6 +6,7 @@ import com.tropyx.nb_puppet.indexer.PPIndexerFactory;
 import com.tropyx.nb_puppet.parser.PClass;
 import com.tropyx.nb_puppet.parser.PElement;
 import com.tropyx.nb_puppet.parser.PFunction;
+import com.tropyx.nb_puppet.parser.PIdentifier;
 import com.tropyx.nb_puppet.parser.PVariable;
 import com.tropyx.nb_puppet.parser.PVariableDefinition;
 import com.tropyx.nb_puppet.parser.PuppetParserResult;
@@ -60,6 +61,10 @@ class PPWhereUsedQueryPlugin implements RefactoringPlugin {
         if (toRet != null) {
             return toRet + "()";
         }
+        toRet = getClassRefName(context);
+        if (toRet != null) {
+            return toRet;
+        }
         return null;
     }
 
@@ -81,6 +86,16 @@ class PPWhereUsedQueryPlugin implements RefactoringPlugin {
         return null;
     }
 
+    private static String getClassRefName(PPElementContext context) {
+        final PElement caretNode = context.getCaretNode();
+        if (caretNode.isType(PElement.IDENTIFIER) &&
+                (caretNode.getParent().isType(PElement.CLASS) || caretNode.getParent().isType(PElement.CLASS_REF) )) {
+            return ((PIdentifier)caretNode).getName();
+        }
+        return null;
+    }
+
+
     @Override
     public Problem prepare(final RefactoringElementsBag elements) {
         if (cancelled) {
@@ -96,10 +111,9 @@ class PPWhereUsedQueryPlugin implements RefactoringPlugin {
                 QuerySupport qs = PPIndexerFactory.getQuerySupportFor(context.getDocument(), true);
                 List<String> names = new ArrayList<>();
                 Query q = collectVariableCandidateNames(qs, clazzDefineName, var, names);
-                System.out.println("q:" + q.toString());
+//                System.out.println("q:" + q.toString());
                 for (IndexResult res : q.execute(PPIndexer.FLD_ROOT)) {
-                    FileObject file = res.getFile();
-                    findVariableLocations(elements, file, names);
+                    findVariableLocations(elements, res.getFile(), names);
                 }
             } catch (IOException ex) {
                 Exceptions.printStackTrace(ex);
@@ -111,15 +125,30 @@ class PPWhereUsedQueryPlugin implements RefactoringPlugin {
             try {
                 QuerySupport qs = PPIndexerFactory.getQuerySupportFor(context.getDocument(), true);
                 for (IndexResult res : qs.query(PPIndexer.FLD_FUNCTION, func, QuerySupport.Kind.EXACT, PPIndexer.FLD_ROOT)) {
-                    FileObject file = res.getFile();
-                    findFunctionLocations(elements, file, func);
+                    findFunctionLocations(elements, res.getFile(), func);
                 }
             } catch (IOException ex) {
                 Exceptions.printStackTrace(ex);
             }
             return null;
         }
-        return new Problem(true, "Where Used only works on variables and functions");
+        String classRef = getClassRefName(context);
+        if (classRef != null) {
+            try {
+                QuerySupport qs = PPIndexerFactory.getQuerySupportFor(context.getDocument(), true);
+                Query q = qs.getQueryFactory().or(
+                        qs.getQueryFactory().field(PPIndexer.FLD_CLASSREF, classRef, QuerySupport.Kind.EXACT),
+                        qs.getQueryFactory().field(PPIndexer.FLD_CLASS, classRef, QuerySupport.Kind.EXACT)
+                );
+                for (IndexResult res : q.execute(PPIndexer.FLD_ROOT)) {
+                    findClassRefLocations(elements, res.getFile(), classRef);
+                }
+            } catch (IOException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+            return null;
+        }
+        return new Problem(true, "Where Used only works on variables, functions and class identifiers");
     }
 
 
@@ -266,6 +295,32 @@ class PPWhereUsedQueryPlugin implements RefactoringPlugin {
         }
     }
 
+    private void findClassRefLocations(final RefactoringElementsBag elements, final FileObject file, final String classRef) {
+      try {
+            Source source = Source.create(file);
+            ParserManager.parse(Collections.singleton(source), new UserTask() {
+                @Override
+                public void run(ResultIterator resultIterator) throws Exception {
+                    Parser.Result pr = resultIterator.getParserResult();
+                    if (pr instanceof PuppetParserResult) {
+                        PuppetParserResult result = (PuppetParserResult) pr;
+                        if (result.getRootNode() != null) {
+                            for (PIdentifier id : result.getRootNode().getChildrenOfType(PIdentifier.class, true)) {
+                                if (classRef.equals(id.getName()) &&
+                                        (id.getParent().isType(PElement.CLASS) || id.getParent().isType(PElement.CLASS_REF))) {
+                                    String line = createHightlightTextLine(file, id.getOffset(), id.getName().length());
+                                    elements.add(refactoring, new PPWhereUsedElement(line.trim(), file, boundsForElement(file, id, id.getName())));
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        } catch (ParseException e) {
+        }
+    }
+
+
     public String createHightlightTextLine(FileObject file, int offset, int length) throws IOException, BadLocationException {
         CloneableEditorSupport es = getEditorSupport(file);
         int rowStart = Utilities.getRowStart((BaseDocument)es.openDocument(), offset);
@@ -283,4 +338,5 @@ class PPWhereUsedQueryPlugin implements RefactoringPlugin {
         final PositionBounds positionBounds = new PositionBounds(start, end);
         return positionBounds;
     }
+
 }

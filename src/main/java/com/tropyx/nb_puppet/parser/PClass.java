@@ -18,7 +18,7 @@
 package com.tropyx.nb_puppet.parser;
 
 public class PClass extends PElement implements PParamContainer {
-    private String name;
+    private PIdentifier name;
     private PClassRef inherits;
     private PClassParam[] params = new PClassParam[0];
     
@@ -27,10 +27,10 @@ public class PClass extends PElement implements PParamContainer {
     }
 
     public String getName() {
-        return name;
+        return name.getName();
     }
 
-    void setName(String name) {
+    void setName(PIdentifier name) {
         this.name = name;
     }
 

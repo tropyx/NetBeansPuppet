@@ -17,24 +17,25 @@
 
 package com.tropyx.nb_puppet.parser;
 
-public class PClassRef extends PElement {
-    private PIdentifier name;
+/**
+ * function call
+ */
+public class PIdentifier extends PElement {
+    private final String name;
     
-    public PClassRef(PElement parent, int offset) {
-        super(CLASS_REF, parent, offset);
+    public PIdentifier(PElement parent, int offset, String name) {
+        super(IDENTIFIER, parent, offset);
+        this.name = name;
     }
 
     public String getName() {
-        return name.getName();
-    }
-
-    void setName(PIdentifier name) {
-        this.name = name;
+        return name;
     }
 
     @Override
     public String toString() {
         return super.toString() + "[" + name + "]";
     }
+
 
 }

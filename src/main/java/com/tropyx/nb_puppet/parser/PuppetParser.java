@@ -202,7 +202,8 @@ class PuppetParser extends Parser {
                     token = nextSkipWhitespaceComment(ts);
                     if (token != null && token.id() == PTokenId.IDENTIFIER) {
                         PFunction func = new PFunction(blob, offs, f);
-                        new PClassRef(func, ts.offset(), token.text().toString());
+                        PClassRef cr = new PClassRef(func, ts.offset());
+                        cr.setName(new PIdentifier(cr, ts.offset(), token.text().toString()));
                     } else {
                         continue;
                     }
@@ -237,7 +238,8 @@ class PuppetParser extends Parser {
                         } else if (isClass && token != null && token.id() == PTokenId.IDENTIFIER) {
                             String name = token.text().toString();
                             nextSkipWhitespaceComment(ts);
-                            parseClassInternal(new PClass(blob, off), name, ts);
+                            final PClass pClass = new PClass(blob, off);
+                            parseClassInternal(pClass, new PIdentifier(pClass, ts.offset(), name), ts);
                         } else if (token != null && token.id() == PTokenId.LBRACKET && Character.isUpperCase(val.charAt(0))) {
     //                    parseReference(pc, val);
                             continue; //for now, to properly eat LBRACKET
@@ -330,19 +332,20 @@ class PuppetParser extends Parser {
     //http://docs.puppetlabs.com/puppet/4.2/reference/lang_classes.html
     private void parseClass(PElement root, TokenSequence<PTokenId> ts) {
         int offset = ts.offset();
-        if (null == nextSkipWhitespaceComment(ts)) {
+        Token<PTokenId> token = nextSkipWhitespaceComment(ts);
+        if (null == token) {
             return;
         }
-        String name = collectText(ts, PTokenId.WHITESPACE, PTokenId.LBRACE, PTokenId.LPAREN);
-        if (name != null) {
+        if (token.id() == PTokenId.IDENTIFIER) {
             PClass pc = new PClass(root, offset);
+            PIdentifier name = new PIdentifier(pc, ts.offset(), token.text().toString());
             parseClassInternal(pc, name, ts);
         }
     }
-    private void parseClassInternal(PClass pc, String name, TokenSequence<PTokenId> ts) {
+    private void parseClassInternal(PClass pc, PIdentifier name, TokenSequence<PTokenId> ts) {
         Token<PTokenId> token;
         pc.setName(name);
-        token = skipWhitespaceComment(ts);
+        token = nextSkipWhitespaceComment(ts);
         if (token != null && token.id() == PTokenId.LPAREN) {
             //params
             parseParams(pc, ts);
@@ -350,11 +353,12 @@ class PuppetParser extends Parser {
         }
         if (token != null && token.id() == PTokenId.INHERITS) {
             //inherits
-            nextSkipWhitespaceComment(ts);
+            token = nextSkipWhitespaceComment(ts);
             int off = ts.offset();
-            String inherit = collectText(ts, PTokenId.WHITESPACE, PTokenId.LBRACE);
-            if (inherit != null) {
-                pc.setInherits(new PClassRef(pc, off, inherit));
+            if (token.id() == PTokenId.IDENTIFIER) {
+                PClassRef ref = new PClassRef(pc, off);
+                ref.setName(new PIdentifier(ref, off, token.text().toString()));
+                pc.setInherits(ref);
                 token = nextSkipWhitespaceComment(ts);
             } else {
                 token = null;

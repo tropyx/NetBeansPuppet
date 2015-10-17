@@ -41,6 +41,7 @@ public class PElement {
     public static final int CASE = 16;
     public static final int CONDITION = 17;
     public static final int FUNCTION = 18;
+    public static final int IDENTIFIER = 19;
 
     private final int type;    
     private final List<PElement> children = new ArrayList<>();
@@ -55,6 +56,10 @@ public class PElement {
 
     public List<PElement> getChildren() {
         return children;
+    }
+
+    public PElement getParent() {
+        return parent;
     }
 
     public PElement getChildAtOffset(int offset) {
@@ -102,6 +107,10 @@ public class PElement {
     
     public int getType() {
         return type;
+    }
+
+    public boolean isType(int type) {
+        return this.type == type;
     }
 
     private void addChild(PElement aThis) {
