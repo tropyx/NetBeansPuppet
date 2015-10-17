@@ -149,8 +149,9 @@ public enum PTokenId implements TokenId
     /** <<| */
     LEXPORTCOLLECTOR("<<|", Category.OPERATOR),
     /** |>> */
-    REXPORTCOLLECTOR("|>>", Category.OPERATOR);
-    
+    REXPORTCOLLECTOR("|>>", Category.OPERATOR),
+    /** . */
+    DOT(".", Category.OPERATOR);
     
     private final String name;
     private final String category;

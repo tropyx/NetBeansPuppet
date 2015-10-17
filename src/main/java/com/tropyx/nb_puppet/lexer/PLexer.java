@@ -167,6 +167,8 @@ public class PLexer implements Lexer<PTokenId>
                 case '*':
                 case '%':
                     return token(PTokenId.OPERATOR);
+                case '.':
+                    return token(PTokenId.DOT);
                 case '-':
                     switch (c = nextChar())
                     {
