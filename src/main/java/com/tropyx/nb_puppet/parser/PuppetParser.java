@@ -202,12 +202,25 @@ class PuppetParser extends Parser {
                     int offs = ts.offset();
                     String f = token.text().toString();
                     token = nextSkipWhitespaceComment(ts);
-                    if (token != null && token.id() == PTokenId.IDENTIFIER) {
-                        PFunction func = new PFunction(blob, offs, f);
-                        PClassRef cr = new PClassRef(func, ts.offset());
-                        cr.setName(new PIdentifier(cr, ts.offset(), token.text().toString()));
-                    } else {
+                    if (token == null) {
+                        break;
+                    }
+                    if (token.id() == PTokenId.IDENTIFIER) {
+                        parseReqList(new PFunction(blob, offs, f), ts);
+                        token = ts.token();
                         continue;
+                    } else if (token.id() == PTokenId.LBRACKET) {
+                        token = nextSkipWhitespaceComment(ts);
+                        if (token == null || token.id() != PTokenId.IDENTIFIER) {
+                            break;
+                        }
+                        parseReqList(new PFunction(blob, offs, f), ts);
+                        token = ts.token();
+                        if (token != null && token.id() == PTokenId.RBRACKET) {
+                            break;
+                        } else {//error? it's not IDENT , or ]
+
+                        }
                     }
                     break;
                 case IDENTIFIER:
@@ -563,6 +576,43 @@ class PuppetParser extends Parser {
 
     private void parseTypeRef(PTypeReference pTypeReference, TokenSequence<PTokenId> ts) {
         fastForward(pTypeReference, ts, PTokenId.RBRACKET);
+    }
+
+    private void parseReqList(PFunction reqFunc, TokenSequence<PTokenId> ts) {
+        Token<PTokenId> token = ts.token();
+
+        while (token != null && token.id() == PTokenId.IDENTIFIER) {
+            if ("Class".equals(token.text().toString())) {
+                //TODO
+                token = nextSkipWhitespaceComment(ts);
+                if (token != null && token.id() == PTokenId.LBRACKET) {
+                    token = nextSkipWhitespaceComment(ts);
+                    if (token != null && token.id() == PTokenId.STRING_LITERAL) {
+                        PClassRef cr = new PClassRef(reqFunc, ts.offset());
+                        cr.setName(new PIdentifier(cr, ts.offset() + 1, token.text().toString().substring(1, token.text().toString().length() - 1)));
+                        token = nextSkipWhitespaceComment(ts);
+                        if (token != null && token.id() == PTokenId.RBRACKET) {
+                            //good
+                        } else {
+                            break; //error hwo to report
+                        }
+                    } else {
+                        break; //error hwo to report
+                    }
+                } else {
+                    break; //error hwo to report
+                }
+            } else {
+                PClassRef cr = new PClassRef(reqFunc, ts.offset());
+                cr.setName(new PIdentifier(cr, ts.offset(), token.text().toString()));
+            }
+            token = nextSkipWhitespaceComment(ts);
+            if (token != null && token.id() == PTokenId.COMMA) {
+                token = nextSkipWhitespaceComment(ts);
+            } else {
+                break;
+            }
+        }
     }
 
 }

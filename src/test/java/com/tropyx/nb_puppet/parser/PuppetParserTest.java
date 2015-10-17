@@ -139,6 +139,79 @@ public class PuppetParserTest extends NbTestCase {
     }
 
     @Test
+    public void testClassIncludeListParse() throws Exception {
+        PuppetParserResult result = doParse(
+                "class aaa::param { "
+             +  " include bbb::param, ccc::param\n"
+             +  " include ddd::param\n"
+             + " }");
+        PClass c = assertAndGetClassElement(result);
+        assertEquals("aaa::param", c.getName());
+        final List<PFunction> includes = c.getChildrenOfType(PFunction.class, true);
+        assertEquals(2, includes.size());
+        PFunction incl1 = includes.get(0);
+        List<PClassRef> refs = incl1.getChildrenOfType(PClassRef.class, true);
+        assertEquals(2, refs.size());
+        assertEquals("bbb::param", refs.get(0).getName());
+        assertEquals("ccc::param", refs.get(1).getName());
+    }
+
+    @Test
+    public void testClassIncludeListResourceParse() throws Exception {
+        PuppetParserResult result = doParse(
+                "class aaa::param { "
+             +  " include Class['bbb::param'], Class['ccc::param']\n"
+             +  " include ddd::param\n"
+             + " }");
+        PClass c = assertAndGetClassElement(result);
+        assertEquals("aaa::param", c.getName());
+        final List<PFunction> includes = c.getChildrenOfType(PFunction.class, true);
+        assertEquals(2, includes.size());
+        PFunction incl1 = includes.get(0);
+        List<PClassRef> refs = incl1.getChildrenOfType(PClassRef.class, true);
+        assertEquals(2, refs.size());
+        assertEquals("bbb::param", refs.get(0).getName());
+        assertEquals("ccc::param", refs.get(1).getName());
+    }
+
+    @Test
+    public void testClassIncludeArrayParse() throws Exception {
+        PuppetParserResult result = doParse(
+                "class aaa::param { "
+             +  " include [bbb::param, ccc::param]\n"
+             +  " include ddd::param\n"
+             + " }");
+        PClass c = assertAndGetClassElement(result);
+        assertEquals("aaa::param", c.getName());
+        final List<PFunction> includes = c.getChildrenOfType(PFunction.class, true);
+        assertEquals(2, includes.size());
+        PFunction incl1 = includes.get(0);
+        List<PClassRef> refs = incl1.getChildrenOfType(PClassRef.class, true);
+        assertEquals(2, refs.size());
+        assertEquals("bbb::param", refs.get(0).getName());
+        assertEquals("ccc::param", refs.get(1).getName());
+    }
+
+    @Test
+    public void testClassIncludeArrayResourceParse() throws Exception {
+        PuppetParserResult result = doParse(
+                "class aaa::param { "
+             +  " include [Class['bbb::param'], Class['ccc::param']]\n"
+             +  " include ddd::param\n"
+             + " }");
+        PClass c = assertAndGetClassElement(result);
+        assertEquals("aaa::param", c.getName());
+        final List<PFunction> includes = c.getChildrenOfType(PFunction.class, true);
+        assertEquals(2, includes.size());
+        PFunction incl1 = includes.get(0);
+        List<PClassRef> refs = incl1.getChildrenOfType(PClassRef.class, true);
+        assertEquals(2, refs.size());
+        assertEquals("bbb::param", refs.get(0).getName());
+        assertEquals("ccc::param", refs.get(1).getName());
+    }
+
+
+    @Test
     public void testClassIncludesParse() throws Exception {
         PuppetParserResult result = doParse(
                 "class aaa::param { "
