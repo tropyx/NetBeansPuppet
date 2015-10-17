@@ -227,6 +227,23 @@ public class PuppetParserTest extends NbTestCase {
     }
 
     @Test
+    public void testClassReferences() throws Exception {
+        PuppetParserResult result = doParse(
+        "class aaa inherits aaa::params {\n" +
+        "  class{'aaa::install': } ->\n" +
+        "  class{'aaa::config': } ->\n" +
+        "  Class['aaa']\n" +
+        "}");
+        PClass c = assertAndGetClassElement(result);
+        assertEquals("aaa", c.getName());
+        List<PClassRef> refs = c.getChildrenOfType(PClassRef.class, true);
+        assertEquals(4, refs.size());
+        assertEquals("aaa::install", refs.get(1).getName());
+        assertEquals("aaa::config", refs.get(2).getName());
+        assertEquals("aaa", refs.get(3).getName());
+    }
+
+    @Test
     public void testClassBracingParse() throws Exception {
         PuppetParserResult result = doParse(
                 "class aaa::param { "

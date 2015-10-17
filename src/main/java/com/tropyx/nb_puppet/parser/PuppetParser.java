@@ -45,7 +45,7 @@ class PuppetParser extends Parser {
     public void parse(Snapshot snapshot, Task task, SourceModificationEvent event) throws ParseException {
 //        System.out.println("text" + snapshot.getText().toString());
         result = doParse(snapshot, task);
-//        System.out.println("AST:" + result.getRootNode().toStringRecursive());
+        System.out.println("AST:" + result.getRootNode().toStringRecursive());
     }
 
     @Override
@@ -205,6 +205,7 @@ class PuppetParser extends Parser {
                     if (token == null) {
                         break;
                     }
+                    //TODO apparently can also be $variable??
                     if (token.id() == PTokenId.IDENTIFIER) {
                         parseReqList(new PFunction(blob, offs, f), ts);
                         token = ts.token();
@@ -230,6 +231,9 @@ class PuppetParser extends Parser {
                         //check unknown functions
                         off = ts.offset();
                         String name = token.text().toString();
+                        if ("Class".equals(name)) {
+                            parseClassReference(ts, blob);
+                        }
                         token = nextSkipWhitespaceComment(ts);
                         if (token.id() == PTokenId.LPAREN) {
                             ts.moveNext();
@@ -450,7 +454,13 @@ class PuppetParser extends Parser {
             if (token != null) {
                 PElement title;
                 if (token.id() == PTokenId.STRING_LITERAL) {
-                    title = new PString(null, ts.offset(), token.text().toString());
+                    if ("class".equals(type)) {
+                        String tts = token.text().toString();
+                        title = new PClassRef(null, ts.offset());
+                        ((PClassRef)title).setName(new PIdentifier(title, ts.offset() + 1, tts.substring(1, tts.length() - 1)));
+                    } else {
+                        title = new PString(null, ts.offset(), token.text().toString());
+                    }
                 } else if (token.id() == PTokenId.VARIABLE) {
                     title = new PVariable(null, ts.offset(), token.text().toString());
                 } else if (token.id() == PTokenId.LBRACKET) {
@@ -583,25 +593,7 @@ class PuppetParser extends Parser {
 
         while (token != null && token.id() == PTokenId.IDENTIFIER) {
             if ("Class".equals(token.text().toString())) {
-                //TODO
-                token = nextSkipWhitespaceComment(ts);
-                if (token != null && token.id() == PTokenId.LBRACKET) {
-                    token = nextSkipWhitespaceComment(ts);
-                    if (token != null && token.id() == PTokenId.STRING_LITERAL) {
-                        PClassRef cr = new PClassRef(reqFunc, ts.offset());
-                        cr.setName(new PIdentifier(cr, ts.offset() + 1, token.text().toString().substring(1, token.text().toString().length() - 1)));
-                        token = nextSkipWhitespaceComment(ts);
-                        if (token != null && token.id() == PTokenId.RBRACKET) {
-                            //good
-                        } else {
-                            break; //error hwo to report
-                        }
-                    } else {
-                        break; //error hwo to report
-                    }
-                } else {
-                    break; //error hwo to report
-                }
+                if (parseClassReference(ts, reqFunc)) break;
             } else {
                 PClassRef cr = new PClassRef(reqFunc, ts.offset());
                 cr.setName(new PIdentifier(cr, ts.offset(), token.text().toString()));
@@ -613,6 +605,29 @@ class PuppetParser extends Parser {
                 break;
             }
         }
+    }
+
+    public boolean parseClassReference(TokenSequence<PTokenId> ts, PElement parent) {
+        Token<PTokenId> token;
+        token = nextSkipWhitespaceComment(ts);
+        if (token != null && token.id() == PTokenId.LBRACKET) {
+            token = nextSkipWhitespaceComment(ts);
+            if (token != null && token.id() == PTokenId.STRING_LITERAL) {
+                PClassRef cr = new PClassRef(parent, ts.offset());
+                cr.setName(new PIdentifier(cr, ts.offset() + 1, token.text().toString().substring(1, token.text().toString().length() - 1)));
+                token = nextSkipWhitespaceComment(ts);
+                if (token != null && token.id() == PTokenId.RBRACKET) {
+                    //good
+                } else {
+                    return true; //error hwo to report
+                }
+            } else {
+                return true; //error hwo to report
+            }
+        } else {
+            return true; //error hwo to report
+        }
+        return false;
     }
 
 }
