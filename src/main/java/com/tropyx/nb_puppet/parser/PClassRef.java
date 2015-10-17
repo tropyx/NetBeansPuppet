@@ -34,7 +34,7 @@ public class PClassRef extends PElement {
 
     @Override
     public String toString() {
-        return super.toString() + "[" + name + "]";
+        return super.toString() + "[" + getName() + "]";
     }
 
 }

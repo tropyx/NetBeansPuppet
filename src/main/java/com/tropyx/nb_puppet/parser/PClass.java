@@ -55,7 +55,7 @@ public class PClass extends PElement implements PParamContainer {
 
     @Override
     public String toString() {
-        return super.toString() + "[" + name + "]";
+        return super.toString() + "[" + name.getName() + "]";
     }
 
 
