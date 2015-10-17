@@ -195,6 +195,8 @@ class PuppetParser extends Parser {
                     break;
                 case INCLUDE:
                 case REQUIRE:
+                case CONTAIN:
+                    //CONTAIN also should have Class['ref'], arrays + comma separated lists
                     //TODO class + resource type values??
                     // docs: You must use the class’s full name; relative names are not allowed. In addition to names in string form, you may also directly use Class and Resource Type values that are produced by the future parser’s resource and relationship expressions.
                     int offs = ts.offset();
