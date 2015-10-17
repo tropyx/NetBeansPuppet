@@ -194,17 +194,15 @@ class PuppetParser extends Parser {
                     }
                     break;
                 case INCLUDE:
-                    token = nextSkipWhitespaceComment(ts);
-                    if (token != null && token.id() == PTokenId.IDENTIFIER) {
-                        new PClassRef(blob, ts.offset(), token.text().toString());
-                    } else {
-                        continue;
-                    }
-                    break;
                 case REQUIRE:
+                    //TODO class + resource type values??
+                    // docs: You must use the class’s full name; relative names are not allowed. In addition to names in string form, you may also directly use Class and Resource Type values that are produced by the future parser’s resource and relationship expressions.
+                    int offs = ts.offset();
+                    String f = token.text().toString();
                     token = nextSkipWhitespaceComment(ts);
                     if (token != null && token.id() == PTokenId.IDENTIFIER) {
-                        new PClassRef(blob, ts.offset(), token.text().toString());
+                        PFunction func = new PFunction(blob, offs, f);
+                        new PClassRef(func, ts.offset(), token.text().toString());
                     } else {
                         continue;
                     }
