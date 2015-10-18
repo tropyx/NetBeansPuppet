@@ -171,6 +171,7 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
                         if (span != null) {
                             fSpan[0] = span; 
                             fAssociatedID[0] = ts.token().id();
+                            fValue[0] = span.value;
                         }
                     }
                     if (matchChains(createStringChains(), ts, true)) {
@@ -409,7 +410,7 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
         // IMPORTANT: needs to be the last check because we strip information here
         // and should be really desperate, there's a chance in mismatch
         if (pp.isModule()) {
-            String shorterPath = path.substring(path.indexOf("/"));
+            String shorterPath = path.contains("/") ? path.substring(path.indexOf("/")) : path;
             return prj.getProjectDirectory().getFileObject(shorterPath);
         }
         return null;
