@@ -828,6 +828,8 @@ public class PLexer implements Lexer<PTokenId>
                     return token(PTokenId.COMMA);
                 case ':':
                     return token(PTokenId.COLON);
+                case ';':
+                    return token(PTokenId.SEMICOLON);
                     
 // All Character.isWhitespace(c) below 0x80 follow
                 // ['\t' - '\r'] and [0x1c - ' ']

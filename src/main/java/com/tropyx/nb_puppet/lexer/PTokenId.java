@@ -134,6 +134,8 @@ public enum PTokenId implements TokenId
     COMMA(",", Category.SEPARATOR),
     /** : **/
     COLON(":", Category.SEPARATOR),
+    /** ; **/
+    SEMICOLON(";", Category.SEPARATOR),
     /** = **/
     EQUALS("=", Category.OPERATOR),
     /** => */
