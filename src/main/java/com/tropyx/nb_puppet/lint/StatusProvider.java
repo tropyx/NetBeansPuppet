@@ -167,7 +167,8 @@ public final class StatusProvider implements UpToDateStatusProviderFactory {
             AuxiliaryProperties p = null;
             if (project != null) {
                 p = project.getLookup().lookup(AuxiliaryProperties.class);
-                if (project.getLookup().lookup(PuppetProject.class).isModule()) {
+                final PuppetProject pp = project.getLookup().lookup(PuppetProject.class);
+                if (pp != null && pp.isModule()) {
                     toRet.add("--relative");
                 }
                 if (RakefileExtractor.isUseRakefile(p)) {
