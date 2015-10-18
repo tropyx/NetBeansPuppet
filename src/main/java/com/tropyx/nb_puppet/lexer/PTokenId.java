@@ -142,11 +142,11 @@ public enum PTokenId implements TokenId
     ORDER_ARROW("->", Category.OPERATOR),
     /** ~> */
     NOTIF_ARROW("~>", Category.OPERATOR),
-    /** <| */
+    /** &lt;| */
     LCOLLECTOR("<|", Category.OPERATOR),
     /** |> */
     RCOLLECTOR("|>", Category.OPERATOR),
-    /** <<| */
+    /** &lt;&lt;| */
     LEXPORTCOLLECTOR("<<|", Category.OPERATOR),
     /** |>> */
     REXPORTCOLLECTOR("|>>", Category.OPERATOR),
