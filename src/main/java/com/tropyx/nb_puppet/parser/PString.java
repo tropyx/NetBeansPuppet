@@ -21,32 +21,33 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class PString extends PElement {
-    private String value;
+    private final String value;
     final static Pattern VAR = Pattern.compile("\\$\\{([a-zA-Z_:]+?)\\}");
     
     public PString(PElement parent, int offset, String value) {
         super(STRING, parent, offset);
-        this.value = value;
-        if (this.value.startsWith("\"") && this.value.endsWith("\"")) {
-            Matcher m = VAR.matcher(this.value);
-            while (m.find()) {
-                String var = m.group(1);
-                //+1 for the ${ character
-                new PVariable(this, offset + m.start() + 1, "$" + var);
+        if (value.length() == 2) {
+            this.value = "";
+        } else {
+            if (value.startsWith("\"") && value.endsWith("\"")) {
+                Matcher m = VAR.matcher(value);
+                while (m.find()) {
+                    String var = m.group(1);
+                    //+1 for the ${ character
+                    new PVariable(this, offset + m.start() + 1, "$" + var);
+                }
+                this.value = value.substring(1, value.length() - 1);
             }
-            this.value = this.value.substring(1, this.value.length() - 1);
-        }
-        if (this.value.startsWith("'") && this.value.endsWith("'")) {
-            this.value = this.value.substring(1, this.value.length() - 1);
+            else if (value.startsWith("'") && value.endsWith("'")) {
+                this.value = value.substring(1, value.length() - 1);
+            } else {
+                this.value = "";
+            }
         }
     }
 
     public String getValue() {
         return value;
-    }
-
-    void setValue(String value) {
-        this.value = value;
     }
 
     @Override
