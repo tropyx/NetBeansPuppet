@@ -19,29 +19,21 @@ package com.tropyx.nb_puppet.hiera;
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Map;
 import javax.swing.JEditorPane;
-import javax.swing.JLabel;
 import javax.swing.UIManager;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.EditorKit;
 import org.netbeans.api.editor.mimelookup.MimeLookup;
-import org.netbeans.api.extexecution.ExecutionDescriptor;
 import org.netbeans.api.extexecution.ExternalProcessBuilder;
-import org.netbeans.api.project.FileOwnerQuery;
-import org.netbeans.api.project.Project;
 import org.netbeans.modules.editor.NbEditorDocument;
-import org.netbeans.spi.project.AuxiliaryProperties;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.RequestProcessor;
-import org.yaml.snakeyaml.Yaml;
 
 /**
  *
@@ -89,57 +81,20 @@ public class EyamlPanel extends javax.swing.JPanel implements Runnable {
             setLabelError("No file associated with document.");
             return;
         }
-        Project p = FileOwnerQuery.getOwner(file);
-        if (p == null) {
-            setLabelError("File is not part of puppet project");
-            return;
-        }
-        AuxiliaryProperties aux = p.getLookup().lookup(AuxiliaryProperties.class);
-        if (aux == null) {
-            setLabelError("File is not part of puppet project");
-            return;
-        }
-        String hiera = aux.get(HieraPanel.HIERALOCATION, true);
-        if (hiera == null) {
-            hiera = "hiera.yaml";
-        }
-        FileObject hierfo = p.getProjectDirectory().getFileObject(hiera);
-        String privateKey = null;
-        String publicKey = null;
-        if (hierfo == null) {
-            setLabelError("No hiera.yaml file at project location:" + hiera);
-            return;
-        }
-        Yaml yaml = new Yaml();
-        try {
-            Map<String, Object> returnVal = (Map<String, Object>) yaml.load(hierfo.getInputStream());
-            Map<String, Object> eyamlNode = (Map<String, Object>) returnVal.get(":eyaml");
-            if (eyamlNode != null) {
-                privateKey = (String) eyamlNode.get(":pkcs7_private_key");
-                publicKey = (String) eyamlNode.get(":pkcs7_public_key");
-            }
-        } catch (FileNotFoundException ex) {
-            Exceptions.printStackTrace(ex);
-        }
 
-        if (privateKey != null && publicKey != null) {
             ExternalProcessBuilder builder = new ExternalProcessBuilder("eyaml")
-                    .workingDirectory(FileUtil.toFile(p.getProjectDirectory()))
+                    .redirectErrorStream(true)
+                    .workingDirectory(FileUtil.toFile(file.getParent()))
                     .addArgument("decrypt")
                     .addArgument("--eyaml")
-                    .addArgument(FileUtil.getRelativePath(p.getProjectDirectory(), file))
-                    .addArgument("--pkcs7-private-key").addArgument(privateKey)
-                    .addArgument("--pkcs7-public-key").addArgument(publicKey);
+                    .addArgument(file.getNameExt());
+
 
             Process process;
             final StringBuilder sb = new StringBuilder();
             try {
                 process = builder.call();
                 process.waitFor();
-                if (process.exitValue() != 0) {
-                    setLabelError("eyaml exited with non null value:" + builder.toString());
-                    return;
-                }
                 InputStream os = process.getInputStream();
                 BufferedReader br = new BufferedReader(new InputStreamReader(os));
                 String line = br.readLine();
@@ -147,39 +102,42 @@ public class EyamlPanel extends javax.swing.JPanel implements Runnable {
                     sb.append(line).append("\n");
                     line = br.readLine();
                 }
+                if (process.exitValue() != 0) {
+                    setLabelError("eyaml exited with non 0 value:" + builder.toString() + "\n" + sb.toString());
+                    return;
+                }
+                setEditorText(sb.toString());
             } catch (IOException | InterruptedException ex) {
+                setLabelError("Exception:" + ex);
             } finally {
             }
-            EventQueue.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    EditorKit kit = MimeLookup.getLookup("text/x-yaml").lookup(EditorKit.class);
-                    NbEditorDocument doc = (NbEditorDocument) kit.createDefaultDocument();
-                    pane = new JEditorPane("text/x-yaml", null);
-                    pane.setDocument(doc);
-                    removeAll();
-                    add(doc.createEditor(pane), BorderLayout.CENTER);
-                    try {
-                        doc.insertString(0, sb.toString(), null);
-                    } catch (BadLocationException ex) {
-                        Exceptions.printStackTrace(ex);
-                    }
-                    pane.setEditable(false);
-                    pane.requestFocus();
-                    pane.setCaretPosition(0);
-                    revalidate();
+    }
+
+    public void setEditorText(final String sb) {
+        EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                EditorKit kit = MimeLookup.getLookup("text/x-yaml").lookup(EditorKit.class);
+                NbEditorDocument doc = (NbEditorDocument) kit.createDefaultDocument();
+                pane = new JEditorPane("text/x-yaml", null);
+                pane.setDocument(doc);
+                removeAll();
+                add(doc.createEditor(pane), BorderLayout.CENTER);
+                try {
+                    doc.insertString(0, sb, null);
+                } catch (BadLocationException ex) {
+                    Exceptions.printStackTrace(ex);
                 }
-            });
-
-        } else {
-            setLabelError(":pkcs7_private_key and :pkcs7_public_key are not defined in hiera.yaml file.");
-        }
-
+                pane.setEditable(false);
+                pane.setEnabled(false);
+                pane.requestFocus();
+                pane.setCaretPosition(0);
+                revalidate();
+            }
+        });
     }
 
     private void setLabelError(String string) {
-                    removeAll();
-                    add(new JLabel(string), BorderLayout.CENTER);
-                    revalidate();
+        setEditorText(string);
     }
 }

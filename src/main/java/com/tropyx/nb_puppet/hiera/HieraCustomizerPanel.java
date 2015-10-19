@@ -22,7 +22,7 @@ import org.netbeans.api.project.Project;
 import org.netbeans.spi.project.ui.support.ProjectCustomizer;
 import org.openide.util.Lookup;
 
-@ProjectCustomizer.CompositeCategoryProvider.Registration(projectType = "com-tropyx-nb_puppet", position = 200)
+//@ProjectCustomizer.CompositeCategoryProvider.Registration(projectType = "com-tropyx-nb_puppet", position = 200)
 public class HieraCustomizerPanel implements ProjectCustomizer.CompositeCategoryProvider{
 
     @Override

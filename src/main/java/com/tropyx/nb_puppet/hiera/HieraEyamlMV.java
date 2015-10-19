@@ -19,8 +19,7 @@ package com.tropyx.nb_puppet.hiera;
 
 import javax.swing.Action;
 import javax.swing.JComponent;
-import javax.swing.JPanel;
-import javax.swing.JToolBar;
+import javax.swing.JLabel;
 import org.netbeans.core.spi.multiview.CloseOperationState;
 import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.MultiViewElementCallback;
@@ -49,7 +48,7 @@ public class HieraEyamlMV implements MultiViewElement {
 
     @Override
     public JComponent getToolbarRepresentation() {
-        return new JToolBar();
+        return new JLabel("Executes 'eyaml decrypt --eyaml <file>'");
     }
 
     @Override
