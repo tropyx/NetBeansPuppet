@@ -265,7 +265,7 @@ public class PCompletionProvider implements CompletionProvider {
         return 0;
     }
 
-    void runWithParserResult(final Document document, final ParseResultRunnable runnable) {
+    public static void runWithParserResult(final Document document, final ParseResultRunnable runnable) {
         try {
             Source source = Source.create(document);
             ParserManager.parse(Collections.singleton(source), new UserTask() {
@@ -285,7 +285,7 @@ public class PCompletionProvider implements CompletionProvider {
         }
     }
 
-    interface ParseResultRunnable {
+    public interface ParseResultRunnable {
         void run(PElement rootNode);
     }
 }

@@ -2,22 +2,26 @@
 package com.tropyx.nb_puppet.hyperlink;
 
 import com.tropyx.nb_puppet.PuppetProject;
-import com.tropyx.nb_puppet.lexer.PLangHierarchy;
+import com.tropyx.nb_puppet.completion.PCompletionProvider;
 import com.tropyx.nb_puppet.lexer.PLanguageProvider;
-import com.tropyx.nb_puppet.lexer.PTokenId;
+import com.tropyx.nb_puppet.parser.PBlob;
+import com.tropyx.nb_puppet.parser.PClass;
+import com.tropyx.nb_puppet.parser.PClassRef;
+import com.tropyx.nb_puppet.parser.PElement;
+import com.tropyx.nb_puppet.parser.PFunction;
+import com.tropyx.nb_puppet.parser.PIdentifier;
+import com.tropyx.nb_puppet.parser.PString;
+import com.tropyx.nb_puppet.parser.PVariable;
+import com.tropyx.nb_puppet.parser.PVariableDefinition;
+import com.tropyx.nb_puppet.refactoring.PPWhereUsedQueryPlugin;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Set;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
-import javax.swing.text.StyledDocument;
 import org.netbeans.api.editor.mimelookup.MimeRegistration;
-import org.netbeans.api.lexer.Token;
-import org.netbeans.api.lexer.TokenHierarchy;
-import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.editor.BaseDocument;
@@ -26,12 +30,12 @@ import org.netbeans.lib.editor.hyperlink.spi.HyperlinkProviderExt;
 import org.netbeans.lib.editor.hyperlink.spi.HyperlinkType;
 import org.netbeans.modules.editor.NbEditorUtilities;
 import org.openide.cookies.EditCookie;
-import org.openide.cookies.EditorCookie;
 import org.openide.cookies.LineCookie;
 import org.openide.cookies.OpenCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
+import org.openide.text.CloneableEditorSupport;
 import org.openide.text.Line;
 import org.openide.util.Exceptions;
 import org.openide.util.Pair;
@@ -42,6 +46,11 @@ import org.openide.util.Pair;
  */
 @MimeRegistration(mimeType = PLanguageProvider.MIME_TYPE, service = HyperlinkProviderExt.class)
 public class PHyperlinkProvider implements HyperlinkProviderExt {
+
+    private static final int TYPE_VARIABLE = 1;
+    private static final int TYPE_CLASS_REF = 2;
+    private static final int TYPE_TEMPLATE = 3;
+
 
     @Override
     public Set<HyperlinkType> getSupportedHyperlinkTypes() {
@@ -58,11 +67,6 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
     public int[] getHyperlinkSpan(final Document doc, final int offset, HyperlinkType type) {
         Tuple tup = getTuple(doc, offset);
         if (tup != null) {
-            if (tup.stringSpan != null) {
-                return new int[] {
-                    tup.stringSpan.spanStart, tup.stringSpan.spanEnd
-                };
-            }
             return new int[]{
                 tup.tokenOffset, tup.tokenOffset + tup.value.length()
             };
@@ -82,24 +86,8 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
     public String getTooltipText(Document doc, int offset, HyperlinkType type) {
         Tuple tup = getTuple(doc, offset);
         if (tup != null) {
-            if (tup.associatedId.equals(PTokenId.VARIABLE) || tup.stringSpan != null) {
-                Pair<String, String> v = getPathAndVariable(tup.stringSpan != null ? tup.stringSpan.value : tup.value);
-                DataObject dObject = NbEditorUtilities.getDataObject(doc);
-                if (dObject != null && v != null) {
-                    FileObject fo = dObject.getPrimaryFile();
-                    FileObject res = findFile(fo, v.first());
-                    if (res != null) {
-                        try {
-                            DataObject dobj = DataObject.find(res);
-                            String value = guessVariableValue(dobj, v.second());
-                            if (value != null) {
-                                return value;
-                            }
-                        } catch (DataObjectNotFoundException ex) {
-                            Exceptions.printStackTrace(ex);
-                        }
-                    }
-                }
+            if (tup.associatedType == TYPE_VARIABLE) {
+                //TODO
             }
             return "Jump to definition";
         }
@@ -108,141 +96,52 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
 
     Tuple getTuple(final Document doc, final int offset) {
         final String[] fValue = new String[1];
-        final StringSpan[] fSpan = new StringSpan[1];
         final int[] fTokenOff = new int[1];
-        final PTokenId[] fAssociatedID = new PTokenId[1];
-        doc.render(new Runnable() {
+        final int[] fAssociatedType = new int[1];
+        PCompletionProvider.runWithParserResult(doc, new PCompletionProvider.ParseResultRunnable() {
 
             @Override
-            public void run() {
-                TokenSequence<PTokenId> ts = PLangHierarchy.getTokenSequence(doc);
-                ts.move(offset);
-                ts.moveNext();
-                Token<PTokenId> token = ts.token();
-                // when it's not a value -> do nothing.
-                if (token == null) {
-
+            public void run(PElement rootNode) {
+                if (rootNode == null) {
                     return;
                 }
-                if (token.id() == PTokenId.IDENTIFIER) {
-                    fTokenOff[0] = ts.offset();
-                    fValue[0] = token.text().toString();
-                    boolean allowOneIdentifier = false;
-                    boolean doOneMore;
-                    boolean dolink = true;
-                    do {
-                        doOneMore = false;
-                        ts.movePrevious();
-                        token = ts.token();
-                        if (token.id() == PTokenId.WHITESPACE) {
-                            doOneMore = true;
-                        }
-                        else if (token.id() == PTokenId.COMMA) {
-                            allowOneIdentifier = true;
-                            doOneMore = true;
-                        }
-                        else if (allowOneIdentifier && token.id() == PTokenId.IDENTIFIER) {
-                            allowOneIdentifier = false;
-                            doOneMore = true;
-                        }
-                        else if (token.id() == PTokenId.REQUIRE) {
-                            fAssociatedID[0] = token.id();
-                        }
-                        else if (token.id() == PTokenId.INCLUDE) {
-                            fAssociatedID[0] = token.id();
-                        }
-                        else if (token.id() == PTokenId.INHERITS) {
-                            fAssociatedID[0] = token.id();
-                        }
-                        else if (token.id() == PTokenId.DEFINE || token.id() == PTokenId.CLASS) {
-                            dolink = false;
-                        }
-                    //whitespace is clear, command and identifier are here for this case..
-                        // require groovy::config, groovy::install
-                    } while (doOneMore);
-                    if (dolink && fAssociatedID[0] == null && fValue[0].contains("::")) {
-                        fAssociatedID[0] = PTokenId.IDENTIFIER;
+                PElement currentNode = rootNode.getChildAtOffset(offset);
+                if (currentNode.isType(PElement.VARIABLE) || currentNode.isType(PElement.VARIABLE_DEFINITION)) {
+                    fTokenOff[0] = currentNode.getOffset();
+                    fValue[0] = currentNode.isType(PElement.VARIABLE) ? ((PVariable)currentNode).getName() : ((PVariableDefinition)currentNode).getName();
+                    if (!fValue[0].startsWith("$::")) {
+                        fAssociatedType[0] = TYPE_VARIABLE;
                     }
-                } else if (token.id() == PTokenId.STRING_LITERAL) {
-                    fTokenOff[0] = ts.offset();
-                    fValue[0] = token.text().toString();
-                    if (fValue[0].startsWith("\"")) {
-                        StringSpan span = findProperty(fValue[0], fTokenOff[0], offset);
-                        if (span != null) {
-                            fSpan[0] = span; 
-                            fAssociatedID[0] = ts.token().id();
-                            fValue[0] = span.value;
+                } else if (currentNode.isType(PElement.IDENTIFIER)) {
+                    PElement parent = currentNode.getParentIgnore(PBlob.class);
+                    if (parent != null) {
+                        if (parent.getType() == PElement.CLASS_REF) {
+                            fTokenOff[0] = currentNode.getOffset();
+                            fAssociatedType[0] = TYPE_CLASS_REF;
+                            fValue[0] = ((PIdentifier)currentNode).getName();
                         }
                     }
-                    if (matchChains(createStringChains(), ts, true)) {
-                        fAssociatedID[0] = ts.token().id();
-                        if (token.id() == PTokenId.IDENTIFIER && !ts.token().text().toString().equals("Class")) {
-                            fAssociatedID[0] = null;
+                } else if (currentNode.isType(PElement.STRING)) {
+                    PElement parent = currentNode.getParentIgnore(PBlob.class);
+                    if (parent != null) {
+                        if (parent.getType() == PElement.FUNCTION) {
+                            PFunction f = (PFunction)parent;
+                            if ("template".equals(f.getName())) {
+                                fTokenOff[0] = currentNode.getOffset() + 1;
+                                fAssociatedType[0] = TYPE_TEMPLATE;
+                                fValue[0] = ((PString)currentNode).getValue();
+                            }
                         }
-                    }
-
-                } else if (token.id() == PTokenId.VARIABLE) {
-                    fTokenOff[0] = ts.offset();
-                    fValue[0] = token.text().toString();
-                    if (fValue[0].contains("::") 
-                            && !fValue[0].startsWith("$::")) {
-                        fAssociatedID[0] = token.id();
                     }
                 }
             }
         });
-        if (fAssociatedID[0] != null) {
-            return new Tuple(fValue[0], fAssociatedID[0], fTokenOff[0], fSpan[0]);
+
+        if (fAssociatedType[0] != 0) {
+            return new Tuple(fValue[0], fAssociatedType[0], fTokenOff[0]);
         }
         return null;
 
-    }
-
-    private boolean matchChains(DecisionNode node, TokenSequence<PTokenId> xml, boolean moveBack) {
-        return matchChainsRes(node, xml, moveBack) != null;
-    }
-    private Token<PTokenId> matchChainsRes(DecisionNode node, TokenSequence<PTokenId> xml, boolean moveBack) {
-        boolean doOneMore;
-        do {
-            doOneMore = false;
-            boolean didMove = moveBack ? xml.movePrevious() : xml.moveNext();
-            if (!didMove) {
-                return null;
-            }
-            Token<PTokenId> token = xml.token();
-            if (token.id() == PTokenId.WHITESPACE) {
-                doOneMore = true;
-            } else {
-                DecisionNode currN = node;
-                for (DecisionNode ch : currN.children) {
-                    if (ch.id.equals(token.id())) {
-                        if (ch.children.length == 0) {
-                            //we are at the end.
-                            return token;
-                        } else {
-                            node = ch;
-                            doOneMore = true;
-                        }
-                    }
-                }
-                if (currN.ignores(token.id())) {
-                    doOneMore = true;
-                }
-            } 
-            // template ('sss/ss.rbm')
-        } while (doOneMore);
-        return null;
-    }
-    
-    private DecisionNode createStringChains() {
-        return of(PTokenId.STRING_LITERAL,
-                    of(PTokenId.LPAREN,
-                            of(PTokenId.TEMPLATE)
-                       ),
-                    of(PTokenId.LBRACKET,
-                            of(PTokenId.IDENTIFIER)
-                    )
-        );
     }
 
     private void performJump(Tuple tup, Document doc) {
@@ -253,18 +152,56 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
         if (path.endsWith("'")) {
             path = path.substring(0, path.length() - 1);
         }
-        String variableName = null;
-        if (tup.associatedId == PTokenId.TEMPLATE) {
+        
+        if (tup.associatedType == TYPE_TEMPLATE) {
             path = path.replaceFirst("\\/", "/templates/");
-//            path = path.replace("'", "");
-        } else if (tup.associatedId == PTokenId.VARIABLE || tup.stringSpan != null) {
+            openDocument(doc, path, true);
+        } else if (tup.associatedType == TYPE_VARIABLE) {
             //substring removes $
-            Pair<String, String> pair = getPathAndVariable(tup.stringSpan != null ? tup.stringSpan.value : path);
+            Pair<String, String> pair = getPathAndVariable(path);
             if (pair != null) {
                 path = pair.first();
-                variableName = pair.second();
+                Document targetDoc;
+                if (path == null) {
+                    targetDoc = doc;
+                } else {
+                    //TODO open document but not editor view only once found, open view
+                    targetDoc = openDocument(doc, path, false);
+                }
+                final String variableName = pair.second();
+                if (targetDoc != null) {
+                    final BaseDocument bd = (BaseDocument)targetDoc;
+                    final boolean[] found = new boolean[1];
+                    final String[] inherits = new String[1];
+                    PCompletionProvider.runWithParserResult(targetDoc, new PCompletionProvider.ParseResultRunnable() {
+                            @Override
+                            public void run(PElement rootNode) {
+                                for (PVariableDefinition def : rootNode.getChildrenOfType(PVariableDefinition.class, true)) {
+                                    if (variableName.equals(def.getName())) {
+                                        showAtOffset(bd, def.getOffset());
+                                        found[0] = true;
+                                        break; //first one only
+                                    }
+                                }
+                                if (!found[0]) {
+                                    //TODO open document but not editor view only once found, open view
+                                    List<PClass> clazz = rootNode.getChildrenOfType(PClass.class, false);
+                                    if (clazz.size() > 0) {
+                                        PClassRef ref = clazz.get(0).getInherits();
+                                        if (ref != null) {
+                                            inherits[0] = ref.getName();
+                                        }
+                                    }
+                                }
+                            }
+                    });
+                    if (!found[0] && inherits[0] != null) {
+                        Tuple newTup = new Tuple(inherits[0] + "::" + variableName, tup.associatedType, tup.tokenOffset);
+                        performJump(newTup, doc);
+                    }
+                }
             }
-        } else {
+        } else if (tup.associatedType == TYPE_CLASS_REF) {
             String[] splitValue = path.split("\\:\\:");
             if (splitValue.length > 0) {
                 String module = splitValue[0];
@@ -278,79 +215,66 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
                 } else {
                     file = "init.pp";
                 }
-                path = module + "/manifests/" + file;
-            }
-        }
-        if (path != null) {
-            DataObject dObject = NbEditorUtilities.getDataObject(doc);
-            if (dObject != null) {
-                FileObject fo = dObject.getPrimaryFile();
-                FileObject res = findFile(fo, path);
-                if (res != null) {
-                    try {
-                        DataObject dobj = DataObject.find(res);
-                        boolean opened = openDataObject(dobj);
-                        if (opened && variableName != null) {
-                            cursorToVariableDefinition(dobj, variableName);
-                        }
-                    } catch (DataObjectNotFoundException ex) {
-                        Exceptions.printStackTrace(ex);
-                    }
-
+                //TODO try the index first to find the right file without path translations?
+                //what if we have 2 checkouts of the same module but different versions or what not
+                Document targetDoc = openDocument(doc, module + "/manifests/" + file, true);
+                if (targetDoc != null) {
+                    final String fPath = path;
+                    final BaseDocument bd = (BaseDocument)targetDoc;
+                    PCompletionProvider.runWithParserResult(targetDoc, new PCompletionProvider.ParseResultRunnable() {
+                            @Override
+                            public void run(PElement rootNode) {
+                                for (PClass clz :rootNode.getChildrenOfType(PClass.class, true)) {
+                                    if (fPath.equals(clz.getName())) {
+                                        PIdentifier ident = clz.getChildrenOfType(PIdentifier.class, false).get(0);
+                                        // first direct identifier is the class name
+                                        System.out.println("identifier offset:" + ident.getOffset());
+                                        showAtOffset(bd, ident.getOffset());
+                                        break;
+                                    }
+                                }
+                            }
+                    });
                 }
             }
         }
     }
 
-    private void cursorToVariableDefinition(DataObject dobj, String variableName) throws IndexOutOfBoundsException {
-        EditorCookie editc = dobj.getLookup().lookup(EditorCookie.class);
-        final int[] foffset = new int[1];
-        final String[] fInherit = new String[1];
-        foffset[0] = -1;
-        BaseDocument bd;
+    public void showAtOffset(BaseDocument bd, int offset) throws IndexOutOfBoundsException {
         try {
-            final StyledDocument targetdoc = editc.openDocument();
-            bd = (BaseDocument) targetdoc;
-            final String fVariableName = variableName;
-            targetdoc.render(new Runnable() {
-                
-                @Override
-                public void run() {
-                    TokenSequence<PTokenId> ts = PLangHierarchy.getTokenSequence(targetdoc);
-                    ts.move(0);
-                    while (ts.moveNext()) {
-                        Token<PTokenId> token = ts.token();
-                        // when it's not a value -> do nothing.
-                        if (token == null) {
-                            return;
-                        }
-                        if (fInherit[0] == null && token.id() == PTokenId.CLASS) {
-                            Token<PTokenId> tk = matchChainsRes(of(PTokenId.CLASS, of(PTokenId.IDENTIFIER, of(PTokenId.INHERITS, of(PTokenId.IDENTIFIER)))), ts, false);
-                            if (tk != null) {
-                                fInherit[0] = tk.text().toString();
-                            }
-                        }
-                        if (token.id() == PTokenId.VARIABLE) {
-                            if (fVariableName.equals(token.text().toString())) {
-                                foffset[0] = ts.offset();
-                            }
-                        }
-                    }
-                }
-            });
-            if (foffset[0] != -1) {
-                int line = Utilities.getLineOffset(bd, foffset[0]);
-                int row = Utilities.getRowIndent(bd, foffset[0]);
-                LineCookie lc = dobj.getLookup().lookup(LineCookie.class);
-                lc.getLineSet().getOriginal(line).show(Line.ShowOpenType.REUSE, Line.ShowVisibilityType.FOCUS, row);
-            } else {
-                if (fInherit[0] != null) {
-                    performJump(new Tuple("$" + fInherit[0] + "::" + variableName.replace("$", ""), PTokenId.VARIABLE, -1, null), bd);
-                }
-            }
-        } catch (IOException | BadLocationException ex) {
+            int line = Utilities.getLineOffset(bd, offset);
+            int row = Utilities.getRowStart(bd, offset);
+            LineCookie lc = NbEditorUtilities.getDataObject(bd).getLookup().lookup(LineCookie.class);
+            lc.getLineSet().getOriginal(line).show(Line.ShowOpenType.REUSE, Line.ShowVisibilityType.FOCUS, offset - row);
+        } catch (BadLocationException ex) {
             Exceptions.printStackTrace(ex);
         }
+    }
+
+    private Document openDocument(Document currentDoc, String path, boolean openInEditor) {
+        FileObject fo = NbEditorUtilities.getFileObject(currentDoc);
+        if (fo != null) {
+            FileObject res = findFile(fo, path);
+            if (res != null) {
+                try {
+                    if (openInEditor) {
+                        DataObject dobj = DataObject.find(res);
+                        openDataObject(dobj);
+                    }
+                    CloneableEditorSupport ces = PPWhereUsedQueryPlugin.getEditorSupport(res);
+                    if (ces != null) {
+                        try {
+                            return ces.openDocument();
+                        } catch (IOException ex) {
+                            Exceptions.printStackTrace(ex);
+                        }
+                    }
+                } catch (DataObjectNotFoundException ex) {
+                    Exceptions.printStackTrace(ex);
+                }
+            }
+        }
+        return null;
     }
 
     private boolean openDataObject(DataObject dobj) {
@@ -447,160 +371,19 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
             path = sb.toString();
             return Pair.of(path, variableName);
         }
-        return null;
+        return Pair.of(null, "$" + path);
     }
     
-    private String guessVariableValue(DataObject dobj, String variableName) throws IndexOutOfBoundsException {
-        EditorCookie editc = dobj.getLookup().lookup(EditorCookie.class);
-        try {
-            final StyledDocument targetdoc = editc.openDocument();
-            final String fVariableName = variableName;
-            final String[] fValue = new String[1]; 
-            targetdoc.render(new Runnable() {
-                
-                @Override
-                public void run() {
-                    TokenSequence<PTokenId> ts = PLangHierarchy.getTokenSequence(targetdoc);
-                    ts.moveStart();
-                    while (ts.moveNext()) {
-                        Token<PTokenId> token = ts.token();
-                        // when it's not a value -> do nothing.
-                        if (token == null) {
-                            return;
-                        }
-                        if (token.id() == PTokenId.VARIABLE) {
-                            int startOffset = ts.offset();
-                            if (fVariableName.equals(token.text().toString())) {
-                                if (matchChains(getVariableValueChain(), ts, false)) {
-                                    try {
-                                        int len = ts.offset() - startOffset + ts.token().length();
-                                        fValue[0] = targetdoc.getText(startOffset, len);
-                                    } catch (BadLocationException ex) {
-                                        Exceptions.printStackTrace(ex);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-            });
-            return fValue[0];
-        } catch (IOException ex) {
-            Exceptions.printStackTrace(ex);
-        }
-        return null;
-    }
-    
-    private DecisionNode getVariableValueChain() {
-        return of(PTokenId.VARIABLE, 
-                    of(PTokenId.EQUALS, 
-                        of(PTokenId.STRING_LITERAL),
-                        of(PTokenId.VARIABLE),
-                        of(PTokenId.LBRACKET, 
-                            of(PTokenId.RBRACKET)
-                        ).ignoreAll(),
-                        of(PTokenId.EXTLOOKUP, 
-                            of(PTokenId.RPAREN)
-                        ).ignoreAll()
-                    )
-                );
-    }
-    
-    DecisionNode of(PTokenId id, DecisionNode... children) {
-        return new DecisionNode(id, children);
-    }
-    
-
-    private static class DecisionNode {
-        final DecisionNode[] children;
-        final PTokenId id;
-        private List<String> ignores = Collections.emptyList();
-        boolean ignoreAll = false;
-
-        public DecisionNode(PTokenId id, DecisionNode[] children) {
-            this.children = children;
-            this.id = id;
-        }
-        
-        public boolean ignores(PTokenId id) {
-            for (DecisionNode ch : children) {
-                if (ch.id.equals(id)) {
-                    return false;
-                }
-            }
-            return ignoreAll || ignores.contains(id.toString());
-        } 
-        
-        public DecisionNode ignore(String... ids) {
-            ignores = Arrays.asList(ids);
-            return this;
-        }
-        
-        public DecisionNode ignoreAll() {
-            ignoreAll = true;
-            return this;
-        }
-
-        @Override
-        public String toString() {
-            return "DecisionNode{" + "id=" + id + '}';
-        }
-        
-    }
-
     private final class Tuple {
         final String value;
         final int tokenOffset;
-        final PTokenId associatedId;
-        final StringSpan stringSpan;
+        final int associatedType;
 
-
-        private Tuple(String value, PTokenId pTokenId, int offset, StringSpan stringSpan)
+        private Tuple(String value, int type, int offset)
         {
             this.value = value;
-            this.associatedId = pTokenId;
+            this.associatedType = type;
             this.tokenOffset = offset;
-            this.stringSpan = stringSpan;
         }
-
     }
-    
-    private static class StringSpan {
-        final int spanStart;
-        final int spanEnd;
-        final String value;
-        public StringSpan(String val, int start, int end) {
-            this.value = val;
-            this.spanStart = start;
-            this.spanEnd = end; 
-        }
-    } 
-    
-    
-    private StringSpan findProperty(String textToken, int tokenOffset, int currentOffset) {
-        if (textToken == null) {
-            return null;
-        }
-        int ff = currentOffset - tokenOffset;
-
-        if (ff > -1 && ff < textToken.length()) {
-            String before = textToken.substring(0, ff);
-            String after = textToken.substring(ff, textToken.length());
-            int bo = before.lastIndexOf("${");
-            int bc = before.lastIndexOf("}");
-            int ao = after.indexOf("${");
-            int ac = after.indexOf("}");
-            if (bo > bc && ac > -1 && (ac < ao || ao == -1)) { //case where currentOffset is on property
-                return new StringSpan(textToken.substring(bo, before.length() + ac + 1), tokenOffset + bo, tokenOffset + ff + ac + 1);
-            }
-         
-            if (before.length() == 0 && ao == 0 && ac > 0) { //case where currentOffset is at beginning
-                return new StringSpan(textToken.substring(0, ac + 1), tokenOffset, tokenOffset +  ac + 1);
-            }
-            
-        }
-        return null;
-    }
-    
 }

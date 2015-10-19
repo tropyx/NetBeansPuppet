@@ -18,6 +18,7 @@
 package com.tropyx.nb_puppet.parser;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class PElement {
@@ -60,6 +61,15 @@ public class PElement {
 
     public PElement getParent() {
         return parent;
+    }
+
+    public PElement getParentIgnore(Class<?>... classes) {
+        List<Class<?>> f = Arrays.asList(classes);
+        PElement par = getParent();
+        while (par != null && f.contains(par.getClass())) {
+            par = par.getParent();
+        }
+        return par;
     }
 
     public PElement getChildAtOffset(int offset) {

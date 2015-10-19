@@ -39,7 +39,7 @@ import org.openide.text.PositionBounds;
 import org.openide.text.PositionRef;
 import org.openide.util.Exceptions;
 
-class PPWhereUsedQueryPlugin implements RefactoringPlugin {
+public class PPWhereUsedQueryPlugin implements RefactoringPlugin {
     private final WhereUsedQuery refactoring;
     private boolean cancelled = false;
 
@@ -261,7 +261,7 @@ class PPWhereUsedQueryPlugin implements RefactoringPlugin {
         }
     }
     
-    private static CloneableEditorSupport getEditorSupport(FileObject file) {
+    public static CloneableEditorSupport getEditorSupport(FileObject file) {
         try {
             DataObject dob = DataObject.find(file);
             return dob.getLookup().lookup(CloneableEditorSupport.class);
