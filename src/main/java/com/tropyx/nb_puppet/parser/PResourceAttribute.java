@@ -17,6 +17,8 @@
 
 package com.tropyx.nb_puppet.parser;
 
+import org.netbeans.api.annotations.common.CheckForNull;
+
 public class PResourceAttribute extends PElement {
     private final String name;
     private PElement value;
@@ -30,6 +32,7 @@ public class PResourceAttribute extends PElement {
         return name;
     }
 
+    @CheckForNull
     public PElement getValue() {
         return value;
     }
@@ -40,7 +43,7 @@ public class PResourceAttribute extends PElement {
 
     @Override
     public String toString() {
-        return super.toString() + "[" + name + "->" + value.getClass() + "]";
+        return super.toString() + "[" + name + "->" + (value != null ? value.getClass() : "null") + "]";
     }
     
 }

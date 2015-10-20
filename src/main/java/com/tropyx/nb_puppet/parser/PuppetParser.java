@@ -501,7 +501,7 @@ class PuppetParser extends Parser {
                 continue;
             }
             if (token.id() == PTokenId.COMMA) {
-                assert attr != null && val != null : "attr:" + attr + " val:" + val + " in resource:" + resource.toString();
+//                assert attr != null && val != null : "attr:" + attr + " val:" + val + " in resource:" + resource.toString();
                 PResourceAttribute param = new PResourceAttribute(resource, off, attr);
                 val.setParent(param);
                 param.setValue(val);
@@ -513,7 +513,7 @@ class PuppetParser extends Parser {
             token = nextSkipWhitespaceComment(ts);
         }
         if (attr != null) {
-            assert val != null;
+//            assert val != null;
             PResourceAttribute param = new PResourceAttribute(resource, off, attr);
             param.setValue(val);
             resource.addAttribute(param);
