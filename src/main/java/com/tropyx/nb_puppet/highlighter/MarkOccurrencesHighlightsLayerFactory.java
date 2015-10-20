@@ -16,17 +16,15 @@
  */
 package com.tropyx.nb_puppet.highlighter;
 
+import com.tropyx.nb_puppet.lexer.PLanguageProvider;
 import com.tropyx.nb_puppet.semantic.SemanticColoring;
 import javax.swing.text.Document;
 import org.netbeans.api.editor.mimelookup.MimeRegistration;
-import org.netbeans.api.editor.mimelookup.MimeRegistrations;
 import org.netbeans.spi.editor.highlighting.HighlightsLayer;
 import org.netbeans.spi.editor.highlighting.HighlightsLayerFactory;
 import org.netbeans.spi.editor.highlighting.ZOrder;
 
-@MimeRegistrations({
-    @MimeRegistration(mimeType = "text/x-puppet-manifest", service = HighlightsLayerFactory.class),
-})
+@MimeRegistration(mimeType = PLanguageProvider.MIME_TYPE, service = HighlightsLayerFactory.class)
 public class MarkOccurrencesHighlightsLayerFactory implements HighlightsLayerFactory {
 
     public static MarkOccurrencesHighlighter getMarkOccurrencesHighlighter(Document doc) {
