@@ -22,8 +22,10 @@ import com.tropyx.nb_puppet.parser.PFunction;
 import com.tropyx.nb_puppet.parser.PResource;
 import com.tropyx.nb_puppet.parser.PResourceAttribute;
 import com.tropyx.nb_puppet.parser.PuppetParserResult;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import javax.swing.SwingUtilities;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.Document;
@@ -40,6 +42,11 @@ import org.netbeans.modules.parsing.spi.TaskFactory;
 import org.netbeans.spi.editor.highlighting.support.OffsetsBag;
 
 public class SemanticColoring extends ParserResultTask<PuppetParserResult> {
+
+    private final static List<String> metaparameters = Arrays.asList(new String[] {
+       "alias", "audit", "before", "loglevel", "noop", "notify",
+       "require", "schedule", "stage", "subscribe", "tag"
+    });
 
     public SemanticColoring() {
         super();
@@ -83,8 +90,9 @@ public class SemanticColoring extends ParserResultTask<PuppetParserResult> {
                         bag.addHighlight(res.getOffset(), res.getOffset() + res.getResourceType().length(), resAttrs);
                     }
                     AttributeSet resAttrAttrs = fcs.getTokenFontColors("resource-parameter");
+                    AttributeSet metaresAttrAttrs = fcs.getTokenFontColors("resource-metaparameter");
                     for (PResourceAttribute attr : root.getChildrenOfType(PResourceAttribute.class, true)) {
-                        bag.addHighlight(attr.getOffset(), attr.getOffset() + attr.getName().length(), resAttrAttrs);
+                        bag.addHighlight(attr.getOffset(), attr.getOffset() + attr.getName().length(), metaparameters.contains(attr.getName()) ? metaresAttrAttrs : resAttrAttrs);
                     }
 
                     rootBag.setHighlights(bag);
