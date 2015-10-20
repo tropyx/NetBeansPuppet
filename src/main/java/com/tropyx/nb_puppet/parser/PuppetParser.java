@@ -276,6 +276,23 @@ class PuppetParser extends Parser {
                 case UNLESS:
                     parseIf(blob, ts, false);
                     break;
+                case DOT:
+                    ts.moveNext();
+                    token = ts.token();
+                    if (token != null
+                        && (token.id() == PTokenId.IDENTIFIER || PTokenId.Category.FUNCTION.equals(token.id().primaryCategory()))) {
+                        off = ts.offset();
+                        String func = token.text().toString();
+                        token = nextSkipWhitespaceComment(ts);
+                        PFunction ff = new PFunction(blob, off, func);
+                        if (token.id() == PTokenId.LPAREN) {
+                            ts.moveNext();
+                            parseFunction(ff, ts);
+                        } else {
+                            prevBackoffWhitespaceComment(ts); //backoff for non () functions
+                        }
+                    }
+                    break;
                 default:
                     if (PTokenId.Category.FUNCTION.equals(token.id().primaryCategory())) {
                         off = ts.offset();

@@ -671,6 +671,27 @@ public class PuppetParserTest extends NbTestCase {
         assertEquals("zzz", cs.get(6).getName());
     }
 
+    @Test
+    public void testFunction2() throws Exception {
+        PuppetParserResult result = doParse(
+               "class aaa { \n"
+             + "  $aaa.each | $one | { $one = 'dd'} "
+             + "  apache.require "
+             + "  'ntp/ntp.conf.erb'.template "
+             + "  $a.reduce(start) |$memo, $x| { }"
+             + " }");
+        PClass nd = assertAndGetClassElement(result);
+        List<PFunction> cs = nd.getChildrenOfType(PFunction.class, true);
+        assertEquals(4, cs.size());
+        PFunction cs1 = cs.get(0);
+        assertEquals("each", cs1.getName());
+        PFunction cs2 = cs.get(1);
+        assertEquals("require", cs2.getName());
+        PFunction cs3 = cs.get(2);
+        assertEquals("template", cs3.getName());
+        assertEquals("reduce", cs.get(3).getName());
+    }
+
     private PClass assertAndGetClassElement(PuppetParserResult result) {
         PElement nd = result.getRootNode();
         assertNotNull(nd);
