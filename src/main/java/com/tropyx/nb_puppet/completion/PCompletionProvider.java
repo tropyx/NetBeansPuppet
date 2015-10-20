@@ -235,6 +235,9 @@ public class PCompletionProvider implements CompletionProvider {
                 }
             }
         }
+        for (String builtin : BuiltInFunctions.get()) {
+            completionResultSet.addItem(new PPFunctionCompletionItem(prefix, builtin, offset));
+        }
     }
 
     private void completeResources(String prefix, CompletionResultSet completionResultSet, int caretOffset, Document document, int queryType) {
