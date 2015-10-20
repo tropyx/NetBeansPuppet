@@ -16,6 +16,7 @@
  */
 package com.tropyx.nb_puppet.highlighter;
 
+import com.tropyx.nb_puppet.semantic.SemanticColoring;
 import javax.swing.text.Document;
 import org.netbeans.api.editor.mimelookup.MimeRegistration;
 import org.netbeans.api.editor.mimelookup.MimeRegistrations;
@@ -40,13 +41,12 @@ public class MarkOccurrencesHighlightsLayerFactory implements HighlightsLayerFac
 
     @Override
     public HighlightsLayer[] createLayers(Context context) {
-        return new HighlightsLayer[]{
-                    HighlightsLayer.create(
-                    MarkOccurrencesHighlighter.class.getName(),
-                    ZOrder.CARET_RACK.forPosition(2000),
-                    true,
-                    getMarkOccurrencesHighlighter(context.getDocument()).getHighlightsBag())
-                };
+        return new HighlightsLayer[] {
+            HighlightsLayer.create(SemanticColoring.class.getName() + "-2", ZOrder.SYNTAX_RACK.forPosition(1500), false,
+                    SemanticColoring.getSemanticHighlightsBag(context.getDocument())),
+            HighlightsLayer.create(MarkOccurrencesHighlighter.class.getName(), ZOrder.CARET_RACK.forPosition(2000), true,
+                            getMarkOccurrencesHighlighter(context.getDocument()).getHighlightsBag())
+        };
     }
 
 }
