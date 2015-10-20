@@ -156,6 +156,7 @@ public class PLexer implements Lexer<PTokenId>
                         }
                         default : backup(1);
                     }
+                    return token(PTokenId.PIPE);
                 case '/':
                     if ((c = nextChar()) == '*') {
                         return finishMultiComment();

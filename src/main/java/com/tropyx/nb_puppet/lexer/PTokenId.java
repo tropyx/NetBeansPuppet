@@ -99,6 +99,8 @@ public enum PTokenId implements TokenId
     COLON(":", Category.SEPARATOR),
     /** ; **/
     SEMICOLON(";", Category.SEPARATOR),
+    /** | */
+    PIPE("|", Category.SEPARATOR),
     /** = **/
     EQUALS("=", Category.OPERATOR),
     /** => */
