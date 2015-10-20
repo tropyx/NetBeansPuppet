@@ -59,56 +59,19 @@ public enum PTokenId implements TokenId
     IN("in", Category.OPERATOR),
     QUESTIONMARK("?", Category.OPERATOR), //really operator?
     
-
-    
     OPERATOR(null, Category.OPERATOR),
-//    INCLUDE("include", Category.KEYWORD),
-//    REQUIRE("require", Category.KEYWORD),
     
-    ALERT("alert", Category.FUNCTION), //*
-    COLLECT("collect", Category.FUNCTION),//*
+    //built-in functions that can be used without ()
     CONTAIN("contain", Category.FUNCTION),//*
-    CREATE_RESOURCES("create_resources", Category.FUNCTION),//*
-    CRIT("crit", Category.FUNCTION),//*
     DEBUG("debug", Category.FUNCTION), //*
-    DEFINED("defined", Category.FUNCTION),
-    EACH("each", Category.FUNCTION), //*
-    EMERG("emerg", Category.FUNCTION), //*
-    EPP("epp", Category.FUNCTION), //*
     ERR("err", Category.FUNCTION), //*
-    EXTLOOKUP("extlookup", Category.FUNCTION),//*
     FAIL("fail", Category.FUNCTION), //*
-    FILE("file", Category.FUNCTION),//*
-    FILTER("filter", Category.FUNCTION),//*
-    FQDN_RAND("fqdn_rand", Category.FUNCTION), //*
-    GENERATE("generate", Category.FUNCTION),
-    HIERA("hiera", Category.FUNCTION),//*
-    HIERA_ARRAY("hiera_array", Category.FUNCTION),//*
-    HIERA_HASH("hiera_hash", Category.FUNCTION),//*
-    HIERA_INCLUDE("hiera_include", Category.FUNCTION),//*
-    INCLUDE("include", Category.FUNCTION), //*
     INFO("info", Category.FUNCTION),
-    INLINE_EPP("inline_epp", Category.FUNCTION),
-    INLINE_TEMPLATE("inline_template", Category.FUNCTION),
-    LOOKUP("lookup", Category.FUNCTION), //*
-    MAP("map", Category.FUNCTION), //*
-    MD5("md5", Category.FUNCTION), //*
+    INCLUDE("include", Category.FUNCTION), //*
     NOTICE("notice", Category.FUNCTION), //*
     REALIZE("realize", Category.FUNCTION),//*
-    REDUCE("reduce", Category.FUNCTION),//*
-    REQSUBST("regsubst", Category.FUNCTION),
     REQUIRE("require", Category.FUNCTION), //*
-    SEARCH("search", Category.FUNCTION),//*
-    SELECT("select", Category.FUNCTION),//*
-    SHA1("sha1", Category.FUNCTION),//*
-    SHELLQUOTE("shellquote", Category.FUNCTION),//*
-    SLICE("slice", Category.FUNCTION),//*
-    SPLIT("split", Category.FUNCTION),//*
-    SPRINTF("sprintf", Category.FUNCTION),//*
     TAG("tag", Category.FUNCTION), //*
-    TAGGED("tagged", Category.FUNCTION),
-    TEMPLATE("template", Category.FUNCTION), //*
-    VERSIONCMP("versioncmp", Category.FUNCTION),//*
     WARNING("warning", Category.FUNCTION), //*
     
     COMMENT(null, "comment"),
