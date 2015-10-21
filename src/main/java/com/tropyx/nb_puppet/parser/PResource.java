@@ -26,7 +26,7 @@ public class PResource extends PElement {
     private final List<PResourceAttribute> atributes = new ArrayList<>();
     
     public PResource(PElement parent, int offset, String resourceType) {
-        super(RESOURCE_ATTR, parent, offset);
+        super(RESOURCE, parent, offset);
         this.resourceType = resourceType;
     }
 
