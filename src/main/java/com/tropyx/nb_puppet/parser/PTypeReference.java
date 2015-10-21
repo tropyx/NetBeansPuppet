@@ -59,6 +59,4 @@ public class PTypeReference extends PElement {
     public String toString() {
         return super.toString() + "[" + getResourceType() + "]";
     }
-
-
 }

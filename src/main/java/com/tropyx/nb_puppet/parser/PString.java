@@ -51,6 +51,10 @@ public class PString extends PElement {
     }
 
     @Override
+    public int getEndOffset() {
+        return getOffset() + value.length() + 2;
+    }
+    @Override
     public String toString() {
         return super.toString() + "[" +  value +  ']';
     }

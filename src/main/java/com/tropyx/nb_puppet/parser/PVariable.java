@@ -37,5 +37,11 @@ public class PVariable extends PElement {
         return super.toString() + "[" + name + "]";
     }
 
+    @Override
+    public int getEndOffset() {
+        //TODO not entirely true for string vars
+        return getOffset() + name.length();
+    }
+
 
 }

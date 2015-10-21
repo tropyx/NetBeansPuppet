@@ -33,6 +33,10 @@ public class PIdentifier extends PElement {
     }
 
     @Override
+    public int getEndOffset() {
+        return getOffset() + name.length();
+    }
+    @Override
     public String toString() {
         return super.toString() + "[" + name + "]";
     }

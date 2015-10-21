@@ -152,10 +152,8 @@ class PuppetParser extends Parser {
         int bracketCount = 0;
         int parenCount = 0;
         boolean ignore = false;
-        int len = 0;
 
         while (token != null && (ignore || !stops.contains(token.id()))) {
-            len = len + token.length();
             if (null != token.id()) switch (token.id()) {
                 case LBRACE:
                     braceCount++;
@@ -310,7 +308,7 @@ class PuppetParser extends Parser {
             token = nextSkipWhitespaceComment(ts);
             ignore = bracketCount > 0 || braceCount > 0 || parenCount > 0;
         }
-        blob.setLength(len);
+        blob.setEndOffset(ts.offset() + (token != null ? token.length() : 0));
         return blob;
     }
 

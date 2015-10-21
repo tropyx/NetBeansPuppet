@@ -73,16 +73,10 @@ public class PElement {
     }
 
     public PElement getChildAtOffset(int offset) {
-        PElement last = null;
         for (PElement child : getChildren()) {
-            if (child.getOffset() <= offset) {
-                last = child;
-            } else {
-                break;
+            if (child.getOffset() <= offset && child.getEndOffset() >= offset) {
+                return child.getChildAtOffset(offset);
             }
-        }
-        if (last != null) {
-            return last.getChildAtOffset(offset);
         }
         return this;
     }
@@ -113,6 +107,14 @@ public class PElement {
 
     public int getOffset() {
         return offset;
+    }
+
+    public int getEndOffset() {
+        int size = children.size();
+        if (size > 0) {
+            return children.get(size - 1).getEndOffset();
+        }
+        return getOffset(); //TODO??
     }
     
     public int getType() {

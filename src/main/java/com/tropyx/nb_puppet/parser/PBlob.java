@@ -3,18 +3,19 @@ package com.tropyx.nb_puppet.parser;
 
 public class PBlob extends PElement {
 
-    private int length;
+    private int endOffset;
 
     public PBlob(PElement parent, int offset) {
         super(BLOB, parent, offset);
     }
 
-    public int getLength() {
-        return length;
+    @Override
+    public int getEndOffset() {
+        return endOffset;
     }
 
-    public void setLength(int length) {
-        this.length = length;
+    public void setEndOffset(int length) {
+        this.endOffset = length;
     }
 
     
