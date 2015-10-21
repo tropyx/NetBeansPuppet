@@ -3,6 +3,7 @@ package com.tropyx.nb_puppet.semantic;
 
 import com.tropyx.nb_puppet.completion.PPFunctionCompletionItem;
 import com.tropyx.nb_puppet.completion.PPResourceCompletionItem;
+import com.tropyx.nb_puppet.hyperlink.PHyperlinkProvider;
 import com.tropyx.nb_puppet.lexer.PLanguageProvider;
 import com.tropyx.nb_puppet.parser.PClass;
 import com.tropyx.nb_puppet.parser.PCondition;
@@ -17,8 +18,10 @@ import java.util.Collections;
 import java.util.List;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
+import org.netbeans.api.actions.Openable;
 import org.netbeans.api.editor.EditorRegistry;
 import org.netbeans.api.editor.mimelookup.MimeRegistration;
+import org.netbeans.editor.BaseDocument;
 import org.netbeans.modules.editor.breadcrumbs.spi.BreadcrumbsController;
 import org.netbeans.modules.editor.breadcrumbs.spi.BreadcrumbsElement;
 import org.netbeans.modules.parsing.api.Snapshot;
@@ -58,7 +61,7 @@ public class Breadcrumbs extends ParserResultTask<PuppetParserResult> {
         PElement root = result.getRootNode();
         PElement child = root.getChildAtOffset(caret);
         child = !isSuitable(child) ? computeSuitableParent(child) : child;
-        BreadcrumbsElement el = new Element(child, Collections.<BreadcrumbsElement>emptyList());
+        BreadcrumbsElement el = new Element((BaseDocument)doc, child, Collections.<BreadcrumbsElement>emptyList());
         BreadcrumbsController.setBreadcrumbs(doc, el);
     }
 
@@ -111,30 +114,32 @@ public class Breadcrumbs extends ParserResultTask<PuppetParserResult> {
 
         @Override
         public Collection<? extends SchedulerTask> create(Snapshot snapshot) {
-            System.out.println("have breadcrumbs");
             return Collections.singleton(new Breadcrumbs());
         }
     }
 
-    private static class Element implements BreadcrumbsElement {
+    private static class Element implements BreadcrumbsElement, Openable {
         private final BreadcrumbsElement parent;
         private final List<BreadcrumbsElement> children;
         private final String name;
         private final Image icon;
+        private final int offset;
+        private final BaseDocument doc;
 
-        public Element(PElement current, List<BreadcrumbsElement> children) {
+        public Element(BaseDocument doc, PElement current, List<BreadcrumbsElement> children) {
             this.children = children;
+            this.doc = doc;
             this.icon = computeIcon(current);
             this.name = computeName(current);
             if (current != null) {
+                this.offset = current.getOffset();
                 PElement suitableParent = computeSuitableParent(current);
-                this.parent = new Element(suitableParent, Collections.<BreadcrumbsElement>singletonList(this));
+                this.parent = new Element(doc, suitableParent, Collections.<BreadcrumbsElement>singletonList(this));
             } else {
                 this.parent = null;
+                this.offset = 0;
             }
         }
-
-
 
         @Override
         public String getHtmlDisplayName() {
@@ -174,6 +179,11 @@ public class Breadcrumbs extends ParserResultTask<PuppetParserResult> {
         @Override
         public Lookup getLookup() {
             return Lookups.singleton(this);
+        }
+
+        @Override
+        public void open() {
+            PHyperlinkProvider.showAtOffset(doc, offset);
         }
 
         @Override

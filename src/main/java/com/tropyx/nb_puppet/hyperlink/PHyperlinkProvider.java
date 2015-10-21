@@ -240,7 +240,7 @@ public class PHyperlinkProvider implements HyperlinkProviderExt {
         }
     }
 
-    public void showAtOffset(BaseDocument bd, int offset) throws IndexOutOfBoundsException {
+    public static void showAtOffset(BaseDocument bd, int offset) throws IndexOutOfBoundsException {
         try {
             int line = Utilities.getLineOffset(bd, offset);
             int row = Utilities.getRowStart(bd, offset);
