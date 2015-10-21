@@ -27,6 +27,15 @@
                         </folder>
                     </folder>
                 </folder>
+                <folder name="SideBar">
+                    <file name="BreadcrumbsController.instance">
+                        <attr
+                            methodvalue="org.netbeans.modules.editor.breadcrumbs.spi.BreadcrumbsController.createSideBarFactory" name="instanceCreate"/>
+                        <attr name="location" stringvalue="South"/>
+                        <attr intvalue="3333" name="position"/>
+                        <attr boolvalue="false" name="scrollable"/>
+                    </file>
+                </folder>
                 <folder name="Toolbars">
                     <folder name="Default">
                         <file name="comment">

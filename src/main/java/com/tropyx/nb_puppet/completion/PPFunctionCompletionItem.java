@@ -20,7 +20,7 @@ public class PPFunctionCompletionItem implements CompletionItem {
     private final String rightText;
     
     @StaticResource
-    private static final String ICON = "com/tropyx/nb_puppet/resources/function.png";
+    public static final String ICON = "com/tropyx/nb_puppet/resources/function.png";
 
     public PPFunctionCompletionItem(String prefix, String value, int caretOffset, String rightText) {
         this.prefix = prefix;

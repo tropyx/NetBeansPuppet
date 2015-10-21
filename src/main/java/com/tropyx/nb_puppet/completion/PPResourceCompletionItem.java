@@ -39,7 +39,7 @@ public class PPResourceCompletionItem implements CompletionItem {
     private final String rightText;
     
     @StaticResource
-    private static final String ICON = "com/tropyx/nb_puppet/resources/resources.gif";
+    public static final String ICON = "com/tropyx/nb_puppet/resources/resources.gif";
     private String[] reqParams;
 
     private PPResourceCompletionItem(String prefix, String value, int caretOffset, String rightText) {

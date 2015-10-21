@@ -252,6 +252,17 @@
       <artifactId>org-openide-modules</artifactId>
       <version>RELEASE80</version>
     </dependency>
+    <dependency>
+      <groupId>org.netbeans.modules</groupId>
+      <artifactId>org-netbeans-modules-editor-breadcrumbs</artifactId>
+      <version>${netbeans.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.netbeans.contrib.yenta</groupId>
+      <artifactId>api</artifactId>
+      <version>1.1</version>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -266,6 +277,7 @@
             <netbeansUserdir>${basedir}/userdir</netbeansUserdir>
             <licenseName>General Public License 3.0</licenseName>
             <licenseFile>${basedir}/license.txt</licenseFile>
+            <verifyRuntime>warn</verifyRuntime>
             <nbmResources>
                 <nbmResource>
                     <directory>src/main/puppet42</directory>
@@ -303,6 +315,32 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <version>2.18.1</version>
       </plugin>
+       <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <version>2.10</version>
+            <executions>
+                <execution>
+                    <id>unpack</id>
+                    <phase>prepare-package</phase>
+                    <goals>
+                        <goal>unpack</goal>
+                    </goals>
+                    <configuration>
+                        <artifactItems>
+                            <artifactItem>
+                                <groupId>org.netbeans.contrib.yenta</groupId>
+                                <artifactId>api</artifactId>
+                                <version>1.1</version>
+                                <type>jar</type>
+                                <includes>**/*.class</includes>
+                                <outputDirectory>${project.build.directory}/classes</outputDirectory>
+                            </artifactItem>
+                        </artifactItems>
+                    </configuration>
+                </execution>
+            </executions>
+        </plugin>
     </plugins>
   </build>
 </project>
