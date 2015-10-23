@@ -2,6 +2,7 @@ Puppet Configuration Editor
 ==============
 
 [![Join the chat at https://gitter.im/tropyx/NetBeansPuppet](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/tropyx/NetBeansPuppet?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+<a href="https://www.codeship.io/projects/41169"><img src="https://www.codeship.io/projects/fc108f80-35b9-0132-1d49-7a12fe8c1dfc/status">Codeship Status for NetBeansPuppet</a>
 
 This is a module for editing Puppet configurations.  It identifies a puppet config tree by the presence of a manifests/site.pp or manifests/init.pp file.
 <br>
@@ -23,19 +24,19 @@ This lets you use IDE tools like inbuilt git/subversion/mercurial support etc. t
    <dd>Works with NetBeans 8.0+</dd>
 </dl>
 
- <a href="https://www.codeship.io/projects/41169"><img src="https://www.codeship.io/projects/fc108f80-35b9-0132-1d49-7a12fe8c1dfc/status">Codeship Status for NetBeansPuppet</a>
-
+ 
 
 <dl>
   <dt>To Install:</dt>
-  <dd>The latest version of the plugin should be available on NetBeans update centers for 8.0 and 8.1. It's listed on the <a href="http://plugins.netbeans.org/plugin/60170/?show=true">NetBeans Plugin portal</a> as well</dd>
-
-  <dd>Alternatively Download the latest release <a href="https://github.com/tropyx/NetBeansPuppet/releases/tag/v1.3.0">nbpuppet-1.3.0</a> to your local machine
+  <dd>Download the latest release <a href="https://github.com/tropyx/NetBeansPuppet/releases/tag/v2.0.0">nbpuppet-2.0.0</a> to your local machine
   add it to your NetBeans IDE with:</dd>
 </dl>
 <pre>
 Tools -> Plugins -> Downloaded -> Add Plugins...
 </pre>
+
+  <dd>PLEASE NOTE: The latest version of the plugin is currently not available on NetBeans update centers for 8.0 and 8.1. It's listed on the <a href="http://plugins.netbeans.org/plugin/60170/?show=true">NetBeans Plugin portal</a></dd>
+
 <br>
 ![ScreenShot](https://raw.github.com/tropyx/NetBeansPuppet/master/screenshot-puppetfornetbeans.png)
 <br>
