@@ -16,7 +16,8 @@
  */
 package com.tropyx.nb_puppet;
 
-import java.util.Collections;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 import org.netbeans.contrib.yenta.Yenta;
 
@@ -24,6 +25,9 @@ public class YentaModuleInstall extends Yenta {
 
     @Override
     protected Set<String> friends() {
-        return Collections.singleton(("org.netbeans.modules.editor.breadcrumbs"));
+        return new HashSet<>(Arrays.asList(new String[] {
+            "org.netbeans.modules.editor.breadcrumbs",
+            "org.netbeans.modules.jumpto"
+        }));
     }
 }
