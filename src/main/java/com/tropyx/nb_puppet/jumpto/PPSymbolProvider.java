@@ -22,32 +22,28 @@ import com.tropyx.nb_puppet.indexer.PPIndexer;
 import com.tropyx.nb_puppet.indexer.PPIndexerFactory;
 import com.tropyx.nb_puppet.refactoring.PPWhereUsedQueryPlugin;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Pattern;
 import javax.swing.Icon;
 import javax.swing.text.StyledDocument;
-import org.netbeans.api.java.classpath.ClassPath;
-import org.netbeans.api.java.classpath.GlobalPathRegistry;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectUtils;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.modules.parsing.spi.indexing.support.IndexResult;
 import org.netbeans.modules.parsing.spi.indexing.support.QuerySupport;
+import org.netbeans.spi.jumpto.symbol.SymbolDescriptor;
+import org.netbeans.spi.jumpto.symbol.SymbolProvider;
 import org.netbeans.spi.jumpto.type.SearchType;
-import org.netbeans.spi.jumpto.type.TypeDescriptor;
-import org.netbeans.spi.jumpto.type.TypeProvider;
 import org.openide.filesystems.FileObject;
 import org.openide.text.CloneableEditorSupport;
 import org.openide.util.Exceptions;
 import org.openide.util.ImageUtilities;
 import org.openide.util.lookup.ServiceProvider;
 
-@ServiceProvider(service = TypeProvider.class)
-public class PPTypeProvider implements TypeProvider {
-
+@ServiceProvider(service = SymbolProvider.class)
+public class PPSymbolProvider implements SymbolProvider{
     private final AtomicBoolean cancelled = new AtomicBoolean(false);
 
     @Override
@@ -61,31 +57,14 @@ public class PPTypeProvider implements TypeProvider {
     }
 
     @Override
-    public void computeTypeNames(Context context, Result result) {
-        cancelled.set(false);
+    public void computeSymbolNames(Context context, Result result) {
+                cancelled.set(false);
 
         SearchType type = context.getSearchType();
-        Collection<FileObject> roots = getIndexerRoots(context.getProject());
+        Collection<FileObject> roots = PPTypeProvider.getIndexerRoots(context.getProject());
         if (cancelled.get()) return;
         try {
             String text = context.getText();
-            boolean prependSep = false;
-            if (SearchType.CAMEL_CASE == type) {
-                StringBuilder sb = new StringBuilder();
-                for (char ch : text.toCharArray()) {
-                    if (Character.isUpperCase(ch)) {
-                        if (prependSep) {
-                            sb.append("*\\:\\:");
-                        } else {
-                            prependSep = true;
-                        }
-                    }
-                    sb.append(Character.toLowerCase(ch));
-                }
-                sb.append("*");
-                text = sb.toString();
-                type = SearchType.CASE_INSENSITIVE_REGEXP;
-            }
             if (SearchType.CASE_INSENSITIVE_EXACT_NAME == type) {
                 text = text.toLowerCase();
             }
@@ -94,42 +73,20 @@ public class PPTypeProvider implements TypeProvider {
             }
             QuerySupport qs = QuerySupport.forRoots(PPIndexerFactory.INDEXER_TYPE, PPIndexerFactory.INDEXER_VERSION, roots.toArray(new FileObject[0]));
             if (cancelled.get()) return;
-            for ( IndexResult r :qs.query(PPIndexer.FLD_ROOT, text, searchType2Kind(type), PPIndexer.FLD_ROOT)) {
+            for ( IndexResult r :qs.query(PPIndexer.FLD_VAR, text, PPTypeProvider.searchType2Kind(type), PPIndexer.FLD_ROOT, PPIndexer.FLD_VAR)) {
                 if (cancelled.get()) return;
-                result.addResult(new TypeDescriptorImpl(r.getValue(PPIndexer.FLD_ROOT), r.getFile(), 0));
+                final String root = r.getValue(PPIndexer.FLD_ROOT);
+                for (String v : r.getValues(PPIndexer.FLD_VAR)) {
+                    if (cancelled.get()) return;
+                    if (matches(v, type, text)) {
+                        result.addResult(new PPSymbolProvider.SymbolDescriptorImpl(v, root, r.getFile(), 0));
+                    }
+                }
             }
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);
         }
 
-    }
-
-    static QuerySupport.Kind searchType2Kind(SearchType type) {
-        switch (type) {
-            case CAMEL_CASE : return QuerySupport.Kind.CAMEL_CASE;
-            case PREFIX : return QuerySupport.Kind.PREFIX;
-            case EXACT_NAME : return QuerySupport.Kind.EXACT;
-            case REGEXP : return QuerySupport.Kind.REGEXP;
-            case CASE_INSENSITIVE_EXACT_NAME : return QuerySupport.Kind.EXACT;
-            case CASE_INSENSITIVE_PREFIX : return QuerySupport.Kind.CASE_INSENSITIVE_PREFIX;
-            case CASE_INSENSITIVE_REGEXP : return QuerySupport.Kind.CASE_INSENSITIVE_REGEXP;
-            default: return QuerySupport.Kind.EXACT;
-        }
-    }
-
-    static Collection<FileObject> getIndexerRoots(Project prj) {
-        Collection<FileObject> roots;
-        if (prj == null) {
-            roots = GlobalPathRegistry.getDefault().getSourceRoots();
-        } else {
-            ClassPath cp = ClassPath.getClassPath(prj.getProjectDirectory(), ClassPath.SOURCE);
-            if (cp != null) {
-                roots = Arrays.asList(cp.getRoots());
-            } else {
-                roots = Collections.emptyList();
-            }
-        }
-        return roots;
     }
 
     @Override
@@ -141,42 +98,53 @@ public class PPTypeProvider implements TypeProvider {
     public void cleanup() {
     }
 
-    private static class TypeDescriptorImpl extends TypeDescriptor {
-        private final String typeName;
-        private final Project project;
-        private final FileObject fileObject;
+    private boolean matches(String v, SearchType type, String text) {
+        switch (type) {
+            case CASE_INSENSITIVE_EXACT_NAME:
+                return v.toLowerCase().equals(text.toLowerCase());
+            case CASE_INSENSITIVE_PREFIX:
+                return v.toLowerCase().startsWith(text.toLowerCase());
+            case EXACT_NAME:
+                return v.equals(text);
+            case PREFIX:
+                return v.startsWith(text);
+            case REGEXP:
+                return Pattern.matches(text, v);
+            case CASE_INSENSITIVE_REGEXP:
+                return Pattern.matches(text.toLowerCase(), v.toLowerCase());
+            case CAMEL_CASE:
+        }
+        return false;
+    }
+
+    private static class SymbolDescriptorImpl extends SymbolDescriptor {
+        private final String var;
+        private final String root;
+        private final FileObject file;
         private final int offset;
+        private final Project project;
 
-        public TypeDescriptorImpl(String typeName, FileObject fileObject, int offset) {
-            this.typeName = typeName;
-            this.fileObject = fileObject;
-            this.project = FileOwnerQuery.getOwner(fileObject);
+        public SymbolDescriptorImpl(String var, String root, FileObject file, int offset) {
+            this.var = var;
+            this.root = root;
+            this.file = file;
             this.offset = offset;
-        }
-
-        @Override
-        public String getSimpleName() {
-            return typeName;
-        }
-
-        @Override
-        public String getOuterName() {
-            return "";
-        }
-
-        @Override
-        public String getTypeName() {
-            return typeName;
-        }
-
-        @Override
-        public String getContextName() {
-            return "";
+            this.project = FileOwnerQuery.getOwner(file);
         }
 
         @Override
         public Icon getIcon() {
-            return ImageUtilities.loadImageIcon(PPConstants.ICON_PUPPET_FILE, true);
+            return ImageUtilities.loadImageIcon(PPConstants.VARIABLE_ICON, true);
+        }
+
+        @Override
+        public String getSymbolName() {
+            return var;
+        }
+
+        @Override
+        public String getOwnerName() {
+            return root;
         }
 
         @Override
@@ -191,7 +159,7 @@ public class PPTypeProvider implements TypeProvider {
 
         @Override
         public FileObject getFileObject() {
-            return fileObject;
+            return file;
         }
 
         @Override
@@ -202,7 +170,7 @@ public class PPTypeProvider implements TypeProvider {
 
         @Override
         public void open() {
-            CloneableEditorSupport ces = PPWhereUsedQueryPlugin.getEditorSupport(fileObject);
+            CloneableEditorSupport ces = PPWhereUsedQueryPlugin.getEditorSupport(file);
             if (ces != null) {
                 try {
                     StyledDocument doc = ces.openDocument();

@@ -29,7 +29,7 @@ public final class PPConstants {
     @StaticResource
     public static final String RESOURCE_ICON = "com/tropyx/nb_puppet/resources/resources.gif";
     @StaticResource
-    public static final String VARIABLE_ICON = "com/tropyx/nb_puppet/resources/puppet_icon.gif";
+    public static final String VARIABLE_ICON = "com/tropyx/nb_puppet/resources/variable.png";
     public static final String MIME_TYPE = "text/x-puppet-manifest";
     @StaticResource
     public static final String ICON_PUPPET_FILE = "com/tropyx/nb_puppet/resources/puppet16.png";
