@@ -1,12 +1,27 @@
-
+/*
+ * Copyright (C) 2015 mkleint
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.tropyx.nb_puppet.completion;
 
+import com.tropyx.nb_puppet.PPConstants;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import javax.swing.text.JTextComponent;
-import org.netbeans.api.annotations.common.StaticResource;
 import org.netbeans.lib.editor.codetemplates.api.CodeTemplateManager;
 import org.netbeans.spi.editor.completion.CompletionItem;
 import org.netbeans.spi.editor.completion.CompletionTask;
@@ -19,8 +34,6 @@ public class PPFunctionCompletionItem implements CompletionItem {
     private final int caretOffset;
     private final String rightText;
     
-    @StaticResource
-    public static final String ICON = "com/tropyx/nb_puppet/resources/function.png";
 
     public PPFunctionCompletionItem(String prefix, String value, int caretOffset, String rightText) {
         this.prefix = prefix;
@@ -51,7 +64,7 @@ public class PPFunctionCompletionItem implements CompletionItem {
 
     @Override
     public void render(Graphics g, Font defaultFont, Color defaultColor, Color backgroundColor, int width, int height, boolean selected) {
-        CompletionUtilities.renderHtml(ImageUtilities.loadImageIcon(ICON, true), value, rightText, g, defaultFont, defaultColor, width, height, selected);
+        CompletionUtilities.renderHtml(ImageUtilities.loadImageIcon(PPConstants.FUNCTION_ICON, true), value, rightText, g, defaultFont, defaultColor, width, height, selected);
     }
 
     @Override

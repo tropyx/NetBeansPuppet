@@ -16,6 +16,7 @@
  */
 package com.tropyx.nb_puppet.semantic;
 
+import com.tropyx.nb_puppet.PPConstants;
 import com.tropyx.nb_puppet.lexer.PLanguageProvider;
 import com.tropyx.nb_puppet.parser.PElement;
 import com.tropyx.nb_puppet.parser.PFunction;
@@ -75,7 +76,7 @@ public class SemanticColoring extends ParserResultTask<PuppetParserResult> {
         }
         final PElement root = result.getRootNode();
         final OffsetsBag rootBag = getSemanticHighlightsBag(doc);
-        final FontColorSettings fcs = MimeLookup.getLookup(MimePath.get(PLanguageProvider.MIME_TYPE)).lookup(FontColorSettings.class);
+        final FontColorSettings fcs = MimeLookup.getLookup(MimePath.get(PPConstants.MIME_TYPE)).lookup(FontColorSettings.class);
         if (root != null) {
             SwingUtilities.invokeLater(new Runnable() {
                 @Override
@@ -114,7 +115,7 @@ public class SemanticColoring extends ParserResultTask<PuppetParserResult> {
         return bag;
     }
 
-    @MimeRegistration(mimeType = PLanguageProvider.MIME_TYPE, service = TaskFactory.class)
+    @MimeRegistration(mimeType = PPConstants.MIME_TYPE, service = TaskFactory.class)
     public static class Factory extends TaskFactory {
 
         @Override

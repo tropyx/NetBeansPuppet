@@ -24,7 +24,7 @@ import org.netbeans.editor.BaseDocument;
 import org.netbeans.editor.Utilities;
 import org.netbeans.spi.editor.typinghooks.TypedBreakInterceptor;
 
-@MimeRegistration(mimeType = PLanguageProvider.MIME_TYPE, service = TypedBreakInterceptor.Factory.class)
+@MimeRegistration(mimeType = PPConstants.MIME_TYPE, service = TypedBreakInterceptor.Factory.class)
 public class PPTypedBreakInterceptorFactory implements TypedBreakInterceptor.Factory {
 
     @Override

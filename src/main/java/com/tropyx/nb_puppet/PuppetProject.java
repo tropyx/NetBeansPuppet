@@ -56,10 +56,6 @@ import org.openide.util.lookup.Lookups;
 
 
 public class PuppetProject implements Project {
-    @StaticResource()
-    public static final String PUPPET_ICON = "com/tropyx/nb_puppet/resources/puppet_icon.gif";
-
-    public static final String PUPPET_PROJECT_TYPE = "com-tropyx-nb_puppet";
     private final FileObject projectDir;
     private final ProjectState state;
     private Lookup lkp;
@@ -86,8 +82,7 @@ public class PuppetProject implements Project {
     @Override
     public synchronized Lookup getLookup() {
         if (lkp == null) {
-            lkp = LookupProviderSupport.createCompositeLookup(
-                    Lookups.fixed(new Object[]{
+            lkp = LookupProviderSupport.createCompositeLookup(Lookups.fixed(new Object[]{
                 this,
                 new Info(),
                 new PuppetProjectLogicalView(this),
@@ -96,7 +91,7 @@ public class PuppetProject implements Project {
                 GenericSources.genericOnly(this),
                 new AuxPropsImpl(this)
             // new ReportsSubprojectProvider(this)
-            }), "Projects/" + PUPPET_PROJECT_TYPE + "/Lookup");
+            }), "Projects/" + PPConstants.PUPPET_PROJECT_TYPE + "/Lookup");
         }
         return lkp;
     }
@@ -179,12 +174,12 @@ static final VisibilityQueryDataFilter INSTANCE = new VisibilityQueryDataFilter(
 
             @Override
             public Action[] getActions(boolean arg0) {
-                return CommonProjectActions.forType(PUPPET_PROJECT_TYPE);
+                return CommonProjectActions.forType(PPConstants.PUPPET_PROJECT_TYPE);
             }
 
             @Override
             public Image getIcon(int type) {
-                return ImageUtilities.loadImage(PUPPET_ICON);
+                return ImageUtilities.loadImage(PPConstants.PUPPET_ICON);
             }
 
             @Override
@@ -265,7 +260,7 @@ static final VisibilityQueryDataFilter INSTANCE = new VisibilityQueryDataFilter(
 
         @Override
         public Icon getIcon() {
-            return new ImageIcon(ImageUtilities.loadImage(PUPPET_ICON));
+            return new ImageIcon(ImageUtilities.loadImage(PPConstants.PUPPET_ICON));
         }
 
         @Override

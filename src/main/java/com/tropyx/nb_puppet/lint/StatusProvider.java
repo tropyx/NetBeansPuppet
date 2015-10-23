@@ -1,5 +1,6 @@
 package com.tropyx.nb_puppet.lint;
 
+import com.tropyx.nb_puppet.PPConstants;
 import com.tropyx.nb_puppet.PuppetProject;
 import com.tropyx.nb_puppet.lexer.PLanguageProvider;
 import static com.tropyx.nb_puppet.lint.ExecutePuppetLintAction.findBasedir;
@@ -46,7 +47,7 @@ import org.openide.util.RequestProcessor;
  *
  * @author mkleint
  */
-@MimeRegistration(mimeType=PLanguageProvider.MIME_TYPE, service=UpToDateStatusProviderFactory.class)
+@MimeRegistration(mimeType=PPConstants.MIME_TYPE, service=UpToDateStatusProviderFactory.class)
 public final class StatusProvider implements UpToDateStatusProviderFactory {
 
     private static final String LAYER_ERRORS = "puppet-plugin-errors"; //NOI18N

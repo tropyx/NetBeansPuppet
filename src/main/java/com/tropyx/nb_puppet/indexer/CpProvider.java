@@ -17,6 +17,7 @@
 
 package com.tropyx.nb_puppet.indexer;
 
+import com.tropyx.nb_puppet.PPConstants;
 import com.tropyx.nb_puppet.PuppetProject;
 import java.io.File;
 import java.util.concurrent.atomic.AtomicReference;
@@ -29,7 +30,7 @@ import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.modules.InstalledFileLocator;
 
-@ProjectServiceProvider(service = ClassPathProvider.class, projectType = PuppetProject.PUPPET_PROJECT_TYPE)
+@ProjectServiceProvider(service = ClassPathProvider.class, projectType = PPConstants.PUPPET_PROJECT_TYPE)
 public class CpProvider implements ClassPathProvider {
     private final Project project;
     private final AtomicReference<ClassPath> CP = new AtomicReference<>(null);

@@ -1,6 +1,7 @@
 
 package com.tropyx.nb_puppet.semantic;
 
+import com.tropyx.nb_puppet.PPConstants;
 import com.tropyx.nb_puppet.completion.PPFunctionCompletionItem;
 import com.tropyx.nb_puppet.completion.PPResourceCompletionItem;
 import com.tropyx.nb_puppet.hyperlink.PHyperlinkProvider;
@@ -109,7 +110,7 @@ public class Breadcrumbs extends ParserResultTask<PuppetParserResult> {
 
 
 
-    @MimeRegistration(mimeType = PLanguageProvider.MIME_TYPE, service = TaskFactory.class)
+    @MimeRegistration(mimeType = PPConstants.MIME_TYPE, service = TaskFactory.class)
     public static class Factory extends TaskFactory {
 
         @Override
@@ -157,9 +158,9 @@ public class Breadcrumbs extends ParserResultTask<PuppetParserResult> {
             }
             switch (current.getType()) {
                 case PElement.RESOURCE:
-                    return ImageUtilities.loadImage(PPResourceCompletionItem.ICON);
+                    return ImageUtilities.loadImage(PPConstants.RESOURCE_ICON);
                 case PElement.FUNCTION:
-                    return ImageUtilities.loadImage(PPFunctionCompletionItem.ICON);
+                    return ImageUtilities.loadImage(PPConstants.FUNCTION_ICON);
                 default:
                     return BreadcrumbsController.NO_ICON;
             }

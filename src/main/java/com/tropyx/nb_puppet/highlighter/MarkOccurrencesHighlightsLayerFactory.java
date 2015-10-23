@@ -16,6 +16,7 @@
  */
 package com.tropyx.nb_puppet.highlighter;
 
+import com.tropyx.nb_puppet.PPConstants;
 import com.tropyx.nb_puppet.lexer.PLanguageProvider;
 import com.tropyx.nb_puppet.semantic.SemanticColoring;
 import javax.swing.text.Document;
@@ -24,7 +25,7 @@ import org.netbeans.spi.editor.highlighting.HighlightsLayer;
 import org.netbeans.spi.editor.highlighting.HighlightsLayerFactory;
 import org.netbeans.spi.editor.highlighting.ZOrder;
 
-@MimeRegistration(mimeType = PLanguageProvider.MIME_TYPE, service = HighlightsLayerFactory.class)
+@MimeRegistration(mimeType = PPConstants.MIME_TYPE, service = HighlightsLayerFactory.class)
 public class MarkOccurrencesHighlightsLayerFactory implements HighlightsLayerFactory {
 
     public static MarkOccurrencesHighlighter getMarkOccurrencesHighlighter(Document doc) {

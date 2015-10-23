@@ -17,6 +17,7 @@
 
 package com.tropyx.nb_puppet.lexer;
 
+import com.tropyx.nb_puppet.PPConstants;
 import java.util.Collection;
 import java.util.EnumSet;
 import javax.swing.text.Document;
@@ -48,7 +49,7 @@ public class PLangHierarchy extends LanguageHierarchy<PTokenId>
     @Override
     protected String mimeType()
     {
-        return PLanguageProvider.MIME_TYPE;
+        return PPConstants.MIME_TYPE;
     }
 
     public static TokenSequence<PTokenId> getTokenSequence(Document document) {

@@ -32,7 +32,7 @@ public class PPEditorKit extends NbEditorKit {
 
     @Override
     public String getContentType() {
-        return PLanguageProvider.MIME_TYPE;
+        return PPConstants.MIME_TYPE;
     }
 
     @Override

@@ -1,13 +1,13 @@
 
 package com.tropyx.nb_puppet.completion;
 
+import com.tropyx.nb_puppet.PPConstants;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.JTextComponent;
-import org.netbeans.api.annotations.common.StaticResource;
 import org.netbeans.api.editor.completion.Completion;
 import org.netbeans.spi.editor.completion.CompletionItem;
 import org.netbeans.spi.editor.completion.CompletionTask;
@@ -24,8 +24,6 @@ public class PPVariableCompletionItem implements CompletionItem {
     private final String inherits;
     private final boolean inString;
     
-    @StaticResource
-    private static final String ICON = "com/tropyx/nb_puppet/resources/puppet_icon.gif";
 
     public PPVariableCompletionItem(String prefix, String varName, int caretOffset, 
             String className, String currentClassName, String inherits, boolean inString) {
@@ -67,7 +65,7 @@ public class PPVariableCompletionItem implements CompletionItem {
 
     @Override
     public void render(Graphics g, Font defaultFont, Color defaultColor, Color backgroundColor, int width, int height, boolean selected) {
-        CompletionUtilities.renderHtml(ImageUtilities.loadImageIcon(ICON, true), varName, "<font color='!controlShadow'>" + className + "</font>", g, defaultFont, defaultColor, width, height, selected);
+        CompletionUtilities.renderHtml(ImageUtilities.loadImageIcon(PPConstants.VARIABLE_ICON, true), varName, "<font color='!controlShadow'>" + className + "</font>", g, defaultFont, defaultColor, width, height, selected);
     }
 
     @Override

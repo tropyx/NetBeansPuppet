@@ -17,6 +17,7 @@
 
 package com.tropyx.nb_puppet.indexer;
 
+import com.tropyx.nb_puppet.PPConstants;
 import com.tropyx.nb_puppet.PuppetProject;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.java.classpath.GlobalPathRegistry;
@@ -25,7 +26,7 @@ import org.netbeans.spi.java.classpath.ClassPathProvider;
 import org.netbeans.spi.project.ProjectServiceProvider;
 import org.netbeans.spi.project.ui.ProjectOpenedHook;
 
-@ProjectServiceProvider(service = ProjectOpenedHook.class, projectType = PuppetProject.PUPPET_PROJECT_TYPE)
+@ProjectServiceProvider(service = ProjectOpenedHook.class, projectType = PPConstants.PUPPET_PROJECT_TYPE)
 public class POH extends ProjectOpenedHook {
     private final Project project;
     private ClassPath cp;

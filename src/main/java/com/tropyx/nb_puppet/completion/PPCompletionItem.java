@@ -1,13 +1,13 @@
 
 package com.tropyx.nb_puppet.completion;
 
+import com.tropyx.nb_puppet.PPConstants;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.JTextComponent;
-import org.netbeans.api.annotations.common.StaticResource;
 import org.netbeans.api.editor.completion.Completion;
 import org.netbeans.spi.editor.completion.CompletionItem;
 import org.netbeans.spi.editor.completion.CompletionTask;
@@ -21,8 +21,6 @@ public class PPCompletionItem implements CompletionItem {
     private final int caretOffset;
     private final String rightText;
     
-    @StaticResource
-    private static final String ICON = "com/tropyx/nb_puppet/resources/puppet_icon.gif";
 
     public PPCompletionItem(String prefix, String value, int caretOffset, String rightText) {
         this.prefix = prefix;
@@ -56,7 +54,7 @@ public class PPCompletionItem implements CompletionItem {
 
     @Override
     public void render(Graphics g, Font defaultFont, Color defaultColor, Color backgroundColor, int width, int height, boolean selected) {
-        CompletionUtilities.renderHtml(ImageUtilities.loadImageIcon(ICON, true), value, rightText, g, defaultFont, defaultColor, width, height, selected);
+        CompletionUtilities.renderHtml(ImageUtilities.loadImageIcon(PPConstants.ICON, true), value, rightText, g, defaultFont, defaultColor, width, height, selected);
     }
 
     @Override

@@ -16,6 +16,7 @@
  */
 package com.tropyx.nb_puppet.lexer;
 
+import com.tropyx.nb_puppet.PPConstants;
 import org.netbeans.api.lexer.InputAttributes;
 import org.netbeans.api.lexer.Language;
 import org.netbeans.api.lexer.LanguagePath;
@@ -29,11 +30,10 @@ import org.netbeans.spi.lexer.LanguageProvider;
  */
 @org.openide.util.lookup.ServiceProvider(service=org.netbeans.spi.lexer.LanguageProvider.class)
 public class PLanguageProvider extends LanguageProvider {
-    public static final String MIME_TYPE = "text/x-puppet-manifest";
     
     @Override
     public Language<PTokenId> findLanguage (String mimeType) {
-        if (MIME_TYPE.equals (mimeType))
+        if (PPConstants.MIME_TYPE.equals (mimeType))
             return new PLangHierarchy ().language ();
         return null;
     }

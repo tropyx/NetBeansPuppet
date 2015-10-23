@@ -27,7 +27,7 @@ import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.spi.editor.typinghooks.DeletedTextInterceptor;
 
-@MimeRegistration(mimeType = PLanguageProvider.MIME_TYPE, service = DeletedTextInterceptor.Factory.class)
+@MimeRegistration(mimeType = PPConstants.MIME_TYPE, service = DeletedTextInterceptor.Factory.class)
 public class PPDeletedTextInterceptorFactory implements DeletedTextInterceptor.Factory {
 
     @Override

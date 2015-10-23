@@ -17,6 +17,7 @@
 
 package com.tropyx.nb_puppet.completion;
 
+import com.tropyx.nb_puppet.PPConstants;
 import com.tropyx.nb_puppet.indexer.PPIndexer;
 import com.tropyx.nb_puppet.indexer.PPIndexerFactory;
 import com.tropyx.nb_puppet.lexer.PLangHierarchy;
@@ -54,7 +55,7 @@ import org.netbeans.spi.editor.completion.support.AsyncCompletionQuery;
 import org.netbeans.spi.editor.completion.support.AsyncCompletionTask;
 import org.openide.util.Exceptions;
 
-@MimeRegistration(service = CompletionProvider.class, mimeType = PLanguageProvider.MIME_TYPE)
+@MimeRegistration(service = CompletionProvider.class, mimeType = PPConstants.MIME_TYPE)
 public class PCompletionProvider implements CompletionProvider {
 
     @Override

@@ -1,6 +1,7 @@
 
 package com.tropyx.nb_puppet.refactoring;
 
+import com.tropyx.nb_puppet.PPConstants;
 import com.tropyx.nb_puppet.lexer.PLanguageProvider;
 import com.tropyx.nb_puppet.parser.PuppetParserResult;
 import java.awt.Component;
@@ -50,7 +51,7 @@ public class PPActionsImplementationProvider extends ActionsImplementationProvid
         if (ec != null) {
             StyledDocument doc = ec.getDocument();
             FileObject fo = NbEditorUtilities.getFileObject(doc);
-            if (fo != null && PLanguageProvider.MIME_TYPE.equals(fo.getMIMEType())) {
+            if (fo != null && PPConstants.MIME_TYPE.equals(fo.getMIMEType())) {
 
                 RP.post(new TextComponentTask(ec) {
                     //editor element context
@@ -70,7 +71,7 @@ public class PPActionsImplementationProvider extends ActionsImplementationProvid
             StyledDocument doc = ec.getDocument();
             if (doc != null) {
                 FileObject fo = NbEditorUtilities.getFileObject(doc);
-                if (fo != null && PLanguageProvider.MIME_TYPE.equals(fo.getMIMEType())) {
+                if (fo != null && PPConstants.MIME_TYPE.equals(fo.getMIMEType())) {
                     return true;
                 }
             }

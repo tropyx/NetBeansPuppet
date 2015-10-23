@@ -1,9 +1,9 @@
 
 package com.tropyx.nb_puppet.hyperlink;
 
+import com.tropyx.nb_puppet.PPConstants;
 import com.tropyx.nb_puppet.PuppetProject;
 import com.tropyx.nb_puppet.completion.PCompletionProvider;
-import com.tropyx.nb_puppet.lexer.PLanguageProvider;
 import com.tropyx.nb_puppet.parser.PBlob;
 import com.tropyx.nb_puppet.parser.PClass;
 import com.tropyx.nb_puppet.parser.PClassRef;
@@ -44,7 +44,7 @@ import org.openide.util.Pair;
  *
  * @author mkleint
  */
-@MimeRegistration(mimeType = PLanguageProvider.MIME_TYPE, service = HyperlinkProviderExt.class)
+@MimeRegistration(mimeType = PPConstants.MIME_TYPE, service = HyperlinkProviderExt.class)
 public class PHyperlinkProvider implements HyperlinkProviderExt {
 
     private static final int TYPE_VARIABLE = 1;
