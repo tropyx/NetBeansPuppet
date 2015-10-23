@@ -11,11 +11,15 @@ This lets you use IDE tools like inbuilt git/subversion/mercurial support etc. t
    <dt>Features include:</dt>
 
    <dd><a href="https://github.com/tropyx/NetBeansPuppet/wiki/Editing-Puppet-files">Editor</a> - Puppet file coloring, Editor tabs with module name included</dd>
+   <dd><a href="https://github.com/tropyx/NetBeansPuppet/wiki/Navigating-Puppet-files">Navigation</a> - Go to Type, Go to Symbol include results from open puppet projects</dd>
+   <dd><a href="https://github.com/tropyx/NetBeansPuppet/wiki/Code-completion-in-editor">Code completion</a> - Complete variables, functions, resource types</dd>
    <dd><a href="https://github.com/tropyx/NetBeansPuppet/wiki/Editing-Puppet-files">Hyperlinking</a> to variable, class definitions</dd>
    <dd><a href="https://github.com/tropyx/NetBeansPuppet/wiki/Puppet-Lint-errors-and-fixes">Puppet lint errors/warnings</a> in the editor, configuration read from Rakefile</dd>
    <dd><a href="https://github.com/tropyx/NetBeansPuppet/wiki/Puppet-Projects">Projects</a> - Create new Puppet module from template, recognize existing projects by manifests/site.pp or manifests/init.pp presence.</dd>
+   <dd><a href="https://github.com/tropyx/NetBeansPuppet/wiki/Where-Used-query">Where used</a> - Find usages for variables, class references, functions</dd>
    <dd>Improved project support (Find, Select in projects work, version control actions on project popup)</dd>    
    <dd>.erb files have mimetype (coloring etc) based on previous extension (.sh.erb/yaml.erb/..)</dd>
+   <dd>Hiera eyaml on-the-fly decrypting</dd>
    <dd>Works with NetBeans 8.0+</dd>
 </dl>
 
