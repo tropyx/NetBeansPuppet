@@ -1,6 +1,8 @@
 Puppet Configuration Editor
 ==============
 
+[![Join the chat at https://gitter.im/tropyx/NetBeansPuppet](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/tropyx/NetBeansPuppet?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 This is a module for editing Puppet configurations.  It identifies a puppet config tree by the presence of a manifests/site.pp or manifests/init.pp file.
 <br>
 This lets you use IDE tools like inbuilt git/subversion/mercurial support etc. to edit your puppet files.
