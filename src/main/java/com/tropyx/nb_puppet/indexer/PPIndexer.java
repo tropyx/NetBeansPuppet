@@ -115,14 +115,21 @@ public class PPIndexer extends EmbeddingIndexer {
             for (PClassRef ref : refs) {
                 document.addPair(FLD_CLASSREF, ref.getName(), true, false);
             }
+            List<String> addedVars = new ArrayList<>();
             List<PVariableDefinition> varDefs = ch.getChildrenOfType(PVariableDefinition.class, true);
             for (PVariableDefinition vd : varDefs) {
-                document.addPair(FLD_VAR, stripDollar(vd.getName()), true, true);
-                document.addPair(FLD_VARREF, stripDollar(vd.getName()), true, false);
+                if (!addedVars.contains(vd.getName())) {
+                    document.addPair(FLD_VAR, stripDollar(vd.getName()), true, true);
+                    document.addPair(FLD_VARREF, stripDollar(vd.getName()), true, false);
+                    addedVars.add(vd.getName());
+                }
             }
             List<PVariable> vars = ch.getChildrenOfType(PVariable.class, true);
             for (PVariable v : vars) {
-                document.addPair(FLD_VARREF, stripDollar(v.getName()), true, false);
+                if (!addedVars.contains(v.getName())) {
+                    document.addPair(FLD_VARREF, stripDollar(v.getName()), true, false);
+                    addedVars.add(v.getName());
+                }
             }
             List<PResource> resources = ch.getChildrenOfType(PResource.class, true);
             Set<String> resNames = new HashSet<>();

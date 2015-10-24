@@ -38,7 +38,7 @@ import org.openide.filesystems.FileObject;
 
 public class PPIndexerFactory extends EmbeddingIndexerFactory {
     public static final String INDEXER_TYPE = "puppet";
-    public static final int INDEXER_VERSION = 1;
+    public static final int INDEXER_VERSION = 2;
 
     private static final Logger LOG = Logger.getLogger(PPIndexerFactory.class.getName());
 
