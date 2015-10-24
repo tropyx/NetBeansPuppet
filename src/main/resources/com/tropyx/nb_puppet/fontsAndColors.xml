@@ -20,6 +20,7 @@
     </fontcolor>
     <fontcolor name="variable-declaration" default="field">
     </fontcolor>
+    <fontcolor name="local-variable" default="variable-declaration"/>
     <fontcolor name="resource-name" default="identifier"/>
     <fontcolor name="resource-parameter" default="identifier"/>
     <fontcolor name="resource-metaparameter" default="resource-parameter"/>

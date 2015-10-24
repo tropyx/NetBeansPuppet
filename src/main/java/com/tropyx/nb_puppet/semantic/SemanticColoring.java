@@ -17,16 +17,20 @@
 package com.tropyx.nb_puppet.semantic;
 
 import com.tropyx.nb_puppet.PPConstants;
-import com.tropyx.nb_puppet.lexer.PLanguageProvider;
 import com.tropyx.nb_puppet.parser.PElement;
 import com.tropyx.nb_puppet.parser.PFunction;
 import com.tropyx.nb_puppet.parser.PResource;
 import com.tropyx.nb_puppet.parser.PResourceAttribute;
+import com.tropyx.nb_puppet.parser.PVariable;
+import com.tropyx.nb_puppet.parser.PVariableDefinition;
 import com.tropyx.nb_puppet.parser.PuppetParserResult;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import javax.swing.SwingUtilities;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.Document;
@@ -43,6 +47,10 @@ import org.netbeans.modules.parsing.spi.TaskFactory;
 import org.netbeans.spi.editor.highlighting.support.OffsetsBag;
 
 public class SemanticColoring extends ParserResultTask<PuppetParserResult> {
+    public static final String COLOR_RESOURCEPARAMETER = "resource-parameter";
+    public static final String COLOR_RESOURCENAME = "resource-name";
+    public static final String COLOR_METHODDECLARATION = "method-declaration";
+    public static final String COLOR_LOCAL_VARIABLE = "local-variable";
 
     private final static List<String> metaparameters = Arrays.asList(new String[] {
        "alias", "audit", "before", "loglevel", "noop", "notify",
@@ -82,18 +90,29 @@ public class SemanticColoring extends ParserResultTask<PuppetParserResult> {
                 @Override
                 public void run() {
                     OffsetsBag bag = new OffsetsBag(doc);
-                    AttributeSet functionAttrs = fcs.getTokenFontColors("method-declaration");
+                    AttributeSet functionAttrs = fcs.getTokenFontColors(COLOR_METHODDECLARATION);
                     for (PFunction function : root.getChildrenOfType(PFunction.class, true)) {
                         bag.addHighlight(function.getOffset(), function.getOffset() + function.getName().length(), functionAttrs);
                     }
-                    AttributeSet resAttrs = fcs.getTokenFontColors("resource-name");
+                    AttributeSet resAttrs = fcs.getTokenFontColors(COLOR_RESOURCENAME);
                     for (PResource res : root.getChildrenOfType(PResource.class, true)) {
                         bag.addHighlight(res.getOffset(), res.getOffset() + res.getResourceType().length(), resAttrs);
                     }
-                    AttributeSet resAttrAttrs = fcs.getTokenFontColors("resource-parameter");
+                    AttributeSet resAttrAttrs = fcs.getTokenFontColors(COLOR_RESOURCEPARAMETER);
                     AttributeSet metaresAttrAttrs = fcs.getTokenFontColors("resource-metaparameter");
                     for (PResourceAttribute attr : root.getChildrenOfType(PResourceAttribute.class, true)) {
                         bag.addHighlight(attr.getOffset(), attr.getOffset() + attr.getName().length(), metaparameters.contains(attr.getName()) ? metaresAttrAttrs : resAttrAttrs);
+                    }
+                    Set<String> varNames = new HashSet<>();
+                    AttributeSet localVarsAttrs = fcs.getTokenFontColors(COLOR_LOCAL_VARIABLE);
+                    for (PVariableDefinition v : root.getChildrenOfType(PVariableDefinition.class, true)) {
+                        varNames.add(v.getName());
+                        bag.addHighlight(v.getOffset(), v.getOffset() + v.getName().length(), localVarsAttrs);
+                    }
+                    for (PVariable v : root.getChildrenOfType(PVariable.class, true)) {
+                        if (varNames.contains(v.getName())) {
+                            bag.addHighlight(v.getOffset(), v.getOffset() + v.getName().length(), localVarsAttrs);
+                        }
                     }
 
                     rootBag.setHighlights(bag);
