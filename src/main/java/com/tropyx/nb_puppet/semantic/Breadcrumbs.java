@@ -2,10 +2,7 @@
 package com.tropyx.nb_puppet.semantic;
 
 import com.tropyx.nb_puppet.PPConstants;
-import com.tropyx.nb_puppet.completion.PPFunctionCompletionItem;
-import com.tropyx.nb_puppet.completion.PPResourceCompletionItem;
 import com.tropyx.nb_puppet.hyperlink.PHyperlinkProvider;
-import com.tropyx.nb_puppet.lexer.PLanguageProvider;
 import com.tropyx.nb_puppet.parser.PClass;
 import com.tropyx.nb_puppet.parser.PCondition;
 import com.tropyx.nb_puppet.parser.PDefine;

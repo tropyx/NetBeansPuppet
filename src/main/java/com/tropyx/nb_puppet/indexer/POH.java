@@ -18,7 +18,6 @@
 package com.tropyx.nb_puppet.indexer;
 
 import com.tropyx.nb_puppet.PPConstants;
-import com.tropyx.nb_puppet.PuppetProject;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.java.classpath.GlobalPathRegistry;
 import org.netbeans.api.project.Project;

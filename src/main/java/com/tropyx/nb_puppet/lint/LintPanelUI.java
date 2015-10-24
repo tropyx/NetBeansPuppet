@@ -23,7 +23,6 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Set;
 import javax.swing.JCheckBox;
 import org.netbeans.api.project.Project;
 import org.netbeans.spi.project.AuxiliaryProperties;

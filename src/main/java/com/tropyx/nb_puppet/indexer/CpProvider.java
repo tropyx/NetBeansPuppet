@@ -18,7 +18,6 @@
 package com.tropyx.nb_puppet.indexer;
 
 import com.tropyx.nb_puppet.PPConstants;
-import com.tropyx.nb_puppet.PuppetProject;
 import java.io.File;
 import java.util.concurrent.atomic.AtomicReference;
 import org.netbeans.api.java.classpath.ClassPath;

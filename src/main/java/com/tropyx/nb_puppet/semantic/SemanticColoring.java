@@ -24,7 +24,6 @@ import com.tropyx.nb_puppet.parser.PResourceAttribute;
 import com.tropyx.nb_puppet.parser.PVariable;
 import com.tropyx.nb_puppet.parser.PVariableDefinition;
 import com.tropyx.nb_puppet.parser.PuppetParserResult;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;

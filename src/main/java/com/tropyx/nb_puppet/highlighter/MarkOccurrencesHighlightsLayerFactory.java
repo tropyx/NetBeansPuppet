@@ -17,7 +17,6 @@
 package com.tropyx.nb_puppet.highlighter;
 
 import com.tropyx.nb_puppet.PPConstants;
-import com.tropyx.nb_puppet.lexer.PLanguageProvider;
 import com.tropyx.nb_puppet.semantic.SemanticColoring;
 import javax.swing.text.Document;
 import org.netbeans.api.editor.mimelookup.MimeRegistration;

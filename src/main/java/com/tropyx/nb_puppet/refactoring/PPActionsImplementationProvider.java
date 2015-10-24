@@ -2,7 +2,6 @@
 package com.tropyx.nb_puppet.refactoring;
 
 import com.tropyx.nb_puppet.PPConstants;
-import com.tropyx.nb_puppet.lexer.PLanguageProvider;
 import com.tropyx.nb_puppet.parser.PuppetParserResult;
 import java.awt.Component;
 import java.awt.EventQueue;

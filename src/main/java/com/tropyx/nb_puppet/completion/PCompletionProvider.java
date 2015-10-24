@@ -21,7 +21,6 @@ import com.tropyx.nb_puppet.PPConstants;
 import com.tropyx.nb_puppet.indexer.PPIndexer;
 import com.tropyx.nb_puppet.indexer.PPIndexerFactory;
 import com.tropyx.nb_puppet.lexer.PLangHierarchy;
-import com.tropyx.nb_puppet.lexer.PLanguageProvider;
 import com.tropyx.nb_puppet.lexer.PTokenId;
 import com.tropyx.nb_puppet.parser.PClass;
 import com.tropyx.nb_puppet.parser.PClassParam;

@@ -18,7 +18,6 @@
 package com.tropyx.nb_puppet;
 
 import com.tropyx.nb_puppet.lexer.PLangHierarchy;
-import com.tropyx.nb_puppet.lexer.PLanguageProvider;
 import com.tropyx.nb_puppet.lexer.PTokenId;
 import javax.swing.Action;
 import javax.swing.text.Document;

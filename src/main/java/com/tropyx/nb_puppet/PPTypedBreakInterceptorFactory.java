@@ -16,7 +16,6 @@
  */
 package com.tropyx.nb_puppet;
 
-import com.tropyx.nb_puppet.lexer.PLanguageProvider;
 import javax.swing.text.BadLocationException;
 import org.netbeans.api.editor.mimelookup.MimePath;
 import org.netbeans.api.editor.mimelookup.MimeRegistration;

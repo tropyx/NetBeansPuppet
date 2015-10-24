@@ -13,8 +13,6 @@ import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.MultiViewElementCallback;
 import org.openide.awt.UndoRedo;
 import org.openide.util.Lookup;
-import org.openide.util.NbBundle.Messages;
-import org.openide.windows.TopComponent;
 
 //@MultiViewElement.Registration(
 //    displayName = "#LBL_PuppetManifestType_VISUAL",

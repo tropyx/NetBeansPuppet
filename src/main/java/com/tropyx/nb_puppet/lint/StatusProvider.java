@@ -2,7 +2,6 @@ package com.tropyx.nb_puppet.lint;
 
 import com.tropyx.nb_puppet.PPConstants;
 import com.tropyx.nb_puppet.PuppetProject;
-import com.tropyx.nb_puppet.lexer.PLanguageProvider;
 import static com.tropyx.nb_puppet.lint.ExecutePuppetLintAction.findBasedir;
 import java.io.BufferedReader;
 import java.io.File;
