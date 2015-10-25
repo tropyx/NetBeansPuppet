@@ -174,6 +174,9 @@ public class PLexer implements Lexer<PTokenId>
                     switch (c = nextChar())
                     {
                         case '>' : return token(PTokenId.ORDER_ARROW);
+                        case '0': case '1': case '2': case '3': case '4': case '5':
+                        case '6': case '7': case '8': case '9':
+                            return finishNumberLiteral(c, false);
                         default : backup(1);
                     }
                     return token(PTokenId.OPERATOR);
@@ -858,14 +861,14 @@ private Token<PTokenId> finishNumberLiteral(int c, boolean inFraction) {
         boolean afterDigit = true;
         while (true) {
             switch (c) {
-//                case '.':
-//                    if (!inFraction) {
-//                        inFraction = true;
-//                        afterDigit = false;
-//                    } else { // two dots in the literal
-//                        return token(PTokenId.FLOAT_LITERAL_INVALID);
-//                    }
-//                    break;
+                case '.':
+                    if (!inFraction) {
+                        inFraction = true;
+                        afterDigit = false;
+                    } else { // two dots in the literal
+                        return token(PTokenId.ERROR);
+                    }
+                    break;
 //                case 'l': case 'L': // 0l or 0L
 //                    return token(PTokenId.LONG_LITERAL);
 //                case 'd': case 'D':
@@ -888,7 +891,7 @@ private Token<PTokenId> finishNumberLiteral(int c, boolean inFraction) {
 //                    }
                 default:
                     backup(1);
-                    return token(inFraction ? PTokenId.DOUBLE_LITERAL
+                    return token(inFraction ? PTokenId.FLOAT_LITERAL
                             : PTokenId.INT_LITERAL);
             }
             c = nextChar();

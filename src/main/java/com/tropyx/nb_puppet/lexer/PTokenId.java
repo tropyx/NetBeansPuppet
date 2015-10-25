@@ -28,9 +28,9 @@ public enum PTokenId implements TokenId
     ERROR(null, "error"),
     IDENTIFIER(null, "identifier"),
     INT_LITERAL(null, "number"),
-    LONG_LITERAL(null, "number"),
+//    LONG_LITERAL(null, "number"),
     FLOAT_LITERAL(null, "number"),
-    DOUBLE_LITERAL(null, "number"),
+//    DOUBLE_LITERAL(null, "number"),
     CHAR_LITERAL(null, "character"),
     
     
