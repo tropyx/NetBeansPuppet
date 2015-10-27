@@ -93,7 +93,7 @@ class PuppetParser extends Parser {
     }
 
     private Token<PTokenId> skipWhitespaceComment(TokenSequence<PTokenId> ts) {
-        while (ts.token() != null && (ts.token().id() == PTokenId.WHITESPACE || ts.token().id() == PTokenId.COMMENT))
+        while (ts.token() != null && (ts.token().id() == PTokenId.WHITESPACE || ts.token().id() == PTokenId.COMMENT || ts.token().id() == PTokenId.LINE_COMMENT))
         {
             if (!ts.moveNext()) {
                 return null;
@@ -109,7 +109,7 @@ class PuppetParser extends Parser {
         return skipWhitespaceComment(ts);
     }
     private Token<PTokenId> backoffWhitespaceComment(TokenSequence<PTokenId> ts) {
-        while (ts.token() != null && (ts.token().id() == PTokenId.WHITESPACE || ts.token().id() == PTokenId.COMMENT))
+        while (ts.token() != null && (ts.token().id() == PTokenId.WHITESPACE || ts.token().id() == PTokenId.COMMENT || ts.token().id() == PTokenId.LINE_COMMENT))
         {
             if (!ts.movePrevious()) {
                 return null;
