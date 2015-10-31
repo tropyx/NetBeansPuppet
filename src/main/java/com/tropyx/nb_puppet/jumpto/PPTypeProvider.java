@@ -69,8 +69,8 @@ public class PPTypeProvider implements TypeProvider {
         if (cancelled.get()) return;
         try {
             String text = context.getText();
-            boolean prependSep = false;
             if (SearchType.CAMEL_CASE == type) {
+                boolean prependSep = false;
                 StringBuilder sb = new StringBuilder();
                 for (char ch : text.toCharArray()) {
                     if (Character.isUpperCase(ch)) {
