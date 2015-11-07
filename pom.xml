@@ -4,7 +4,7 @@
 
   <groupId>com.tropyx</groupId>
   <artifactId>nbpuppet</artifactId>
-  <version>2.0.1-SNAPSHOT</version>
+  <version>2.0.1</version>
   <packaging>nbm</packaging>
 
   <name>nbpuppet</name>
@@ -46,61 +46,50 @@
       <groupId>org.netbeans.api</groupId>
       <artifactId>org-openide-util-lookup</artifactId>
       <version>${netbeans.version}</version>
-      <type>jar</type>
     </dependency>
     <dependency>
       <groupId>org.netbeans.api</groupId>
       <artifactId>org-netbeans-modules-projectapi</artifactId>
       <version>${netbeans.version}</version>
-      <type>jar</type>
     </dependency>
     <dependency>
       <artifactId>org-openide-filesystems</artifactId>
       <groupId>org.netbeans.api</groupId>
       <version>${netbeans.version}</version>
-      <type>jar</type>
     </dependency>
-    
     <dependency>
       <artifactId>org-openide-util</artifactId>
       <groupId>org.netbeans.api</groupId>
-      <type>jar</type>
       <version>${netbeans.version}</version>
     </dependency>
     <dependency>
       <artifactId>org-openide-nodes</artifactId>
       <groupId>org.netbeans.api</groupId>
-      <type>jar</type>
       <version>${netbeans.version}</version>
     </dependency>
     <dependency>
       <artifactId>org-openide-loaders</artifactId>
       <groupId>org.netbeans.api</groupId>
-      <type>jar</type>
       <version>${netbeans.version}</version>
     </dependency>
     <dependency>
       <artifactId>org-netbeans-modules-projectuiapi</artifactId>
       <groupId>org.netbeans.api</groupId>
-      <type>jar</type>
       <version>${netbeans.version}</version>
     </dependency>
     <dependency>
       <artifactId>org-netbeans-modules-editor-lib2</artifactId>
       <groupId>org.netbeans.api</groupId>
-      <type>jar</type>
       <version>${netbeans.version}</version>
     </dependency>
     <dependency>
       <artifactId>org-netbeans-core-multiview</artifactId>
       <groupId>org.netbeans.api</groupId>
-      <type>jar</type>
       <version>${netbeans.version}</version>
     </dependency>
     <dependency>
       <artifactId>org-openide-windows</artifactId>
       <groupId>org.netbeans.api</groupId>
-      <type>jar</type>
       <version>${netbeans.version}</version>
     </dependency>
     <dependency>
@@ -128,7 +117,6 @@
       <groupId>org.netbeans.api</groupId>
       <version>${netbeans.version}</version>
     </dependency>
-    
     <dependency>
       <artifactId>org-openide-dialogs</artifactId>
       <groupId>org.netbeans.api</groupId>
@@ -161,7 +149,6 @@
       <artifactId>org-netbeans-modules-editor-errorstripe-api</artifactId>
       <version>${netbeans.version}</version>
     </dependency>
-    
     <dependency>
       <groupId>org.netbeans.api</groupId>
       <artifactId>org-netbeans-modules-editor-settings</artifactId>
@@ -213,7 +200,6 @@
       <artifactId>org-netbeans-api-java-classpath</artifactId>
       <version>${netbeans.version}</version>
     </dependency>
-
     <dependency>
       <groupId>org.netbeans.modules</groupId>
       <artifactId>org-netbeans-modules-editor-mimelookup-impl</artifactId>
