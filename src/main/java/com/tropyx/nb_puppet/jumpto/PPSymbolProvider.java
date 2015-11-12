@@ -27,6 +27,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 import javax.swing.Icon;
 import javax.swing.text.StyledDocument;
+import org.netbeans.api.annotations.common.NullAllowed;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectUtils;
@@ -122,7 +123,7 @@ public class PPSymbolProvider implements SymbolProvider{
         private final String root;
         private final FileObject file;
         private final int offset;
-        private final Project project;
+        private final @NullAllowed Project project;
 
         public SymbolDescriptorImpl(String var, String root, FileObject file, int offset) {
             this.var = var;
@@ -149,12 +150,18 @@ public class PPSymbolProvider implements SymbolProvider{
 
         @Override
         public String getProjectName() {
-            return ProjectUtils.getInformation(project).getDisplayName();
+            if (project != null) {
+                return ProjectUtils.getInformation(project).getDisplayName();
+            }
+            return null;
         }
 
         @Override
         public Icon getProjectIcon() {
-            return ProjectUtils.getInformation(project).getIcon();
+            if (project != null) {
+                return ProjectUtils.getInformation(project).getIcon();
+            }
+            return null;
         }
 
         @Override

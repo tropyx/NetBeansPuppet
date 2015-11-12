@@ -28,6 +28,8 @@ import java.util.Collections;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.swing.Icon;
 import javax.swing.text.StyledDocument;
+import org.netbeans.api.annotations.common.CheckForNull;
+import org.netbeans.api.annotations.common.NullAllowed;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.java.classpath.GlobalPathRegistry;
 import org.netbeans.api.project.FileOwnerQuery;
@@ -143,7 +145,7 @@ public class PPTypeProvider implements TypeProvider {
 
     private static class TypeDescriptorImpl extends TypeDescriptor {
         private final String typeName;
-        private final Project project;
+        private final @NullAllowed Project project;
         private final FileObject fileObject;
         private final int offset;
 
@@ -181,12 +183,18 @@ public class PPTypeProvider implements TypeProvider {
 
         @Override
         public String getProjectName() {
-            return ProjectUtils.getInformation(project).getDisplayName();
+            if (project != null) {
+                return ProjectUtils.getInformation(project).getDisplayName();
+            }
+            return null;
         }
 
         @Override
         public Icon getProjectIcon() {
-            return ProjectUtils.getInformation(project).getIcon();
+            if (project != null) {
+                return ProjectUtils.getInformation(project).getIcon();
+            }
+            return null;
         }
 
         @Override
