@@ -109,7 +109,7 @@ public final class StatusProvider implements UpToDateStatusProviderFactory {
                 //is in zip file?
                 return toRet;
             }
-            ExternalProcessBuilder builder = new ExternalProcessBuilder("puppet-lint")
+            ExternalProcessBuilder builder = new ExternalProcessBuilder(findLint())
                 .workingDirectory(folder)
                 .redirectErrorStream(true)
                 .addArgument(FileUtil.getRelativePath(basedir, fo))
@@ -193,6 +193,18 @@ public final class StatusProvider implements UpToDateStatusProviderFactory {
             return toRet;
         }
 
+
+    }
+    
+    static String findLint() {
+        if (org.openide.util.Utilities.isMac()) {
+            //mkleint: tired of tweaking the path of desktop apps to find
+            // this location somehow on mac.
+            if (new File("/usr/local/bin/puppet-lint").exists()) {
+                return "/usr/local/bin/puppet-lint";
+            }
+        }
+        return "puppet-lint";
     }
 
     private static List<Fix> findFixesForType(String type, final Document document, int lineNum) {
