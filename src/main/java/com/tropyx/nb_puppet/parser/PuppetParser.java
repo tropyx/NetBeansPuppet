@@ -541,22 +541,20 @@ class PuppetParser extends Parser {
         PBlob caseExpr = fastForward(pcase, ts, PTokenId.LBRACE);
         pcase.setControl(caseExpr);
         Token<PTokenId> token = ts.token();
-        nextSkipWhitespaceComment(ts);
-        while (token.id() != PTokenId.RBRACE) {
+        token = nextSkipWhitespaceComment(ts);
+        while (token != null && token.id() != PTokenId.RBRACE) {
             PBlob cas = fastForward(pcase, ts, PTokenId.COLON);
-            nextSkipWhitespaceComment(ts);
-            token = ts.token();
+            token = nextSkipWhitespaceComment(ts);
             PBlob caseBody;
-            if (token.id() == PTokenId.LBRACE) {
-                nextSkipWhitespaceComment(ts);
+            if (token != null && token.id() == PTokenId.LBRACE) {
+                token = nextSkipWhitespaceComment(ts);
                 caseBody = fastForward(pcase, ts, PTokenId.RBRACE);
                 pcase.addCase(cas, caseBody);
             } else {
                 //huh? what to do here?
 //                caseBody = fastForward(pcase, ts, PTokenId.RBRACE);
             }
-            nextSkipWhitespaceComment(ts);
-            token = ts.token();
+            token = nextSkipWhitespaceComment(ts);
         }
     }
     private void parseIf(PElement parent, TokenSequence<PTokenId> ts, boolean includeElseIf) {

@@ -597,6 +597,46 @@ public class PuppetParserTest extends NbTestCase {
         PCase cs1 = cs.get(0);
         assertEquals(3, cs1.getCases().size());
     }
+    
+    @Test
+    public void testPartialCase1() throws Exception {
+        PuppetParserResult result = doParse(
+               "class aaa { \n"
+             + "  case $exp\n" 
+             + " }");
+        PClass nd = assertAndGetClassElement(result);
+        List<PCase> cs = nd.getChildrenOfType(PCase.class, true);
+        assertEquals(1, cs.size());
+        PCase cs1 = cs.get(0);
+        assertEquals(0, cs1.getCases().size());
+    }
+    
+    @Test
+    public void testPartialCase2() throws Exception {
+        PuppetParserResult result = doParse(
+               "class aaa { \n"
+             + "  case $exp {\n" 
+             + " }");
+        PClass nd = assertAndGetClassElement(result);
+        List<PCase> cs = nd.getChildrenOfType(PCase.class, true);
+        assertEquals(1, cs.size());
+        PCase cs1 = cs.get(0);
+        assertEquals(0, cs1.getCases().size());
+    }
+    
+    @Test
+    public void testPartialCase3() throws Exception {
+        PuppetParserResult result = doParse(
+               "class aaa { \n"
+             + "  case $exp {\n"
+             + " 'ddd'"         
+             + " }");
+        PClass nd = assertAndGetClassElement(result);
+        List<PCase> cs = nd.getChildrenOfType(PCase.class, true);
+        assertEquals(1, cs.size());
+        PCase cs1 = cs.get(0);
+        assertEquals(0, cs1.getCases().size());
+    }
 
 
     @Test
