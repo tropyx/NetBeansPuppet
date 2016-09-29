@@ -197,11 +197,32 @@ public final class StatusProvider implements UpToDateStatusProviderFactory {
     }
     
     static String findLint() {
-        if (org.openide.util.Utilities.isMac()) {
-            //mkleint: tired of tweaking the path of desktop apps to find
-            // this location somehow on mac.
-            if (new File("/usr/local/bin/puppet-lint").exists()) {
-                return "/usr/local/bin/puppet-lint";
+    	boolean unix = org.openide.util.Utilities.isMac() || org.openide.util.Utilities.isUnix();
+        boolean win = org.openide.util.Utilities.isWindows();
+        String paths[] = System.getenv("PATH").split(File.pathSeparator);
+        String pathext[] = new String[paths.length + 1];
+        System.arraycopy(paths, 0, pathext, 1, paths.length);
+        File temp;
+        if (unix) {//add most common location to find puppet-lint that is not in $PATH
+            pathext[0] = "/usr/local/bin/";
+            for (String entry : pathext) {
+                temp = new File(entry + File.separator + "puppet-lint");
+                if (temp.canExecute()) {
+                    return temp.getAbsolutePath();
+                }
+            }
+        }
+        if (win) {//add most common location to find puppet-lint that is not in $PATH
+            pathext[0] = "C:\\Ruby23-x64\\bin";
+            for (String entry : pathext) {
+                temp = new File(entry + File.separator + "puppet-lint.exe");
+                if (temp.canExecute()) {
+                    return temp.getAbsolutePath();
+                }
+                temp = new File(entry + File.separator + "puppet-lint.bat");
+                if (temp.canExecute()) {
+                    return temp.getAbsolutePath();
+                }
             }
         }
         return "puppet-lint";
