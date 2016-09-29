@@ -28,7 +28,7 @@ This lets you use IDE tools like inbuilt git/subversion/mercurial support etc. t
 
 <dl>
   <dt>To Install:</dt>
-  <dd>Download the latest release <a href="https://github.com/tropyx/NetBeansPuppet/releases/tag/v2.0.2">nbpuppet-2.0.2</a> to your local machine
+  <dd>Download the latest release <a href="https://github.com/tropyx/NetBeansPuppet/releases/tag/v2.0.3">nbpuppet-2.0.3</a> to your local machine
   add it to your NetBeans IDE with:</dd>
 </dl>
 <pre>
