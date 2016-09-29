@@ -44,7 +44,7 @@ import org.openide.util.RequestProcessor;
 
 /**
  *
- * @author mkleint
+ * @author mkleint 
  */
 @MimeRegistration(mimeType=PPConstants.MIME_TYPE, service=UpToDateStatusProviderFactory.class)
 public final class StatusProvider implements UpToDateStatusProviderFactory {
