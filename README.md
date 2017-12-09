@@ -43,12 +43,10 @@ Tools -> Plugins -> Downloaded -> Add Plugins...
 
 <br>
 <img src="https://raw.githubusercontent.com/tropyx/NetBeansPuppet/master/screenshot-puppetfornetbeans.png">
-
-<br>
-*Screenshot showing the puppet manifest tree, pp files, and create file dialog box*
+Screenshot showing the puppet manifest tree, pp files, and create file dialog box
 <br>
 <h2>License details</h2>
-*Copyright (C) Tropyx Technology Pty Ltd and Michael Lindner Febuary 20 2013*
+Copyright (C) Tropyx Technology Pty Ltd and Michael Lindner Febuary 20 2013
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
