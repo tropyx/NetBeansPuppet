@@ -38,7 +38,7 @@ Tools -> Plugins -> Downloaded -> Add Plugins...
   <dd>PLEASE NOTE: The latest version of the plugin is currently not available on NetBeans update centers for 8.0 and 8.1. It's listed on the <a href="http://plugins.netbeans.org/plugin/60170/?show=true">NetBeans Plugin portal</a></dd>
 
 <br>
-![ScreenShot](https://raw.github.com/tropyx/NetBeansPuppet/master/screenshot-puppetfornetbeans.png)
+![ScreenShot](https://raw.githubusercontent.com/tropyx/NetBeansPuppet/master/screenshot-puppetfornetbeans.png)
 <br>
 *Screenshot showing the puppet manifest tree, pp files, and create file dialog box*
 <br>
