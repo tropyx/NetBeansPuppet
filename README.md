@@ -2,7 +2,7 @@ Puppet Configuration Editor
 ==============
 
 [![Join the chat at https://gitter.im/tropyx/NetBeansPuppet](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/tropyx/NetBeansPuppet?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-<a href="https://www.codeship.io/projects/41169"><img src="https://www.codeship.io/projects/fc108f80-35b9-0132-1d49-7a12fe8c1dfc/status">Codeship Status for NetBeansPuppet</a>
+<a href="https://www.codeship.io/projects/41169"><img src="https://www.codeship.io/projects/fc108f80-35b9-0132-1d49-7a12fe8c1dfc/status"></a>
 
 This is a module for editing Puppet configurations.  It identifies a puppet config tree by the presence of a manifests/site.pp or manifests/init.pp file.
 <br>
