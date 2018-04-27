@@ -5,6 +5,8 @@ Puppet Configuration Editor
 
 <!--
 <a href="https://www.codeship.io/projects/41169"><img src="https://www.codeship.io/projects/fc108f80-35b9-0132-1d49-7a12fe8c1dfc/status"></a>
+
+
 -->
 
 
@@ -28,7 +30,7 @@ This lets you use IDE tools like inbuilt git/subversion/mercurial support etc. t
    <dd>Works with NetBeans 8.0+</dd>
 </dl>
 
- 
+
 
 <dl>
   <dt>To Install:</dt>
@@ -52,7 +54,7 @@ Copyright (C) Tropyx Technology Pty Ltd and Michael Lindner Febuary 20 2013
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
